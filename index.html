@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Planner">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12161F" media="(prefers-color-scheme: dark)">
+<title>Study Planner</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F7F9; --surface:#FFFFFF; --ink:#182032; --muted:#5B6474; --line:#DDE1E8;
+  --accent:#2F4BD8; --accent-ink:#FFFFFF; --danger:#C62F3A; --soft:#EDF0F5;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161F; --surface:#1B212C; --ink:#E9EDF5; --muted:#9AA3B5; --line:#2A3242;
+    --accent:#8095FF; --accent-ink:#0E1220; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161F; --surface:#1B212C; --ink:#E9EDF5; --muted:#9AA3B5; --line:#2A3242;
+  --accent:#8095FF; --accent-ink:#0E1220; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 120px}
+
+/* Header */
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 8px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-size:1.25rem;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.brand-mark{width:28px;height:28px;border-radius:8px;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px;background:var(--ink)}
+.brand-mark i{border-radius:2px}
+nav.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:999px;overflow-x:auto;max-width:100%}
+nav.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:700;color:var(--muted);white-space:nowrap}
+nav.tabs .short{display:none}
+@media (max-width:520px){nav.tabs{width:100%}nav.tabs button{flex:1;padding:8px 10px}nav.tabs .long{display:none}nav.tabs .short{display:inline}}
+nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* Hero */
+.hero{padding:36px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,4.2vw,2.9rem);line-height:1.1;letter-spacing:-.02em;margin:0;max-width:22ch}
+.hero p{margin:14px 0 0;color:var(--muted);font-size:1.05rem}
+.hero .swatch{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:var(--c);margin-right:.35em;vertical-align:.12em}
+
+/* Filters */
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:18px 0 4px}
+.chip{border:1px solid var(--line);background:var(--surface);padding:6px 14px;border-radius:999px;font-weight:700;font-size:.9rem;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* Agenda */
+.group{margin-top:26px}
+.group h2{font-family:var(--display);font-weight:700;font-size:1.05rem;margin:0 0 6px;display:flex;align-items:baseline;gap:10px}
+.group h2 .count{color:var(--muted);font-family:var(--body);font-weight:400;font-size:.9rem}
+.group.overdue h2{color:var(--danger)}
+ul.items{list-style:none;margin:0;padding:0}
+.item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:12px 4px 12px 0;border-bottom:1px solid var(--line);position:relative}
+.item::before{content:"";width:6px;align-self:stretch;border-radius:3px;background:var(--c);position:absolute;left:0;top:10px;bottom:10px}
+.item .check{margin-left:18px}
+.check{appearance:none;-webkit-appearance:none;width:24px;height:24px;border:2px solid var(--muted);border-radius:7px;display:grid;place-content:center;background:var(--surface);flex:none}
+.check:checked{background:var(--ink);border-color:var(--ink)}
+.check:checked::after{content:"";width:10px;height:6px;border-left:2.5px solid var(--paper);border-bottom:2.5px solid var(--paper);transform:rotate(-45deg) translate(1px,-1px)}
+.item-main{border:0;background:none;text-align:left;padding:0;min-width:0}
+.item-title{display:block;font-weight:700;font-size:1.02rem;overflow-wrap:anywhere}
+.item-meta{display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--muted);font-size:.9rem;margin-top:2px}
+.item.done .item-title{text-decoration:line-through;color:var(--muted)}
+.when{font-weight:700;font-size:.88rem;white-space:nowrap;padding:3px 10px;border-radius:999px;background:var(--soft)}
+.when.urgent{background:var(--danger);color:#fff}
+.when.soon{background:color-mix(in srgb,var(--c) 30%,var(--surface));color:var(--ink)}
+.flag{color:var(--danger);font-weight:700}
+details.done-group{margin-top:30px}
+details.done-group summary{cursor:pointer;font-family:var(--display);font-weight:700;color:var(--muted)}
+
+/* Empty */
+.empty{padding:40px 0;max-width:520px}
+.empty h2{font-family:var(--display);font-size:1.4rem;margin:0 0 8px}
+.empty p{color:var(--muted);margin:0 0 18px}
+.row-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Buttons */
+.btn{border:1px solid var(--line);background:var(--surface);padding:10px 18px;border-radius:12px;font-weight:700}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--danger)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.fab{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--accent-ink);border:0;border-radius:18px;padding:16px 22px;font-weight:700;font-size:1rem;box-shadow:0 6px 20px rgba(20,30,80,.25);display:flex;align-items:center;gap:8px;z-index:5}
+.fab span{font-size:1.4rem;line-height:1}
+
+/* Week */
+.week-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:26px 0 14px;flex-wrap:wrap}
+.week-head h2{font-family:var(--display);font-size:1.5rem;margin:0}
+.week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:180px}
+.day.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.day h3{margin:0 0 8px;font-size:.85rem;color:var(--muted);font-weight:700;display:flex;justify-content:space-between}
+.day h3 b{font-family:var(--display);font-size:1.3rem;color:var(--ink)}
+.slot{font-size:.84rem;padding:6px 8px;border-radius:8px;margin-bottom:6px;background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:4px solid var(--c);line-height:1.3;overflow-wrap:anywhere}
+.slot.task{background:transparent;border:1px dashed var(--c);border-left:4px solid var(--c);text-align:left;width:100%;display:block}
+.slot.task.is-done{opacity:.5;text-decoration:line-through}
+.slot small{display:block;color:var(--muted)}
+@media (max-width:860px){
+  .week-grid{grid-template-columns:1fr}
+  .day{min-height:0}
+  .day:not(.has) .none{display:none}
+}
+
+/* Classes + sync panels */
+.panel{padding:26px 0}
+.panel h2{font-family:var(--display);font-size:1.5rem;margin:0 0 6px}
+.panel > p{color:var(--muted);margin:0 0 18px;max-width:62ch}
+.term{display:flex;gap:14px;flex-wrap:wrap;align-items:end;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:24px}
+.term label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.9rem}
+.class-row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.dot{width:18px;height:18px;border-radius:6px;background:var(--c)}
+.class-row h3{margin:0;font-size:1.05rem}
+.class-row p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.box{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:18px;margin-bottom:18px;max-width:680px}
+.box h3{margin:0 0 10px;font-family:var(--display);font-size:1.15rem}
+.box p{margin:0 0 12px;color:var(--muted)}
+.opt{display:flex;gap:10px;align-items:center;padding:6px 0}
+.opt input[type=checkbox],.opt input[type=radio]{flex:none;width:18px;height:18px;accent-color:var(--accent)}
+.remind{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;margin:8px 0 14px}
+ol.steps{margin:0 0 4px;padding-left:1.3em;color:var(--muted)}
+ol.steps li{margin-bottom:4px}
+
+/* Forms / dialog */
+input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
+textarea{min-height:80px;resize:vertical}
+dialog{border:0;border-radius:18px;padding:0;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 40px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,14,25,.45)}
+dialog form{padding:22px;display:flex;flex-direction:column;gap:14px}
+dialog h2{margin:0;font-family:var(--display);font-size:1.35rem}
+.field{display:flex;flex-direction:column;gap:5px}
+.field > span{font-weight:700;font-size:.9rem}
+.field .hint{font-weight:400;color:var(--muted);font-size:.85rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kinds{display:flex;gap:6px;flex-wrap:wrap}
+.kinds label{position:relative}
+.kinds input{position:absolute;opacity:0;inset:0}
+.kinds span{display:block;border:1px solid var(--line);padding:7px 12px;border-radius:999px;font-weight:700;font-size:.9rem;cursor:pointer}
+.kinds input:checked + span{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.kinds input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}
+.colors{display:flex;gap:8px;flex-wrap:wrap}
+.colors label{position:relative}
+.colors input{position:absolute;opacity:0;inset:0}
+.colors span{display:block;width:32px;height:32px;border-radius:10px;background:var(--c);border:3px solid transparent;cursor:pointer}
+.colors input:checked + span{border-color:var(--ink)}
+.colors input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}
+.session{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr auto;gap:8px;align-items:center}
+.session button{border:0;background:none;color:var(--muted);font-size:1.3rem;padding:4px 8px}
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px}
+.foot .right{display:flex;gap:10px;margin-left:auto}
+.error{color:var(--danger);font-weight:700;font-size:.9rem;margin:0}
+@media (max-width:520px){
+  .two{grid-template-columns:1fr}
+  .session{grid-template-columns:1fr 1fr;}
+  .session .room{grid-column:1 / 2}
+}
+
+
+.top-left{display:flex;align-items:center;gap:12px}
+.sync-chip{border:0;background:var(--soft);color:var(--muted);font-weight:700;font-size:.8rem;padding:4px 10px 4px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+.sync-chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--dotc,#39C27A)}
+.sync-chip[data-s="pending"],.sync-chip[data-s="syncing"]{--dotc:#F5C518}
+.sync-chip[data-s="offline"]{--dotc:#9AA3B5}
+.sync-chip[data-s="error"]{--dotc:var(--danger);color:var(--danger)}
+.banner{display:flex;gap:14px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:12px;padding:12px 14px;margin-top:16px}
+.banner p{margin:0}
+.key-row{display:flex;gap:10px;margin:12px 0 8px}
+.key-row input{flex:1}
+.fine{font-size:.9rem;color:var(--muted)}
+.status{font-weight:700;color:var(--ink)!important}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline}
+a.btn{text-decoration:none;display:inline-block}
+.box a{color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:20}
+.toast.show{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="top-left"><div class="brand"><span class="brand-mark" aria-hidden="true"><i style="background:#F5C518"></i><i style="background:#FF6FA3"></i><i style="background:#3FA7F5"></i><i style="background:#39C27A"></i></span>Study Planner</div><button type="button" class="sync-chip" id="syncChip" hidden>Synced</button></div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" data-tab="agenda" aria-selected="true">Due</button>
+      <button role="tab" data-tab="week" aria-selected="false">Week</button>
+      <button role="tab" data-tab="classes" aria-selected="false">Classes</button>
+      <button role="tab" data-tab="sync" aria-selected="false"><span class="long">Apple Calendar</span><span class="short">Sync</span></button>
+    </nav>
+  </header>
+  <main id="view"></main>
+</div>
+
+<button class="fab" id="fab" type="button"><span aria-hidden="true">+</span> Add</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="restoreInput" accept=".json,application/json" class="sr" tabindex="-1">
+
+<!-- Item dialog -->
+<dialog id="itemDlg">
+  <form id="itemForm" method="dialog" novalidate>
+    <h2 id="itemDlgTitle">Add homework</h2>
+    <div class="kinds" role="radiogroup" aria-label="Type" id="kindPick"></div>
+    <label class="field"><span>Title</span><input type="text" name="title" placeholder="e.g. Problem set 4" autocomplete="off"></label>
+    <label class="field"><span>Class</span><select name="classId" id="classSelect"></select></label>
+    <div class="two">
+      <label class="field"><span id="dateLabel">Due date</span><input type="date" name="due"></label>
+      <label class="field"><span>Time <span class="hint">(optional)</span></span><input type="time" name="time"></label>
+    </div>
+    <div class="two exam-only">
+      <label class="field"><span>Length (minutes)</span><input type="number" name="duration" min="15" step="15" value="120"></label>
+      <label class="field"><span>Room</span><input type="text" name="room" autocomplete="off"></label>
+    </div>
+    <label class="opt"><input type="checkbox" name="high"> Mark as important</label>
+    <label class="field"><span>Notes</span><textarea name="notes" placeholder="Pages, instructions, links…"></textarea></label>
+    <p class="error" id="itemError" hidden></p>
+    <div class="foot">
+      <button type="button" class="btn danger" id="itemDelete" hidden>Delete</button>
+      <div class="right">
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary" id="itemSave">Save</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!-- Class dialog -->
+<dialog id="classDlg">
+  <form id="classForm" method="dialog" novalidate>
+    <h2 id="classDlgTitle">Add a class</h2>
+    <label class="field"><span>Class name</span><input type="text" name="name" placeholder="e.g. Calculus I" autocomplete="off"></label>
+    <label class="field"><span>Teacher <span class="hint">(optional)</span></span><input type="text" name="teacher" autocomplete="off"></label>
+    <div class="field"><span>Color</span><div class="colors" id="colorPick"></div></div>
+    <div class="field">
+      <span>When it meets</span>
+      <div id="sessions" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div><button type="button" class="btn" id="addSession">Add a time</button></div>
+    </div>
+    <p class="error" id="classError" hidden></p>
+    <div class="foot">
+      <button type="button" class="btn danger" id="classDelete" hidden>Delete class</button>
+      <div class="right">
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save class</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+const KEY = "studyplanner:v1";
+const SYNC_KEY = "studyplanner:sync";
+const BANNER_KEY = "studyplanner:installHint";
+const API = "https://api.github.com";
+const GIST_DESC = "Study Planner sync";
+const DATA_FILE = "study-planner.json";
+const ICS_FILE = "school.ics";
+const COLORS = ["#F5C518","#FF6FA3","#39C27A","#3FA7F5","#FF8A3D","#9B7BFF","#1FBFB8","#E5484D"];
+const KINDS = {
+  homework:{label:"Homework",icon:"📝"},
+  assignment:{label:"Assignment",icon:"📄"},
+  project:{label:"Project",icon:"🧩"},
+  reading:{label:"Reading",icon:"📖"},
+  exam:{label:"Exam",icon:"🧪"}
+};
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const NOCLASS = "#9AA3B5";
+
+/* ---------- local storage ---------- */
+function blank(){
+  return {classes:[],items:[],meta:{updatedAt:0},
+    settings:{termStart:"",termEnd:"",termRev:0,remindTask:1440,remindExam:1440,remindClass:0,incTasks:true,incExams:true,incClasses:true}};
+}
+function normalize(d){
+  const b = blank();
+  return {
+    classes: Array.isArray(d.classes) ? d.classes : [],
+    items: Array.isArray(d.items) ? d.items : [],
+    meta: Object.assign(b.meta, d.meta || {}),
+    settings: Object.assign(b.settings, d.settings || {})
+  };
+}
+function load(){
+  try{ const s = localStorage.getItem(KEY); if(s) return normalize(JSON.parse(s)); }catch(e){}
+  return blank();
+}
+let storageWarned = false;
+function saveLocal(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ if(!storageWarned){ storageWarned = true; toast("This device isn't keeping your data. Turn on sync or save a backup."); } }
+}
+/** Every user change goes through here: save, then sync. */
+function commit(){
+  state.meta.updatedAt = Date.now();
+  saveLocal();
+  schedulePush();
+}
+let state = load();
+
+/* ---------- helpers ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const esc = s=>String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n=>String(n).padStart(2,"0");
+const ymd = d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseYmd = s=>{ const [y,m,d]=String(s).split("-").map(Number); return new Date(y,(m||1)-1,d||1); };
+const today = ()=>{ const d=new Date(); d.setHours(0,0,0,0); return d; };
+const addDays = (d,n)=>{ const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const dayDiff = (a,b)=>Math.round((Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())-Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()))/864e5);
+const isoDay = d=>(d.getDay()+6)%7+1; // Mon=1..Sun=7
+const mondayOf = d=>addDays(d,1-isoDay(d));
+const withTime = (d,t)=>{ const [h,m]=String(t||"23:59").split(":").map(Number); const x=new Date(d); x.setHours(h||0,m||0,0,0); return x; };
+const dueAt = it=>withTime(parseYmd(it.due), it.time || "23:59");
+const fmtDate = d=>d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+const fmtTime = t=>{ if(!t) return ""; return withTime(new Date(),t).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}); };
+const classById = id=>state.classes.find(c=>c.id===id);
+const colorOf = it=>{ const c=classById(it.classId); return c ? c.color : NOCLASS; };
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+const isStandalone = navigator.standalone===true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+
+function relWhen(it){
+  const diff = dayDiff(parseYmd(it.due), today());
+  if(diff < 0) return {text: diff===-1 ? "1 day late" : `${-diff} days late`, cls:"urgent"};
+  if(diff === 0) return {text: it.time ? `Today ${fmtTime(it.time)}` : "Today", cls:"urgent"};
+  if(diff === 1) return {text:"Tomorrow", cls:"soon"};
+  return {text:`in ${diff} days`, cls: diff<=3 ? "soon" : ""};
+}
+
+let toastTimer;
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+/* =========================================================
+   LIVE SYNC
+   The planner keeps a private GitHub gist up to date with two files:
+   school.ics (the calendar Apple Calendar subscribes to) and
+   study-planner.json (your data, so other devices can load it).
+   ========================================================= */
+function loadSync(){ try{ return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; }catch(e){ return {}; } }
+function saveSync(){ try{ localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); }catch(e){} }
+let sync = loadSync();              // {token, login, gistId, lastSync, dirty, dirtyAt, needsKey}
+let syncUi = {s: connected() ? "ok" : "off", msg:""};
+function connected(){ return !!(sync && sync.token && sync.gistId); }
+function feedUrl(){ return `https://gist.githubusercontent.com/${sync.login}/${sync.gistId}/raw/${ICS_FILE}`; }
+
+async function gh(path, opts={}){
+  let res;
+  try{
+    res = await fetch(API+path, Object.assign({}, opts, {cache:"no-store", headers:Object.assign({
+      "Accept":"application/vnd.github+json",
+      "Authorization":"Bearer "+sync.token,
+      "X-GitHub-Api-Version":"2022-11-28"
+    }, opts.body ? {"Content-Type":"application/json"} : {})}));
+  }catch(e){ const err = new Error("offline"); err.code = "offline"; throw err; }
+  if(res.status===401){ const e=new Error("auth"); e.code="auth"; throw e; }
+  if(res.status===404){ const e=new Error("missing"); e.code="missing"; throw e; }
+  if(!res.ok){ const e=new Error("http "+res.status); e.code="http"; e.status=res.status; throw e; }
+  return res.status===204 ? null : res.json();
+}
+function filesPayload(){
+  return {[ICS_FILE]:{content:buildFeed()}, [DATA_FILE]:{content:JSON.stringify(state)}};
+}
+async function fetchRemote(){
+  const g = await gh(`/gists/${sync.gistId}`);
+  const f = g.files && g.files[DATA_FILE];
+  if(!f) return null;
+  let text = f.content;
+  if(f.truncated){ const r = await fetch(f.raw_url,{cache:"no-store"}); text = await r.text(); }
+  try{ return normalize(JSON.parse(text)); }catch(e){ return null; }
+}
+const hasData = d=>d && (d.items.length || d.classes.length);
+
+function statusLine(){
+  switch(syncUi.s){
+    case "pending": case "syncing": return "Saving your changes…";
+    case "offline": return "You're offline. Changes will sync when you're back online.";
+    case "error": return syncUi.msg || "Couldn't reach GitHub. Trying again soon.";
+    default: {
+      if(!sync.lastSync) return "Connected.";
+      const mins = Math.round((Date.now()-sync.lastSync)/6e4);
+      return "Synced " + (mins<1 ? "just now" : mins<60 ? `${mins} min ago` : new Date(sync.lastSync).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"})) + ".";
+    }
+  }
+}
+function setStatus(s, msg){
+  syncUi = {s, msg:msg||""};
+  const chip = $("#syncChip");
+  if(chip){
+    chip.hidden = !connected();
+    chip.dataset.s = s;
+    chip.textContent = {pending:"Saving…",syncing:"Syncing…",offline:"Offline",error:"Sync problem"}[s] || "Synced";
+  }
+  const line = $("#syncStatus"); if(line) line.textContent = statusLine();
+}
+
+let pushTimer = null, pushing = false, retryTimer = null;
+function schedulePush(){
+  if(!connected()) return;
+  sync.dirty = true; sync.dirtyAt = Date.now(); saveSync();
+  setStatus("pending");
+  clearTimeout(pushTimer); pushTimer = setTimeout(push, 1500);
+}
+async function push(){
+  if(!connected()) return;
+  if(pushing){ clearTimeout(pushTimer); pushTimer = setTimeout(push, 1500); return; }
+  pushing = true; setStatus("syncing");
+  const started = Date.now();
+  try{
+    await gh(`/gists/${sync.gistId}`, {method:"PATCH", body:JSON.stringify({files:filesPayload()})});
+    if((sync.dirtyAt||0) <= started) sync.dirty = false;
+    sync.lastSync = Date.now(); sync.needsKey = false; saveSync();
+    setStatus(sync.dirty ? "pending" : "ok");
+  }catch(e){ handleSyncError(e); }
+  finally{ pushing = false; }
+}
+async function pull(){
+  if(!connected() || pushing) return;
+  try{
+    setStatus("syncing");
+    const remote = await fetchRemote();
+    const r = remote ? (remote.meta.updatedAt||0) : 0, l = state.meta.updatedAt||0;
+    if(remote && r > l && !sync.dirty){
+      state = remote; saveLocal(); render();
+    } else if(sync.dirty || l > r){
+      await push(); return;
+    }
+    sync.lastSync = Date.now(); saveSync(); setStatus("ok");
+  }catch(e){ handleSyncError(e); }
+}
+function handleSyncError(e){
+  clearTimeout(retryTimer);
+  if(e.code==="offline"){ setStatus("offline"); return; }
+  if(e.code==="auth"){
+    sync.needsKey = true; saveSync();
+    setStatus("error","Your GitHub key expired or was removed. Paste a new one in the Sync tab.");
+    if(ui.tab==="sync") render();
+    return;
+  }
+  if(e.code==="missing"){
+    sync.gistId = null; saveSync();
+    setStatus("error","The sync file on GitHub was deleted. Connect again to make a new one.");
+    render(); return;
+  }
+  setStatus("error","Couldn't reach GitHub. Trying again soon.");
+  retryTimer = setTimeout(()=>{ sync.dirty ? push() : pull(); }, 30000);
+}
+
+async function connect(token, keepGist){
+  token = (token||"").trim();
+  if(!token){ setStatus("error","Paste your GitHub key first."); render(); return; }
+  const prev = sync;
+  sync = {token, gistId: keepGist ? prev.gistId : null, login: keepGist ? prev.login : null};
+  setStatus("syncing"); render();
+  try{
+    const me = await gh("/user");
+    sync.login = me.login;
+    if(keepGist && sync.gistId){ saveSync(); await push(); toast("Key updated"); render(); return; }
+    let found = null;
+    for(let page=1; page<=5 && !found; page++){
+      const list = await gh(`/gists?per_page=100&page=${page}`);
+      found = list.find(g=>g.description===GIST_DESC && g.files && g.files[DATA_FILE]);
+      if(list.length < 100) break;
+    }
+    if(found){
+      sync.gistId = found.id; saveSync();
+      const remote = await fetchRemote();
+      if(hasData(remote)){
+        const useRemote = !hasData(state) || confirm(`Found your planner on GitHub (${remote.items.length} deadlines, ${remote.classes.length} classes). Load it on this device?\n\nCancel keeps what's on this device and replaces the GitHub copy.`);
+        if(useRemote){
+          state = remote; saveLocal();
+          sync.lastSync = Date.now(); saveSync(); setStatus("ok"); render();
+          toast("Planner loaded from GitHub"); return;
+        }
+      }
+      sync.dirty = true; sync.dirtyAt = Date.now(); saveSync();
+      await push();
+    } else {
+      const g = await gh("/gists", {method:"POST", body:JSON.stringify({description:GIST_DESC, public:false, files:filesPayload()})});
+      sync.gistId = g.id;
+      if(g.owner && g.owner.login) sync.login = g.owner.login;
+      sync.lastSync = Date.now(); saveSync(); setStatus("ok");
+    }
+    toast("Connected. Now subscribe in Apple Calendar.");
+  }catch(e){
+    const msg = e.code==="auth" ? "GitHub didn't accept that key. Check you copied all of it and that the gist box was ticked."
+      : e.code==="offline" ? "You're offline. Connect once you're back online."
+      : "Couldn't connect to GitHub. Try again in a minute.";
+    sync = keepGist ? Object.assign(prev,{needsKey:true}) : {};
+    saveSync(); setStatus("error", msg);
+  }
+  render();
+}
+function disconnect(){
+  if(!confirm("Stop syncing on this device?\n\nYour Apple Calendar subscription keeps showing the last synced version, and your data stays on GitHub.")) return;
+  sync = {}; saveSync(); setStatus("off"); render(); toast("Sync turned off on this device");
+}
+
+/* ---------- UI state ---------- */
+const ui = {tab:"agenda", filter:"all", weekStart: mondayOf(today())};
+
+/* ---------- rendering ---------- */
+function render(){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.tab===ui.tab)));
+  const v = $("#view");
+  if(ui.tab==="agenda") v.innerHTML = renderAgenda();
+  else if(ui.tab==="week") v.innerHTML = renderWeek();
+  else if(ui.tab==="classes") v.innerHTML = renderClasses();
+  else v.innerHTML = renderSync();
+  $("#fab").innerHTML = ui.tab==="classes" ? '<span aria-hidden="true">+</span> Add class' : '<span aria-hidden="true">+</span> Add';
+  setStatus(syncUi.s, syncUi.msg);
+}
+
+function installBanner(){
+  let dismissed = false;
+  try{ dismissed = localStorage.getItem(BANNER_KEY)==="1"; }catch(e){}
+  if(!isIOS || isStandalone || dismissed) return "";
+  return `<div class="banner"><p><b>Put it on your Home Screen:</b> tap the Share button, then Add to Home Screen. Do it before you add your classes, since the Home Screen app keeps its own copy of your data.</p><button class="btn" data-action="hide-banner">Got it</button></div>`;
+}
+
+function heroSentence(open){
+  const t = today();
+  const overdue = open.filter(i=>dayDiff(parseYmd(i.due),t)<0);
+  const weekCount = open.filter(i=>{const d=dayDiff(parseYmd(i.due),t); return d>=0 && d<=7;});
+  const examsWeek = weekCount.filter(i=>i.kind==="exam").length;
+  let h1, sub;
+  if(!open.length){
+    h1 = "Nothing due. Enjoy it.";
+    sub = "Add homework, assignments or exams with the Add button.";
+  } else if(overdue.length){
+    h1 = overdue.length===1 ? `“${esc(overdue[0].title)}” is past its due date.` : `${overdue.length} things are past their due date.`;
+    sub = overdue.length===1 ? "Check it off once it's handed in." : "Check them off once they're handed in.";
+  } else {
+    const n = open[0], c = classById(n.classId), w = relWhen(n);
+    const whenTxt = w.text.startsWith("in ") ? w.text : w.text.toLowerCase().replace(/^today /,"today at ");
+    const verb = n.kind==="exam" ? "is" : "is due";
+    h1 = `${esc(n.title)} ${verb} ${esc(whenTxt)}.`;
+    sub = c ? `<span class="swatch" style="--c:${c.color}"></span>${esc(c.name)}` : "";
+  }
+  const tally = `${weekCount.length} due in the next 7 days` + (examsWeek ? `, including ${examsWeek} exam${examsWeek>1?"s":""}.` : ".");
+  const line = open.length ? (sub ? sub + "&ensp;" : "") + tally : sub;
+  return `<section class="hero"><h1>${h1}</h1><p>${line}</p></section>`;
+}
+
+function itemRow(it){
+  const c = classById(it.classId), k = KINDS[it.kind] || KINDS.homework, w = relWhen(it);
+  const due = parseYmd(it.due);
+  const when = it.done ? "" : `<span class="when ${w.cls}">${esc(w.text)}</span>`;
+  return `<li class="item${it.done?" done":""}" style="--c:${colorOf(it)}">
+    <input type="checkbox" class="check" data-done="${it.id}" ${it.done?"checked":""} aria-label="Mark ${esc(it.title)} as done">
+    <button type="button" class="item-main" data-edit="${it.id}">
+      <span class="item-title">${k.icon} ${esc(it.title)}${it.priority==="high"?' <span class="flag" title="Important">!</span>':""}</span>
+      <span class="item-meta"><span>${c?esc(c.name):"No class"}</span><span>${k.label}</span><span>${fmtDate(due)}${it.time?", "+fmtTime(it.time):""}</span></span>
+    </button>
+    ${when}
+  </li>`;
+}
+
+function renderAgenda(){
+  const banner = installBanner();
+  if(!state.items.length && !state.classes.length){
+    return banner + `<section class="empty"><h2>Start with your classes</h2>
+      <p>Add each class and when it meets, then add homework, assignments and exams. Turn on sync and everything shows up in Apple Calendar on its own.</p>
+      <div class="row-actions"><button class="btn primary" data-action="add-class">Add a class</button><button class="btn" data-action="goto-sync">Set up sync</button><button class="btn" data-action="sample">Try it with example data</button></div></section>`;
+  }
+  const f = ui.filter;
+  const match = i => f==="all" || (f==="exam" ? i.kind==="exam" : i.kind!=="exam");
+  const open = state.items.filter(i=>!i.done && match(i)).sort((a,b)=>dueAt(a)-dueAt(b));
+  const done = state.items.filter(i=>i.done && match(i)).sort((a,b)=>dueAt(b)-dueAt(a));
+  const t = today();
+  const groups = [["Late","overdue",d=>d<0],["Today","",d=>d===0],["Tomorrow","",d=>d===1],["This week","",d=>d>=2&&d<=7],["Later","",d=>d>7]];
+  let html = banner + heroSentence(open);
+  html += `<div class="filters" role="group" aria-label="Show">
+    ${[["all","Everything"],["tasks","Homework & assignments"],["exam","Exams"]].map(([k,l])=>`<button class="chip" data-filter="${k}" aria-pressed="${f===k}">${l}</button>`).join("")}
+  </div>`;
+  for(const [label,cls,test] of groups){
+    const list = open.filter(i=>test(dayDiff(parseYmd(i.due),t)));
+    if(!list.length) continue;
+    html += `<section class="group ${cls}"><h2>${label} <span class="count">${list.length}</span></h2><ul class="items">${list.map(itemRow).join("")}</ul></section>`;
+  }
+  if(!open.length && state.items.length){
+    html += `<section class="empty"><p>Nothing open here. Tap Add to put in your next deadline.</p></section>`;
+  }
+  if(done.length){
+    html += `<details class="done-group"><summary>Done (${done.length})</summary><ul class="items">${done.map(itemRow).join("")}</ul></details>`;
+  }
+  return html;
+}
+
+function inTerm(d){
+  const s = state.settings;
+  if(s.termStart && d < parseYmd(s.termStart)) return false;
+  if(s.termEnd && d > parseYmd(s.termEnd)) return false;
+  return true;
+}
+
+function renderWeek(){
+  const start = ui.weekStart, end = addDays(start,6), t = today();
+  const title = `${start.toLocaleDateString(undefined,{month:"short",day:"numeric"})} – ${end.toLocaleDateString(undefined,{month:"short",day:"numeric"})}`;
+  let html = `<div class="week-head"><h2>${title}</h2><div class="row-actions">
+    <button class="btn" data-week="-1" aria-label="Previous week">‹ Prev</button>
+    <button class="btn" data-week="0">This week</button>
+    <button class="btn" data-week="1" aria-label="Next week">Next ›</button></div></div><div class="week-grid">`;
+  for(let i=0;i<7;i++){
+    const d = addDays(start,i), key = ymd(d);
+    const classes = [];
+    if(inTerm(d)) for(const c of state.classes) for(const s of (c.sessions||[])) if(+s.day===i+1) classes.push({c,s});
+    classes.sort((a,b)=>a.s.start.localeCompare(b.s.start));
+    const items = state.items.filter(it=>it.due===key).sort((a,b)=>dueAt(a)-dueAt(b));
+    const has = classes.length || items.length;
+    html += `<div class="day${dayDiff(d,t)===0?" today":""}${has?" has":""}"><h3><span>${DAYS[i]}</span><b>${d.getDate()}</b></h3>`;
+    for(const {c,s} of classes){
+      html += `<div class="slot" style="--c:${c.color}"><strong>${esc(c.name)}</strong><small>${fmtTime(s.start)}–${fmtTime(s.end)}${s.room?", "+esc(s.room):""}</small></div>`;
+    }
+    for(const it of items){
+      const k = KINDS[it.kind]||KINDS.homework;
+      html += `<button type="button" class="slot task${it.done?" is-done":""}" style="--c:${colorOf(it)}" data-edit="${it.id}">${k.icon} ${esc(it.title)}<small>${it.kind==="exam"?"Exam":"Due"}${it.time?" "+fmtTime(it.time):""}</small></button>`;
+    }
+    if(!has) html += `<small class="none" style="color:var(--muted)">Free</small>`;
+    html += `</div>`;
+  }
+  return html + `</div>`;
+}
+
+function sessionSummary(c){
+  const s = (c.sessions||[]).slice().sort((a,b)=>(a.day-b.day)||a.start.localeCompare(b.start));
+  if(!s.length) return "No class times yet";
+  return s.map(x=>`${DAYS[x.day-1]} ${fmtTime(x.start)}–${fmtTime(x.end)}${x.room?" ("+esc(x.room)+")":""}`).join(", ");
+}
+
+function renderClasses(){
+  const s = state.settings;
+  let html = `<section class="panel"><h2>Your classes</h2><p>Classes repeat every week between the semester dates below. Their colors carry through your deadlines and your calendar.</p>
+    <div class="term">
+      <label>Semester starts<input type="date" id="termStart" value="${esc(s.termStart)}"></label>
+      <label>Semester ends<input type="date" id="termEnd" value="${esc(s.termEnd)}"></label>
+    </div>`;
+  if(!state.classes.length){
+    html += `<div class="empty" style="padding-top:0"><p>No classes yet.</p><button class="btn primary" data-action="add-class">Add a class</button></div>`;
+  } else {
+    html += state.classes.map(c=>`<div class="class-row" style="--c:${c.color}"><span class="dot"></span>
+      <div><h3>${esc(c.name)}</h3><p>${c.teacher?esc(c.teacher)+" — ":""}${sessionSummary(c)}</p></div>
+      <button class="btn" data-editclass="${c.id}">Edit</button></div>`).join("");
+  }
+  return html + `</section>`;
+}
+
+function remindSelect(id,val){
+  const opts = [[0,"No reminder"],[60,"1 hour before"],[1440,"1 day before"],[2880,"2 days before"],[10080,"1 week before"]];
+  return `<select id="${id}">${opts.map(([v,l])=>`<option value="${v}" ${+val===v?"selected":""}>${l}</option>`).join("")}</select>`;
+}
+
+function renderSync(){
+  const s = state.settings;
+  let top;
+  if(!connected()){
+    top = `<div class="box"><h3>Turn on live sync</h3>
+      <p>Your planner keeps a private calendar link up to date. Apple Calendar subscribes to it once, then picks up every change by itself: new deadlines, moved dates, things you check off. The link is kept in a free GitHub account.</p>
+      <ol class="steps">
+        <li>Make a free account at <a href="https://github.com/signup" target="_blank" rel="noopener">github.com</a>, or sign in to yours.</li>
+        <li><a href="https://github.com/settings/tokens/new?scopes=gist&description=Study%20Planner" target="_blank" rel="noopener">Create an access key</a>. Only the gist box needs a tick. Pick an expiration, tap Generate token at the bottom, and copy the key.</li>
+        <li>Paste it here.</li>
+      </ol>
+      <div class="key-row"><input type="password" id="tokenInput" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="GitHub access key"><button class="btn primary" data-action="connect">Connect</button></div>
+      ${syncUi.s==="error" ? `<p class="error">${esc(syncUi.msg)}</p>` : ""}
+      ${syncUi.s==="syncing" ? `<p class="status">Connecting…</p>` : ""}
+      <p class="fine">The key stays on this device and can only read and write your gists. Using the planner on another device too? Connect there with a key from the same GitHub account and your planner loads automatically.</p>
+    </div>`;
+  } else {
+    const webcal = feedUrl().replace(/^https:/,"webcal:");
+    top = `<div class="box"><h3>Live sync is on</h3>
+      <p id="syncStatus" class="status">${esc(statusLine())}</p>
+      ${sync.needsKey ? `<p class="error">GitHub stopped accepting your key. Make a <a href="https://github.com/settings/tokens/new?scopes=gist&description=Study%20Planner" target="_blank" rel="noopener">new one</a> and paste it here.</p>
+        <div class="key-row"><input type="password" id="tokenInput" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="New GitHub access key"><button class="btn primary" data-action="update-key">Update key</button></div>` : ""}
+      <div class="row-actions">
+        <a class="btn primary" href="${esc(webcal)}">Subscribe in Apple Calendar</a>
+        <button class="btn" data-action="copy-feed">Copy calendar link</button>
+        <button class="btn" data-action="sync-now">Sync now</button>
+      </div>
+      <ol class="steps" style="margin-top:14px">
+        <li>Tap Subscribe, then confirm. If you want the reminders to ring, leave Remove Alerts off.</li>
+        <li>If nothing opens, copy the link, then go to Settings, Calendar (under Apps on newer iPhones), Calendar Accounts, Add Account, Other, Add Subscribed Calendar, and paste it.</li>
+        <li>You only subscribe once. Apple Calendar rechecks the link on its own schedule, so a change can take a little while to appear.</li>
+      </ol>
+      <p class="fine">Changes flow one way, from this planner into Apple Calendar. Connected as @${esc(sync.login)}. <button class="linkbtn" data-action="disconnect">Turn off sync on this device</button></p>
+    </div>`;
+  }
+  return `<section class="panel"><h2>Apple Calendar</h2>
+    <p>See your deadlines, exams and classes in Apple Calendar next to the rest of your life.</p>
+    ${top}
+    <div class="box">
+      <h3>What goes on the calendar</h3>
+      <label class="opt"><input type="checkbox" id="incTasks" ${s.incTasks?"checked":""}> Homework, assignments, projects and readings</label>
+      <label class="opt"><input type="checkbox" id="incExams" ${s.incExams?"checked":""}> Exams</label>
+      <label class="opt"><input type="checkbox" id="incClasses" ${s.incClasses?"checked":""}> Weekly class schedule</label>
+      <div class="remind">
+        <span>Deadline reminder</span>${remindSelect("remindTask",s.remindTask)}
+        <span>Exam reminder</span>${remindSelect("remindExam",s.remindExam)}
+        <span>Class reminder</span>${remindSelect("remindClass",s.remindClass)}
+      </div>
+      <p class="fine">Things you check off disappear from the calendar at the next sync.</p>
+    </div>
+    <div class="box">
+      <h3>Backup</h3>
+      <p>With sync on, GitHub already keeps a copy. You can also save one yourself.</p>
+      <div class="row-actions">
+        <button class="btn" data-action="backup">Save backup</button>
+        <button class="btn" data-action="restore">Restore backup</button>
+        <button class="btn" data-action="export">Download calendar file</button>
+        <button class="btn danger" data-action="erase">Erase everything</button>
+      </div>
+    </div></section>`;
+}
+
+/* ---------- item dialog ---------- */
+let editingItem = null;
+function fillClassSelect(sel, val){
+  sel.innerHTML = `<option value="">No class</option>` + state.classes.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+  sel.value = val || "";
+}
+function setKind(kind){
+  $("#itemForm").querySelectorAll('input[name=kind]').forEach(r=>r.checked = r.value===kind);
+  const exam = kind==="exam";
+  $("#itemForm").querySelectorAll(".exam-only").forEach(el=>el.hidden=!exam);
+  $("#dateLabel").textContent = exam ? "Date" : "Due date";
+}
+function openItem(id){
+  const f = $("#itemForm");
+  const it = id ? state.items.find(i=>i.id===id) : null;
+  editingItem = it;
+  $("#kindPick").innerHTML = Object.entries(KINDS).map(([k,v])=>`<label><input type="radio" name="kind" value="${k}"><span>${v.icon} ${v.label}</span></label>`).join("");
+  fillClassSelect($("#classSelect"), it ? it.classId : "");
+  f.title.value = it ? it.title : "";
+  f.due.value = it ? it.due : ymd(addDays(today(),1));
+  f.time.value = it ? (it.time||"") : "";
+  f.duration.value = it ? (it.duration||120) : 120;
+  f.room.value = it ? (it.room||"") : "";
+  f.high.checked = it ? it.priority==="high" : false;
+  f.notes.value = it ? (it.notes||"") : "";
+  setKind(it ? it.kind : "homework");
+  $("#itemDlgTitle").textContent = it ? "Edit" : "Add to your planner";
+  $("#itemDelete").hidden = !it;
+  $("#itemError").hidden = true;
+  $("#itemDlg").showModal();
+  if(!it && !isIOS) setTimeout(()=>f.title.focus(),30);
+}
+$("#kindPick").addEventListener("change",e=>{ if(e.target.name==="kind") setKind(e.target.value); });
+$("#itemForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const f = e.target, kind = (f.querySelector('input[name=kind]:checked')||{}).value || "homework";
+  const title = f.title.value.trim();
+  if(!title || !f.due.value){
+    const er=$("#itemError"); er.textContent = !title ? "Give it a title." : "Pick a date."; er.hidden=false; return;
+  }
+  const data = {kind,title,classId:f.classId.value,due:f.due.value,time:f.time.value,
+    duration: kind==="exam" ? Math.max(15,+f.duration.value||120) : undefined,
+    room: kind==="exam" ? f.room.value.trim() : "",
+    priority: f.high.checked ? "high" : "normal", notes: f.notes.value.trim(), updatedAt: Date.now()};
+  if(editingItem){ Object.assign(editingItem,data); editingItem.rev=(editingItem.rev||0)+1; toast("Saved"); }
+  else { state.items.push(Object.assign({id:uid(),done:false,rev:0},data)); toast("Added"); }
+  commit(); $("#itemDlg").close(); render();
+});
+$("#itemDelete").addEventListener("click",()=>{
+  if(!editingItem || !confirm(`Delete “${editingItem.title}”?`)) return;
+  state.items = state.items.filter(i=>i!==editingItem); commit(); $("#itemDlg").close(); render(); toast("Deleted");
+});
+
+/* ---------- class dialog ---------- */
+let editingClass = null;
+function sessionRow(s){
+  return `<div class="session" data-sid="${s.id}">
+    <select aria-label="Day" data-f="day">${DAYS.map((d,i)=>`<option value="${i+1}" ${+s.day===i+1?"selected":""}>${d}</option>`).join("")}</select>
+    <input type="time" aria-label="Starts" data-f="start" value="${esc(s.start)}">
+    <input type="time" aria-label="Ends" data-f="end" value="${esc(s.end)}">
+    <input type="text" class="room" aria-label="Room" placeholder="Room" data-f="room" value="${esc(s.room||"")}">
+    <button type="button" data-remove aria-label="Remove this time">×</button></div>`;
+}
+function openClass(id){
+  const f = $("#classForm"), c = id ? classById(id) : null;
+  editingClass = c;
+  const used = state.classes.map(x=>x.color);
+  const color = c ? c.color : (COLORS.find(x=>!used.includes(x)) || COLORS[state.classes.length % COLORS.length]);
+  f.name.value = c ? c.name : ""; f.teacher.value = c ? (c.teacher||"") : "";
+  $("#colorPick").innerHTML = COLORS.map((col,i)=>`<label><input type="radio" name="color" value="${col}" ${col===color?"checked":""} aria-label="Color ${i+1}"><span style="--c:${col}"></span></label>`).join("");
+  const sessions = c && c.sessions && c.sessions.length ? c.sessions : [{id:uid(),day:1,start:"08:30",end:"10:00",room:""}];
+  $("#sessions").innerHTML = sessions.map(sessionRow).join("");
+  $("#classDlgTitle").textContent = c ? "Edit class" : "Add a class";
+  $("#classDelete").hidden = !c; $("#classError").hidden = true;
+  $("#classDlg").showModal();
+  if(!c && !isIOS) setTimeout(()=>f.name.focus(),30);
+}
+$("#addSession").addEventListener("click",()=>{
+  const rows = $("#sessions").querySelectorAll(".session");
+  const last = rows[rows.length-1];
+  const base = last ? {day: Math.min(7, +last.querySelector('[data-f=day]').value + 2), start:last.querySelector('[data-f=start]').value, end:last.querySelector('[data-f=end]').value, room:last.querySelector('[data-f=room]').value} : {day:1,start:"08:30",end:"10:00",room:""};
+  $("#sessions").insertAdjacentHTML("beforeend", sessionRow(Object.assign({id:uid()},base)));
+});
+$("#sessions").addEventListener("click",e=>{ if(e.target.closest("[data-remove]")) e.target.closest(".session").remove(); });
+$("#classForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const f = e.target, name = f.name.value.trim(), er = $("#classError");
+  if(!name){ er.textContent="Give the class a name."; er.hidden=false; return; }
+  const sessions = [...$("#sessions").querySelectorAll(".session")].map(r=>({
+    id:r.dataset.sid, day:+r.querySelector('[data-f=day]').value, start:r.querySelector('[data-f=start]').value,
+    end:r.querySelector('[data-f=end]').value, room:r.querySelector('[data-f=room]').value.trim()}));
+  if(sessions.some(s=>!s.start||!s.end||s.end<=s.start)){ er.textContent="Each class time needs a start and an end, with the end after the start."; er.hidden=false; return; }
+  const data = {name, teacher:f.teacher.value.trim(), color:(f.querySelector('input[name=color]:checked')||{}).value||COLORS[0], sessions, updatedAt:Date.now()};
+  if(editingClass){ Object.assign(editingClass,data); editingClass.rev=(editingClass.rev||0)+1; }
+  else state.classes.push(Object.assign({id:uid(),rev:0},data));
+  commit(); $("#classDlg").close(); render(); toast("Class saved");
+});
+$("#classDelete").addEventListener("click",()=>{
+  if(!editingClass) return;
+  const n = state.items.filter(i=>i.classId===editingClass.id).length;
+  if(!confirm(`Delete ${editingClass.name}?` + (n?` Its ${n} item${n>1?"s":""} will stay, marked as No class.`:""))) return;
+  const id = editingClass.id;
+  state.classes = state.classes.filter(c=>c.id!==id);
+  state.items.forEach(i=>{ if(i.classId===id) i.classId=""; });
+  commit(); $("#classDlg").close(); render(); toast("Class deleted");
+});
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>b.closest("dialog").close()));
+
+/* ---------- calendar feed (.ics) ---------- */
+function icsEsc(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
+const compact = d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+const localStamp = d=>`${compact(d)}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+const utcStamp = d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+function fold(line){
+  const enc = new TextEncoder(); const parts=[]; let cur="", n=0, limit=75;
+  for(const ch of line){ const b=enc.encode(ch).length; if(n+b>limit){ parts.push(cur); cur=""; n=0; limit=74; } cur+=ch; n+=b; }
+  parts.push(cur); return parts.join("\r\n ");
+}
+function alarm(summary, trigger){ return ["BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(summary),"TRIGGER:"+trigger,"END:VALARM"]; }
+
+function itemEvent(it, stamp){
+  const s = state.settings, c = classById(it.classId), k = KINDS[it.kind]||KINDS.homework;
+  const isExam = it.kind==="exam";
+  const summary = `${k.icon} ${isExam?"":"Due: "}${it.title}${c?" ("+c.name+")":""}`;
+  const L = ["BEGIN:VEVENT",`UID:${it.id}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${it.rev||0}`];
+  const d = parseYmd(it.due);
+  const rem = +(isExam ? s.remindExam : s.remindTask) || 0;
+  let trigger = null;
+  if(it.time){
+    const start = withTime(d,it.time);
+    const mins = isExam ? (+it.duration||120) : 0; // deadlines sit exactly at the due time
+    L.push("DTSTART:"+localStamp(start), "DTEND:"+localStamp(new Date(start.getTime()+mins*6e4)));
+    if(rem) trigger = `-PT${rem}M`;
+  } else {
+    L.push("DTSTART;VALUE=DATE:"+compact(d), "DTEND;VALUE=DATE:"+compact(addDays(d,1)), "TRANSP:TRANSPARENT");
+    if(rem) trigger = rem>=1440 ? `-PT${(rem/1440)*24-9}H` : "PT9H"; // 9 AM the day(s) before, or 9 AM same day
+  }
+  L.push("SUMMARY:"+icsEsc(summary));
+  const desc = [k.label + (c?` for ${c.name}`:""), it.priority==="high"?"Marked important":"", it.notes||""].filter(Boolean).join("\n");
+  L.push("DESCRIPTION:"+icsEsc(desc));
+  if(isExam && it.room) L.push("LOCATION:"+icsEsc(it.room));
+  if(it.priority==="high") L.push("PRIORITY:1");
+  if(trigger) L.push(...alarm(summary,trigger));
+  L.push("END:VEVENT");
+  return L;
+}
+function termRange(){
+  const s = state.settings;
+  const start = s.termStart ? parseYmd(s.termStart) : mondayOf(today());
+  const end = s.termEnd ? parseYmd(s.termEnd) : addDays(start, 7*15);
+  return {start,end};
+}
+function classEvents(c, stamp, term){
+  const s = state.settings, out = [];
+  for(const se of (c.sessions||[])){
+    let first = new Date(term.start);
+    while(isoDay(first)!==+se.day) first = addDays(first,1);
+    if(first > term.end) continue;
+    const L = ["BEGIN:VEVENT",`UID:${c.id}-${se.id}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${(c.rev||0)+(s.termRev||0)}`,
+      "DTSTART:"+localStamp(withTime(first,se.start)), "DTEND:"+localStamp(withTime(first,se.end)),
+      `RRULE:FREQ=WEEKLY;UNTIL=${compact(term.end)}T235959`, "SUMMARY:"+icsEsc(c.name)];
+    if(se.room) L.push("LOCATION:"+icsEsc(se.room));
+    if(c.teacher) L.push("DESCRIPTION:"+icsEsc("Teacher: "+c.teacher));
+    if(+s.remindClass) L.push(...alarm(c.name, `-PT${+s.remindClass}M`));
+    L.push("END:VEVENT");
+    out.push(L);
+  }
+  return out;
+}
+/** The whole calendar as it should look right now. */
+function buildFeed(){
+  const s = state.settings, stamp = utcStamp(new Date());
+  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Study Planner//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",
+    "X-WR-CALNAME:School","X-WR-CALDESC:Deadlines\\, exams and classes from Study Planner",
+    "REFRESH-INTERVAL;VALUE=DURATION:PT15M","X-PUBLISHED-TTL:PT15M"];
+  for(const it of state.items){
+    if(it.done) continue;
+    if(it.kind==="exam" ? !s.incExams : !s.incTasks) continue;
+    lines.push(...itemEvent(it, stamp));
+  }
+  if(s.incClasses){ const term = termRange(); for(const c of state.classes) classEvents(c, stamp, term).forEach(e=>lines.push(...e)); }
+  lines.push("END:VCALENDAR");
+  return lines.map(fold).join("\r\n") + "\r\n";
+}
+function download(name, text, type){
+  const url = URL.createObjectURL(new Blob([text],{type}));
+  const a = document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+}
+
+/* ---------- sample data ---------- */
+function loadSample(){
+  const mon = mondayOf(today()), t = today();
+  const mk = (name,color,teacher,sessions)=>({id:uid(),name,color,teacher,sessions:sessions.map(([day,start,end,room])=>({id:uid(),day,start,end,room})),updatedAt:Date.now(),rev:0});
+  const en = mk("English","#FF6FA3","Mme Tremblay",[[1,"08:00","09:45","B-204"],[3,"08:00","09:45","B-204"]]);
+  const ca = mk("Calculus I","#3FA7F5","M. Nguyen",[[1,"10:00","11:45","D-310"],[4,"13:00","14:45","D-310"]]);
+  const ec = mk("Economics","#39C27A","Mme Roy",[[2,"09:00","10:45","A-118"],[5,"09:00","10:45","A-118"]]);
+  const ps = mk("Psychology","#F5C518","M. Bélanger",[[2,"13:00","14:45","C-022"]]);
+  const it = (kind,title,cls,days,time,extra)=>Object.assign({id:uid(),kind,title,classId:cls.id,due:ymd(addDays(t,days)),time:time||"",priority:"normal",notes:"",done:false,rev:0,updatedAt:Date.now()},extra||{});
+  const settings = state.settings;
+  state = blank();
+  state.settings = Object.assign(settings, {termStart:ymd(mon), termEnd:ymd(addDays(mon, 7*15-3)), termRev:(settings.termRev||0)+1});
+  state.classes = [en,ca,ec,ps];
+  state.items = [
+    it("homework","Problem set 4",ca,1,"23:59"),
+    it("assignment","Essay: The Great Gatsby",en,3,"23:59",{priority:"high",notes:"1200 words, MLA format"}),
+    it("reading","Chapter 6: Supply and demand",ec,2),
+    it("exam","Midterm",ca,6,"13:00",{duration:110,room:"D-310"}),
+    it("project","Research poster",ps,12,"",{notes:"Groups of 3"}),
+    it("homework","Grammar exercises p.42",en,-1,"08:00"),
+    it("homework","Worksheet 2",ec,-3,"",{done:true})
+  ];
+  commit(); render(); toast("Example data loaded. Erase it any time from the Apple Calendar tab.");
+}
+
+/* ---------- events ---------- */
+document.querySelector("nav.tabs").addEventListener("click",e=>{
+  const b = e.target.closest("[data-tab]"); if(!b) return; ui.tab = b.dataset.tab; render(); window.scrollTo({top:0});
+});
+$("#syncChip").addEventListener("click",()=>{ ui.tab="sync"; render(); window.scrollTo({top:0}); });
+$("#fab").addEventListener("click",()=>{ if(ui.tab==="classes") openClass(); else openItem(); });
+
+$("#view").addEventListener("click",async e=>{
+  const t = e.target;
+  const edit = t.closest("[data-edit]"); if(edit){ openItem(edit.dataset.edit); return; }
+  const ec = t.closest("[data-editclass]"); if(ec){ openClass(ec.dataset.editclass); return; }
+  const fil = t.closest("[data-filter]"); if(fil){ ui.filter = fil.dataset.filter; render(); return; }
+  const wk = t.closest("[data-week]");
+  if(wk){ const n=+wk.dataset.week; ui.weekStart = n===0 ? mondayOf(today()) : addDays(ui.weekStart,7*n); render(); return; }
+  const act = t.closest("[data-action]"); if(!act) return;
+  const a = act.dataset.action;
+  if(a==="add-class") openClass();
+  else if(a==="sample") loadSample();
+  else if(a==="goto-sync"){ ui.tab="sync"; render(); window.scrollTo({top:0}); }
+  else if(a==="hide-banner"){ try{ localStorage.setItem(BANNER_KEY,"1"); }catch(err){} render(); }
+  else if(a==="connect") connect($("#tokenInput").value, false);
+  else if(a==="update-key") connect($("#tokenInput").value, true);
+  else if(a==="disconnect") disconnect();
+  else if(a==="sync-now"){ sync.dirty = true; sync.dirtyAt = Date.now(); saveSync(); await push(); if(syncUi.s==="ok") toast("Synced"); }
+  else if(a==="copy-feed"){
+    try{ await navigator.clipboard.writeText(feedUrl().replace(/^https:/,"webcal:")); toast("Calendar link copied"); }
+    catch(err){ prompt("Copy this calendar link:", feedUrl().replace(/^https:/,"webcal:")); }
+  }
+  else if(a==="export") download(`school-calendar-${ymd(new Date())}.ics`, buildFeed(), "text/calendar;charset=utf-8");
+  else if(a==="backup"){ download(`study-planner-backup-${ymd(new Date())}.json`, JSON.stringify(state,null,2), "application/json"); toast("Backup saved"); }
+  else if(a==="restore") $("#restoreInput").click();
+  else if(a==="erase"){
+    if(confirm("Erase all classes, deadlines and settings?" + (connected()?" Your synced calendar will empty too.":"") + " This can't be undone.")){
+      state = blank(); commit(); ui.tab="agenda"; render(); toast("Everything erased");
+    }
+  }
+});
+$("#view").addEventListener("keydown",e=>{
+  if(e.key==="Enter" && e.target.id==="tokenInput"){ e.preventDefault(); connect(e.target.value, !!sync.needsKey && !!sync.gistId); }
+});
+$("#view").addEventListener("change",e=>{
+  const t = e.target, s = state.settings;
+  if(t.matches("[data-done]")){
+    const it = state.items.find(i=>i.id===t.dataset.done);
+    if(it){ it.done = t.checked; it.updatedAt = Date.now(); commit(); render(); toast(it.done ? "Nice. Checked off." : "Moved back to your list"); }
+    return;
+  }
+  if(t.id==="termStart"||t.id==="termEnd"){ s[t.id] = t.value; s.termRev = (s.termRev||0)+1; commit(); toast("Semester dates saved"); return; }
+  if(["incTasks","incExams","incClasses"].includes(t.id)){ s[t.id] = t.checked; commit(); return; }
+  if(["remindTask","remindExam","remindClass"].includes(t.id)){ s[t.id] = +t.value; commit(); return; }
+});
+$("#restoreInput").addEventListener("change",e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const d = JSON.parse(r.result);
+      if(!Array.isArray(d.classes) || !Array.isArray(d.items)) throw new Error("bad");
+      if(!confirm("Replace what's here with this backup?")) return;
+      state = normalize(d); commit(); render(); toast("Backup restored");
+    }catch(err){ toast("That file isn't a Study Planner backup."); }
+    e.target.value = "";
+  };
+  r.readAsText(file);
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="n" && !e.metaKey && !e.ctrlKey && !document.querySelector("dialog[open]") && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){
+    e.preventDefault(); ui.tab==="classes" ? openClass() : openItem();
+  }
+});
+
+// Keep in step with other devices and the clock.
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible"){ if(!document.querySelector("dialog[open]")) render(); pull(); }
+  else if(sync.dirty){ clearTimeout(pushTimer); push(); }
+});
+window.addEventListener("online",()=>{ sync.dirty ? push() : pull(); });
+setInterval(()=>{ if(document.visibilityState==="visible" && !document.querySelector("dialog[open]")){ render(); pull(); } }, 5*60*1000);
+
+if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=="file:"){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+
+render();
+if(connected()) pull();
+})();
+
+</script>
+</body>
+</html>
