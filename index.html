@@ -54,7 +54,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:16p
 nav.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:999px;overflow-x:auto;max-width:100%}
 nav.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:700;color:var(--muted);white-space:nowrap}
 nav.tabs .short{display:none}
-@media (max-width:520px){nav.tabs{width:100%}nav.tabs button{flex:1;padding:8px 10px}nav.tabs .long{display:none}nav.tabs .short{display:inline}}
+@media (max-width:520px){nav.tabs{width:100%}nav.tabs button{flex:1;padding:8px 4px;font-size:.92rem}nav.tabs .long{display:none}nav.tabs .short{display:inline}}
 nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
 /* Hero */
@@ -217,6 +217,48 @@ dialog h2{margin:0;font-family:var(--display);font-size:1.35rem}
 a.btn{text-decoration:none;display:inline-block;color:inherit}
 a.btn.primary{color:var(--accent-ink)}
 .box a{color:var(--accent)}
+/* Day view */
+.day-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:28px 0 16px}
+.day-title{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,7vw,3.2rem);letter-spacing:-.025em;line-height:1;margin:0}
+.day-sub{margin:6px 0 0;color:var(--muted);font-size:1.05rem}
+.day-head .btn{min-width:44px}
+.coach{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.coach p{margin:0}
+.coach-label{font-weight:700;font-size:.78rem;color:var(--accent);text-transform:uppercase;letter-spacing:.05em}
+.special-banner{background:var(--soft);border-radius:12px;padding:10px 14px;margin-bottom:10px}
+.section-label{font-family:var(--display);font-weight:700;font-size:1.05rem;margin:22px 0 6px}
+ul.timeline{list-style:none;margin:0;padding:0}
+.tl{display:grid;grid-template-columns:74px 1fr;gap:10px;padding:5px 0}
+.tl-time b{white-space:nowrap}
+.tl-time{text-align:right;padding-top:10px;font-size:.88rem;line-height:1.25}
+.tl-time small{display:block;color:var(--muted)}
+.tl-body{border-radius:12px;padding:10px 12px;background:color-mix(in srgb,var(--c) 20%,var(--surface));border:0;border-left:5px solid var(--c);display:flex;gap:10px;align-items:center;min-width:0;width:100%;text-align:left}
+.tl-body .txt{flex:1;min-width:0}
+.tl-body b{display:block;overflow-wrap:anywhere}
+.tl-body small{display:block;color:var(--muted);font-size:.86rem}
+.tl.study .tl-body{background:var(--surface);border:1px dashed var(--c);border-left:5px solid var(--c)}
+.tl.due .tl-body,.tl.exam .tl-body{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c)}
+.tl.past{opacity:.55}
+.tl.now .tl-body{box-shadow:0 0 0 2px var(--accent)}
+.tl.now .tl-time b{color:var(--accent)}
+.tl.done .txt b{text-decoration:line-through;color:var(--muted)}
+.xbtn{border:0;background:none;color:var(--muted);font-size:1.3rem;line-height:1;padding:2px 6px}
+.day-link{border:0;background:none;padding:0;width:100%;display:flex;justify-content:space-between;align-items:baseline;color:var(--muted);font-weight:700;font-size:.85rem;cursor:pointer}
+.day-link b{font-family:var(--display);font-size:1.3rem;color:var(--ink)}
+.slot.study.is-done{opacity:.5;text-decoration:line-through}
+.slot.study{background:transparent;border:1px dashed var(--c);border-left:4px solid var(--c);text-align:left;width:100%;display:block}
+.plan-row{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.plan-row small{display:block;color:var(--muted);font-size:.88rem}
+.pdot{width:12px;height:12px;border-radius:4px;margin-top:6px;background:var(--c)}
+/* Welcome */
+.welcome{padding:30px 0;max-width:620px}
+.welcome h1{font-family:var(--display);font-size:clamp(1.9rem,6vw,2.7rem);letter-spacing:-.02em;line-height:1.05;margin:0 0 6px}
+.welcome > p{color:var(--muted);margin:0 0 22px;font-size:1.05rem}
+.welcome-steps{list-style:none;counter-reset:w;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:18px}
+.welcome-steps li{counter-increment:w;display:grid;grid-template-columns:34px 1fr;gap:12px}
+.welcome-steps li::before{content:counter(w);width:30px;height:30px;border-radius:9px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;font-family:var(--display)}
+.welcome-steps b{font-family:var(--display);font-size:1.1rem}
+.welcome-steps p{margin:2px 0 10px;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:20}
 .toast.show{opacity:1}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -228,7 +270,8 @@ a.btn.primary{color:var(--accent-ink)}
   <header class="top">
     <div class="top-left"><div class="brand"><span class="brand-mark" aria-hidden="true"><i style="background:#F5C518"></i><i style="background:#FF6FA3"></i><i style="background:#3FA7F5"></i><i style="background:#39C27A"></i></span>Study Planner</div><button type="button" class="sync-chip" id="syncChip" hidden>Synced</button></div>
     <nav class="tabs" role="tablist" aria-label="Sections">
-      <button role="tab" data-tab="agenda" aria-selected="true">Due</button>
+      <button role="tab" data-tab="day" aria-selected="true">Day</button>
+      <button role="tab" data-tab="agenda" aria-selected="false">Due</button>
       <button role="tab" data-tab="week" aria-selected="false">Week</button>
       <button role="tab" data-tab="classes" aria-selected="false">Classes</button>
       <button role="tab" data-tab="sync" aria-selected="false"><span class="long">Apple Calendar</span><span class="short">Sync</span></button>
@@ -274,6 +317,14 @@ a.btn.primary{color:var(--accent-ink)}
   <div class="dlg">
     <h2 id="importTitle">Import from a photo</h2>
     <div id="importBody" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+</dialog>
+
+<!-- AI planner dialog -->
+<dialog id="planDlg" aria-labelledby="planTitle">
+  <div class="dlg">
+    <h2 id="planTitle">✨ Plan my days</h2>
+    <div id="planBody" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
 </dialog>
 
@@ -353,8 +404,9 @@ const NOCLASS = "#9AA3B5";
 
 /* ---------- local storage ---------- */
 function blank(){
-  return {classes:[],items:[],specialDays:[],meta:{updatedAt:0},
-    settings:{termStart:"",termEnd:"",termRev:0,remindTask:1440,remindExam:1440,remindClass:0,incTasks:true,incExams:true,incClasses:true}};
+  return {classes:[],items:[],specialDays:[],plan:{createdAt:0,summary:"",blocks:[]},meta:{updatedAt:0},
+    settings:{termStart:"",termEnd:"",termRev:0,remindTask:1440,remindExam:1440,remindClass:0,remindStudy:15,incTasks:true,incExams:true,incClasses:true,incStudy:true,
+      planner:{wdFrom:"16:00",wdTo:"22:00",weFrom:"10:00",weTo:"18:00",maxMin:180,session:45,horizon:7,notes:""}}};
 }
 function normalize(d){
   const b = blank();
@@ -362,8 +414,9 @@ function normalize(d){
     classes: Array.isArray(d.classes) ? d.classes : [],
     items: Array.isArray(d.items) ? d.items : [],
     specialDays: Array.isArray(d.specialDays) ? d.specialDays : [],
+    plan: Object.assign(b.plan, d.plan || {}),
     meta: Object.assign(b.meta, d.meta || {}),
-    settings: Object.assign(b.settings, d.settings || {})
+    settings: Object.assign(b.settings, d.settings || {}, {planner: Object.assign(b.settings.planner, (d.settings||{}).planner || {})})
   };
 }
 function load(){
@@ -637,13 +690,14 @@ function disconnect(){
 }
 
 /* ---------- UI state ---------- */
-const ui = {tab:"agenda", filter:"all", weekStart: mondayOf(today())};
+const ui = {tab:"day", day: today(), filter:"all", weekStart: mondayOf(today())};
 
 /* ---------- rendering ---------- */
 function render(){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.tab===ui.tab)));
   const v = $("#view");
-  if(ui.tab==="agenda") v.innerHTML = renderAgenda();
+  if(ui.tab==="day") v.innerHTML = renderDay();
+  else if(ui.tab==="agenda") v.innerHTML = renderAgenda();
   else if(ui.tab==="week") v.innerHTML = renderWeek();
   else if(ui.tab==="classes") v.innerHTML = renderClasses();
   else v.innerHTML = renderSync();
@@ -696,13 +750,96 @@ function itemRow(it){
   </li>`;
 }
 
+/* ---------- day view ---------- */
+const toMin = t=>{ const [h,m] = String(t).split(":").map(Number); return h*60+m; };
+const fromMin = n=>`${pad(Math.floor(n/60)%24)}:${pad(n%60)}`;
+/** A study session shows if it's in the past, or its task still needs doing. */
+function blockVisible(b){
+  const it = state.items.find(i=>i.id===b.itemId);
+  return b.date < ymd(today()) || (it && !it.done);
+}
+function welcomeHtml(){
+  return `<section class="welcome"><h1>Welcome to Study Planner</h1><p>Three steps and you're set.</p>
+    <ol class="welcome-steps">
+      <li><div><b>Import your timetable</b><p>Snap a photo or a screenshot. The AI fills in your classes, semester dates and days off.</p>
+        <div class="row-actions"><button class="btn primary" data-action="import">✨ Import from a photo</button><button class="btn" data-action="add-class">Add classes myself</button></div></div></li>
+      <li><div><b>Add your deadlines</b><p>Tap Add for each homework, assignment or exam. Then let the AI plan when to work on them.</p></div></li>
+      <li><div><b>Connect Apple Calendar</b><p>Your classes, deadlines and study sessions show up next to the rest of your life.</p>
+        <button class="btn" data-action="goto-sync">Set up sync</button></div></li>
+    </ol>
+    <button class="linkbtn" data-action="sample">Or look around with example data first</button></section>`;
+}
+function renderDay(){
+  const d = ui.day, t = today(), key = ymd(d), diff = dayDiff(d,t);
+  let h = installBanner();
+  if(!state.items.length && !state.classes.length) return h + welcomeHtml();
+  const title = diff===0 ? "Today" : diff===1 ? "Tomorrow" : diff===-1 ? "Yesterday" : d.toLocaleDateString(undefined,{weekday:"long"});
+  const sub = d.toLocaleDateString(undefined, Math.abs(diff)<=1 ? {weekday:"long",month:"long",day:"numeric"} : {month:"long",day:"numeric",year: d.getFullYear()!==t.getFullYear()?"numeric":undefined});
+  h += `<div class="day-head"><div><h1 class="day-title">${title}</h1><p class="day-sub">${esc(sub)}</p></div>
+    <div class="row-actions"><button class="btn" data-dayjump="-1" aria-label="Previous day">‹</button><button class="btn" data-dayjump="0">Today</button><button class="btn" data-dayjump="1" aria-label="Next day">›</button></div></div>`;
+
+  const openCount = state.items.filter(i=>!i.done).length;
+  const futureBlocks = state.plan.blocks.some(b=>b.date>=ymd(t) && !b.done && blockVisible(b));
+  if(diff===0 && state.plan.summary && futureBlocks){
+    h += `<div class="coach"><span class="coach-label">✨ Your plan</span><p>${esc(state.plan.summary)}</p><button class="linkbtn" data-action="plan">Redo my plan</button></div>`;
+  } else if(diff>=0 && openCount && !futureBlocks){
+    h += `<div class="coach"><p><b>Not sure where to start?</b> The AI planner can spread your work into study sessions that fit around your classes.</p><button class="btn primary" data-action="plan">✨ Plan my days</button></div>`;
+  }
+
+  const sp = specialFor(d);
+  if(sp) h += `<div class="special-banner">${+sp.follows ? `🔁 <b>${esc(sp.label||"Schedule change")}</b>: today follows the ${DAYS_LONG[sp.follows-1]} schedule.` : `🏖️ <b>${esc(sp.label||"Day off")}</b>: no classes.`}</div>`;
+
+  const items = state.items.filter(i=>i.due===key);
+  const allDay = items.filter(i=>!i.time).sort((a,b)=>a.done-b.done);
+  const entries = [];
+  for(const {c,s} of sessionsOn(d)) entries.push({start:s.start, end:s.end, kind:"class", color:c.color,
+    body:`<div class="tl-body"><div class="txt"><b>${esc(c.name)}</b><small>Class${s.room?", "+esc(s.room):""}</small></div></div>`});
+  for(const it of items.filter(i=>i.time)){
+    const k = KINDS[it.kind]||KINDS.homework, c = classById(it.classId), exam = it.kind==="exam";
+    const end = exam ? fromMin(toMin(it.time)+(+it.duration||120)) : "";
+    entries.push({start:it.time, end, kind: exam?"exam":"due", color:colorOf(it), done:it.done,
+      body:`<button type="button" class="tl-body" data-edit="${it.id}"><div class="txt"><b>${k.icon} ${exam?"":"Due: "}${esc(it.title)}</b><small>${c?esc(c.name):"No class"}${exam&&it.room?", "+esc(it.room):""}</small></div></button>`});
+  }
+  for(const b of state.plan.blocks.filter(b=>b.date===key && blockVisible(b))){
+    const it = state.items.find(i=>i.id===b.itemId), c = it && classById(it.classId);
+    entries.push({start:b.start, end:b.end, kind:"study", color: it ? colorOf(it) : NOCLASS, done:b.done,
+      body:`<div class="tl-body"><input type="checkbox" class="check" data-blockdone="${b.id}" ${b.done?"checked":""} aria-label="Mark this study session done">
+        <div class="txt"><b>📚 ${esc(b.title)}</b><small>${esc(b.focus || "Study session")}${c?" · "+esc(c.name):""}</small></div>
+        <button type="button" class="xbtn" data-blockdel="${b.id}" aria-label="Remove this study session">×</button></div>`});
+  }
+  entries.sort((a,b)=>a.start.localeCompare(b.start));
+
+  if(allDay.length){
+    h += `<h2 class="section-label">${diff===0?"Due today":"Due this day"}</h2><ul class="items">${allDay.map(itemRow).join("")}</ul>`;
+  }
+  h += `<h2 class="section-label">Schedule</h2>`;
+  if(entries.length){
+    const now = new Date(), nowM = now.getHours()*60+now.getMinutes();
+    h += `<ul class="timeline">` + entries.map(e=>{
+      let state_ = "";
+      if(diff<0) state_ = " past";
+      else if(diff===0){
+        const s = toMin(e.start), en = e.end ? toMin(e.end) : s;
+        if(en < nowM) state_ = " past"; else if(s <= nowM && nowM < en) state_ = " now";
+      }
+      return `<li class="tl ${e.kind}${state_}${e.done?" done":""}" style="--c:${e.color}"><div class="tl-time"><b>${fmtTime(e.start)}</b>${e.end?`<small>${fmtTime(e.end)}</small>`:""}</div>${e.body}</li>`;
+    }).join("") + `</ul>`;
+  } else {
+    h += `<p class="fine">Nothing scheduled${diff>=0?". A good day to get ahead.":"."}</p>`;
+  }
+
+  if(diff===0){
+    const soon = state.items.filter(i=>{ if(i.done) return false; const x = dayDiff(parseYmd(i.due),t); return x>=1 && x<=3; }).sort((a,b)=>dueAt(a)-dueAt(b));
+    const late = state.items.filter(i=>!i.done && dayDiff(parseYmd(i.due),t)<0);
+    if(late.length) h += `<h2 class="section-label" style="color:var(--danger)">Late</h2><ul class="items">${late.map(itemRow).join("")}</ul>`;
+    if(soon.length) h += `<h2 class="section-label">Coming up</h2><ul class="items">${soon.map(itemRow).join("")}</ul>`;
+  }
+  return h;
+}
+
 function renderAgenda(){
   const banner = installBanner();
-  if(!state.items.length && !state.classes.length){
-    return banner + `<section class="empty"><h2>Start with your classes</h2>
-      <p>Add each class and when it meets, then add homework, assignments and exams. Turn on sync and everything shows up in Apple Calendar on its own.</p>
-      <div class="row-actions"><button class="btn primary" data-action="import">✨ Import from a photo</button><button class="btn" data-action="add-class">Add a class</button><button class="btn" data-action="goto-sync">Set up sync</button><button class="btn" data-action="sample">Try it with example data</button></div></section>`;
-  }
+  if(!state.items.length && !state.classes.length) return banner + welcomeHtml();
   const f = ui.filter;
   const match = i => f==="all" || (f==="exam" ? i.kind==="exam" : i.kind!=="exam");
   const open = state.items.filter(i=>!i.done && match(i)).sort((a,b)=>dueAt(a)-dueAt(b));
@@ -765,11 +902,15 @@ function renderWeek(){
     const sp = specialFor(d);
     const classes = sessionsOn(d);
     const items = state.items.filter(it=>it.due===key).sort((a,b)=>dueAt(a)-dueAt(b));
-    const has = classes.length || items.length || sp;
-    html += `<div class="day${dayDiff(d,t)===0?" today":""}${has?" has":""}"><h3><span>${DAYS[i]}</span><b>${d.getDate()}</b></h3>`;
+    const has = classes.length || items.length || sp || state.plan.blocks.some(b=>b.date===key && blockVisible(b));
+    html += `<div class="day${dayDiff(d,t)===0?" today":""}${has?" has":""}"><h3><button type="button" class="day-link" data-goday="${key}" aria-label="Open ${DAYS_LONG[i]}"><span>${DAYS[i]}</span><b>${d.getDate()}</b></button></h3>`;
     if(sp) html += `<div class="slot special">${+sp.follows ? `🔁 ${esc(sp.label||"Schedule change")}<small>${DAYS_LONG[sp.follows-1]} schedule</small>` : `🏖️ ${esc(sp.label||"Day off")}<small>No classes</small>`}</div>`;
     for(const {c,s} of classes){
       html += `<div class="slot" style="--c:${c.color}"><strong>${esc(c.name)}</strong><small>${fmtTime(s.start)}–${fmtTime(s.end)}${s.room?", "+esc(s.room):""}</small></div>`;
+    }
+    for(const b of state.plan.blocks.filter(b=>b.date===key && blockVisible(b)).sort((x,y)=>x.start.localeCompare(y.start))){
+      const it = state.items.find(i=>i.id===b.itemId);
+      html += `<button type="button" class="slot study${b.done?" is-done":""}" style="--c:${it?colorOf(it):NOCLASS}" data-goday="${key}">📚 ${esc(b.title)}<small>${fmtTime(b.start)}–${fmtTime(b.end)}</small></button>`;
     }
     for(const it of items){
       const k = KINDS[it.kind]||KINDS.homework;
@@ -814,7 +955,7 @@ function renderClasses(){
 }
 
 function remindSelect(id,val){
-  const opts = [[0,"No reminder"],[60,"1 hour before"],[1440,"1 day before"],[2880,"2 days before"],[10080,"1 week before"]];
+  const opts = [[0,"No reminder"],[15,"15 minutes before"],[60,"1 hour before"],[1440,"1 day before"],[2880,"2 days before"],[10080,"1 week before"]];
   return `<select id="${id}">${opts.map(([v,l])=>`<option value="${v}" ${+val===v?"selected":""}>${l}</option>`).join("")}</select>`;
 }
 
@@ -874,12 +1015,20 @@ function renderSync(){
       <label class="opt"><input type="checkbox" id="incTasks" ${s.incTasks?"checked":""}> Homework, assignments, projects and readings</label>
       <label class="opt"><input type="checkbox" id="incExams" ${s.incExams?"checked":""}> Exams</label>
       <label class="opt"><input type="checkbox" id="incClasses" ${s.incClasses?"checked":""}> Weekly class schedule</label>
+      <label class="opt"><input type="checkbox" id="incStudy" ${s.incStudy?"checked":""}> Study sessions from the AI planner</label>
       <div class="remind">
         <span>Deadline reminder</span>${remindSelect("remindTask",s.remindTask)}
         <span>Exam reminder</span>${remindSelect("remindExam",s.remindExam)}
         <span>Class reminder</span>${remindSelect("remindClass",s.remindClass)}
+        <span>Study session reminder</span>${remindSelect("remindStudy",s.remindStudy)}
       </div>
       <p class="fine">Things you check off disappear from the calendar at the next sync.</p>
+    </div>
+    <div class="box">
+      <h3>Share with friends</h3>
+      <p>Friends can use the planner too. Each person gets their own private planner: they can't see yours, and you can't see theirs.</p>
+      <p>They set it up the way you did, with their own free Gemini key for the AI and, if they want Apple Calendar, their own GitHub account. Don't give them your keys: those open your planner.</p>
+      <button class="btn primary" data-action="share">Share the planner</button>
     </div>
     <div class="box">
       <h3>Backup</h3>
@@ -912,7 +1061,7 @@ function openItem(id){
   $("#kindPick").innerHTML = Object.entries(KINDS).map(([k,v])=>`<label><input type="radio" name="kind" value="${k}"><span>${v.icon} ${v.label}</span></label>`).join("");
   fillClassSelect($("#classSelect"), it ? it.classId : "");
   f.title.value = it ? it.title : "";
-  f.due.value = it ? it.due : ymd(addDays(today(),1));
+  f.due.value = it ? it.due : ymd(ui.tab==="day" && dayDiff(ui.day,today())>0 ? ui.day : addDays(today(),1));
   f.time.value = it ? (it.time||"") : "";
   f.duration.value = it ? (it.duration||120) : 120;
   f.room.value = it ? (it.room||"") : "";
@@ -1212,7 +1361,11 @@ const groupLabel = slot => slot==="schedule" ? "The next file(s) are the student
 async function askGemini(groups, signal){
   const parts = [{text: importPrompt()}];
   for(const g of groups){ parts.push({text: groupLabel(g.slot)}); for(const p of g.parts) parts.push({inlineData:{mimeType:p.mime, data:p.data}}); }
-  const body = JSON.stringify({contents:[{role:"user", parts}], generationConfig:{responseMimeType:"application/json", temperature:0.1}});
+  return callGemini(parts, signal, 0.1);
+}
+/** One Gemini request that must answer in JSON. Tries newer model names first. */
+async function callGemini(parts, signal, temperature){
+  const body = JSON.stringify({contents:[{role:"user", parts}], generationConfig:{responseMimeType:"application/json", temperature}});
   let lastErr = userErr("The AI isn't available right now. Try again later.");
   for(const model of GEMINI_MODELS){
     let res;
@@ -1227,11 +1380,11 @@ async function askGemini(groups, signal){
       if((res.status===400 && /api.?key/i.test(msg)) || res.status===401 || res.status===403) throw userErr("Google didn't accept that key. Check it and paste it again.","key");
       if(res.status===429) throw userErr("You've reached the free limit for now. Wait a minute and try again.");
       if(res.status>=500) { lastErr = userErr("Google's AI is busy right now. Try again in a minute."); continue; }
-      throw userErr(`The AI couldn't read these files (error ${res.status}). Try a different photo.`);
+      throw userErr(`Gemini sent back an error (${res.status}). Try again in a moment.`);
     }
     const cand = data.candidates && data.candidates[0];
     const text = cand && cand.content ? (cand.content.parts||[]).map(p=>p.text||"").join("") : "";
-    if(!text) throw userErr("The AI didn't send anything back. Try again with a clearer photo.");
+    if(!text) throw userErr("The AI didn't send anything back. Try again.");
     return text;
   }
   throw lastErr;
@@ -1313,6 +1466,194 @@ function applyImport(){
   if(updated) bits.push(`${updated} updated`);
   if(other) bits.push("calendar dates saved");
   toast(bits.join(", ").replace(/^./,c=>c.toUpperCase()));
+}
+
+/* =========================================================
+   AI PLANNER
+   Gives Gemini your open tasks, classes, exams and study hours,
+   and gets back study sessions. Every session is checked here:
+   it must sit inside your study window, before the task's due time,
+   and never on top of a class, an exam or another session.
+   ========================================================= */
+const pl = {stage:"prefs", result:null, ctx:null, error:"", abort:null};
+function openPlanner(){
+  pl.stage = ai.key ? "prefs" : "key"; pl.error = ""; pl.result = null;
+  renderPlanner(); $("#planDlg").showModal();
+}
+$("#planDlg").addEventListener("close",()=>{ if(pl.abort){ pl.abort.abort(); pl.abort = null; } });
+
+function renderPlanner(){
+  const P = state.settings.planner;
+  const opt = (list, val, fmt)=>list.map(v=>`<option value="${v}" ${+val===v?"selected":""}>${fmt(v)}</option>`).join("");
+  const hrs = m=> m<60 ? `${m} min` : (m%60 ? `${Math.floor(m/60)} h ${m%60}` : `${m/60} h`);
+  let h = "";
+  if(pl.stage==="key"){
+    h = `<p>The planner uses Google Gemini, which is free. It needs a key once.</p>
+      <ol class="steps"><li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with a Google account.</li><li>Tap Create API key and copy it. No credit card needed.</li><li>Paste it below.</li></ol>
+      <label class="field"><span>Gemini key</span><input type="password" id="planKey" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+      ${pl.error?`<p class="error">${esc(pl.error)}</p>`:""}
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-pl="close">Cancel</button><button type="button" class="btn primary" data-pl="save-key">Save key</button></div></div>`;
+  } else if(pl.stage==="prefs"){
+    const open = state.items.filter(i=>!i.done).length;
+    h = `<p>The AI looks at your deadlines, exams and classes, then spreads the work into study sessions around your schedule.</p>
+      <div class="field"><span>Weekdays, I can study from</span><div class="two"><input type="time" id="pWdFrom" value="${esc(P.wdFrom)}" aria-label="Weekday start"><input type="time" id="pWdTo" value="${esc(P.wdTo)}" aria-label="Weekday end"></div></div>
+      <div class="field"><span>Weekends and days off, from</span><div class="two"><input type="time" id="pWeFrom" value="${esc(P.weFrom)}" aria-label="Weekend start"><input type="time" id="pWeTo" value="${esc(P.weTo)}" aria-label="Weekend end"></div></div>
+      <div class="two">
+        <label class="field"><span>Most per day</span><select id="pMax">${opt([60,90,120,180,240,300],P.maxMin,hrs)}</select></label>
+        <label class="field"><span>Session length</span><select id="pSession">${opt([25,45,60,90],P.session,v=>v+" min")}</select></label>
+      </div>
+      <label class="field"><span>Plan the next</span><select id="pHorizon">${opt([3,7,14],P.horizon,v=>v+" days")}</select></label>
+      <label class="field"><span>Anything else? <span class="hint">(optional)</span></span><textarea id="pNotes" placeholder="e.g. I work Saturdays 9 to 5. Soccer Tuesday at 6 pm. I focus best in the morning.">${esc(P.notes)}</textarea></label>
+      ${!open ? `<p class="error">Add a deadline first, so the planner has something to plan.</p>` : ""}
+      ${pl.error?`<p class="error">${esc(pl.error)}</p>`:""}
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-pl="close">Cancel</button><button type="button" class="btn primary" data-pl="make" ${open?"":"disabled"}>Make my plan</button></div></div>`;
+  } else if(pl.stage==="loading"){
+    h = `<div class="loading"><p><b>Making your plan…</b></p><p class="fine">This usually takes 10 to 30 seconds.</p><div class="bar"><i></i></div></div>
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-pl="close">Cancel</button></div></div>`;
+  } else {
+    const r = pl.result;
+    if(!r.blocks.length){
+      h = `<p>The AI couldn't fit any study sessions. Try longer study hours, a higher daily maximum, or more days.</p>
+        ${r.summary?`<div class="coach"><p>${esc(r.summary)}</p></div>`:""}
+        <div class="foot"><div class="right"><button type="button" class="btn primary" data-pl="back">Change my hours</button></div></div>`;
+    } else {
+      const byDate = {};
+      r.blocks.forEach(b=>(byDate[b.date] = byDate[b.date] || []).push(b));
+      const total = r.blocks.reduce((n,b)=>n+toMin(b.end)-toMin(b.start),0);
+      h = `${r.summary?`<div class="coach"><span class="coach-label">✨ Your plan</span><p>${esc(r.summary)}</p></div>`:""}
+        <p class="fine">${r.blocks.length} study sessions, ${hrs(total)} in total.</p>
+        <div class="review">` + Object.keys(byDate).sort().map(dk=>`<h3>${fmtDate(parseYmd(dk))}</h3>` + byDate[dk].map(b=>{
+          const it = state.items.find(i=>i.id===b.taskId);
+          return `<div class="plan-row"><span class="pdot" style="--c:${it?colorOf(it):NOCLASS}"></span><span><b>${fmtTime(b.start)}–${fmtTime(b.end)}</b> ${esc(it?it.title:"Study")}<small>${esc(b.focus)}</small></span></div>`;
+        }).join("")).join("") + `</div>
+        ${r.unscheduled.length?`<p class="fine">Couldn't fit: ${r.unscheduled.map(u=>{ const it = state.items.find(i=>i.id===u.taskId); return esc(it?it.title:"a task") + (u.reason?` (${esc(u.reason)})`:""); }).join(", ")}.</p>`:""}
+        <div class="foot"><button type="button" class="btn ghost" data-pl="back">Change my hours</button><div class="right"><button type="button" class="btn" data-pl="make">Try again</button><button type="button" class="btn primary" data-pl="save">Save plan</button></div></div>`;
+    }
+  }
+  $("#planBody").innerHTML = h;
+}
+
+$("#planBody").addEventListener("click",e=>{
+  const b = e.target.closest("[data-pl]"); if(!b) return;
+  const a = b.dataset.pl;
+  if(a==="close") $("#planDlg").close();
+  else if(a==="save-key"){
+    const key = ($("#planKey").value||"").trim();
+    if(!key){ pl.error = "Paste your key first."; renderPlanner(); return; }
+    ai = {key, updatedAt: Date.now()}; saveAi();
+    if(connected()){ sync.settingsDirty = true; saveSync(); clearTimeout(pushTimer); pushTimer = setTimeout(push, 300); }
+    pl.stage = "prefs"; pl.error = ""; renderPlanner();
+  }
+  else if(a==="make") makePlan();
+  else if(a==="back"){ pl.stage = "prefs"; pl.error = ""; renderPlanner(); }
+  else if(a==="save") savePlan();
+});
+
+function readPlannerPrefs(){
+  if(pl.stage!=="prefs") return true;
+  const P = state.settings.planner, v = id=>$("#"+id).value;
+  const next = {wdFrom:v("pWdFrom"), wdTo:v("pWdTo"), weFrom:v("pWeFrom"), weTo:v("pWeTo"), maxMin:+v("pMax"), session:+v("pSession"), horizon:+v("pHorizon"), notes:v("pNotes").trim().slice(0,600)};
+  if(!next.wdFrom || !next.wdTo || next.wdTo <= next.wdFrom || !next.weFrom || !next.weTo || next.weTo <= next.weFrom){
+    pl.error = "Each study window needs an end time after its start time."; renderPlanner(); return false;
+  }
+  Object.assign(P, next); saveLocal();
+  return true;
+}
+function planContext(){
+  const P = state.settings.planner, t = today(), now = new Date();
+  const days = [], busy = [];
+  for(let i=0;i<P.horizon;i++){
+    const d = addDays(t,i), key = ymd(d), sp = specialFor(d);
+    const free = isoDay(d)>=6 || (sp && !+sp.follows);
+    const day = {date:key, weekday:DAYS_LONG[isoDay(d)-1], from: free?P.weFrom:P.wdFrom, to: free?P.weTo:P.wdTo};
+    if(sp) day.note = +sp.follows ? `Follows the ${DAYS_LONG[sp.follows-1]} schedule` : `Day off: ${sp.label||"no classes"}`;
+    days.push(day);
+    for(const {c,s} of sessionsOn(d)) busy.push({date:key, start:s.start, end:s.end, what:"Class: "+c.name});
+    for(const it of state.items) if(it.kind==="exam" && it.due===key && it.time) busy.push({date:key, start:it.time, end:fromMin(Math.min(toMin(it.time)+(+it.duration||120), 1439)), what:"Exam: "+it.title});
+    // Keep sessions the student already finished on these days.
+    for(const b of state.plan.blocks) if(b.date===key && b.done) busy.push({date:key, start:b.start, end:b.end, what:"Study session already done"});
+  }
+  const horizonEnd = addDays(t, P.horizon + 21);
+  const tasks = state.items.filter(i=>!i.done && parseYmd(i.due) <= horizonEnd).sort((a,b)=>dueAt(a)-dueAt(b)).slice(0,60).map(i=>{
+    const c = classById(i.classId);
+    return {id:i.id, type:i.kind, title:i.title, class:c?c.name:"", due:i.due, dueTime:i.time||"", important:i.priority==="high", notes:(i.notes||"").slice(0,200)};
+  });
+  return {today: ymd(t), now: `${pad(now.getHours())}:${pad(now.getMinutes())}`, days, busy, tasks,
+    maxMinutesPerDay:P.maxMin, sessionMinutes:P.session, studentNotes:P.notes};
+}
+function plannerPrompt(ctx){
+  return `You are a friendly study coach. Plan study sessions for a student and return JSON only.
+
+Make study sessions ("blocks") that:
+- happen only on the days listed in DATA.days, inside that day's from/to window, and never overlap anything in DATA.busy;
+- on today (${ctx.today}), start at or after ${ctx.now};
+- finish before the task is due. For a deadline with no time, or at 23:59, aim to finish the day before;
+- give each task a realistic total: homework or reading about 45 to 90 minutes, an assignment 2 to 5 hours, a project 4 to 10 hours, an exam 3 to 8 hours spread over several days before it. Adjust using the title, notes and importance;
+- split bigger work into sessions of about ${ctx.sessionMinutes} minutes, each with a concrete focus, for example "Outline and thesis", "Problems 1 to 10", "Review chapters 3 and 4";
+- put late, important and soonest work first, and spread work out instead of cramming the night before;
+- total at most ${ctx.maxMinutesPerDay} minutes per day, keep at least 10 minutes between sessions, and leave free time;
+- respect everything in DATA.studentNotes.
+Tasks due after the planning window can get sessions too if there is room. If something can't fit, list it in "unscheduled" with a short reason.
+
+Return exactly:
+{"summary":"","blocks":[{"date":"YYYY-MM-DD","start":"HH:MM","end":"HH:MM","taskId":"","focus":""}],"unscheduled":[{"taskId":"","reason":""}]}
+
+summary: 2 to 4 short, encouraging sentences telling the student what matters most and what to do first. Write the summary, each focus and each reason in the same language as the task titles (French if they are in French). Use 24-hour times.
+
+DATA:
+${JSON.stringify(ctx)}`;
+}
+function cleanPlan(r, ctx){
+  r = r && typeof r==="object" ? r : {};
+  const hm = x=>{ const m = String(x ?? "").trim().match(/^(\d{1,2})\s*[:hH]\s*(\d{2})$/); if(!m) return null; const h=+m[1], mi=+m[2]; return h<24 && mi<60 ? pad(h)+":"+pad(mi) : null; };
+  const days = new Map(ctx.days.map(d=>[d.date,d]));
+  const tasks = new Map(state.items.filter(i=>!i.done).map(i=>[i.id,i]));
+  const busy = {}; ctx.busy.forEach(b=>(busy[b.date] = busy[b.date] || []).push(b));
+  const overlaps = (list, b)=>(list||[]).some(x=>b.start < x.end && x.start < b.end);
+  const perDay = {}, out = [];
+  const raw = (Array.isArray(r.blocks)?r.blocks:[]).map(b=>({date:String(b&&b.date||"").trim(), start:hm(b&&b.start), end:hm(b&&b.end), taskId:String(b&&b.taskId||""), focus:String(b&&b.focus||"").trim().slice(0,90)}))
+    .filter(b=>days.has(b.date) && b.start && b.end && b.end > b.start && tasks.has(b.taskId))
+    .sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  for(const b of raw){
+    const day = days.get(b.date), it = tasks.get(b.taskId);
+    if(b.start < day.from || b.end > day.to) continue;
+    if(b.date===ctx.today && b.start < ctx.now) continue;
+    if(`${b.date} ${b.end}` > `${it.due} ${it.time||"23:59"}`) continue;
+    if(overlaps(busy[b.date], b) || overlaps(out.filter(x=>x.date===b.date), b)) continue;
+    const mins = toMin(b.end) - toMin(b.start);
+    if((perDay[b.date]||0) + mins > ctx.maxMinutesPerDay + 15) continue;
+    perDay[b.date] = (perDay[b.date]||0) + mins;
+    out.push(b);
+  }
+  const unscheduled = (Array.isArray(r.unscheduled)?r.unscheduled:[]).map(u=>({taskId:String(u&&u.taskId||""), reason:String(u&&u.reason||"").trim().slice(0,120)})).filter(u=>tasks.has(u.taskId));
+  return {summary:String(r.summary||"").trim().slice(0,600), blocks:out, unscheduled};
+}
+async function makePlan(){
+  if(!readPlannerPrefs()) return;
+  pl.stage = "loading"; pl.error = ""; renderPlanner();
+  const ctrl = new AbortController(); pl.abort = ctrl;
+  try{
+    const ctx = planContext();
+    const text = await callGemini([{text: plannerPrompt(ctx)}], ctrl.signal, 0.4);
+    pl.result = cleanPlan(parseJson(text), ctx); pl.ctx = ctx; pl.stage = "review";
+  }catch(e){
+    if(e.name==="AbortError" || ctrl.signal.aborted) return;
+    pl.stage = e.code==="key" ? "key" : "prefs";
+    pl.error = e.userMsg || "Something went wrong making your plan. Try again.";
+  }finally{
+    if(pl.abort===ctrl) pl.abort = null;
+  }
+  if($("#planDlg").open) renderPlanner();
+}
+function savePlan(){
+  const r = pl.result, tk = ymd(today()), oldest = ymd(addDays(today(),-30));
+  // Keep the past and finished sessions; replace everything still ahead.
+  const keep = state.plan.blocks.filter(b=>b.date >= oldest && (b.date < tk || b.done));
+  const fresh = r.blocks.map(b=>{ const it = state.items.find(i=>i.id===b.taskId); return {id:uid(), date:b.date, start:b.start, end:b.end, itemId:b.taskId, title: it?it.title:"Study", focus:b.focus, done:false}; });
+  state.plan = {createdAt: Date.now(), summary: r.summary, blocks: keep.concat(fresh)};
+  commit(); $("#planDlg").close();
+  ui.tab = "day"; ui.day = today(); render(); window.scrollTo({top:0});
+  toast("Plan saved" + (connected() && state.settings.incStudy ? ". It's on its way to Apple Calendar too." : "."));
 }
 
 /* ---------- calendar feed (.ics) ---------- */
@@ -1406,6 +1747,20 @@ function specialEvents(stamp){
       "DTSTART;VALUE=DATE:"+compact(d), "DTEND;VALUE=DATE:"+compact(addDays(e,1)), "TRANSP:TRANSPARENT", "SUMMARY:"+icsEsc(sum), "END:VEVENT"];
   });
 }
+/** Study sessions from the AI planner. */
+function studyEvents(stamp){
+  const s = state.settings, tk = ymd(today());
+  return state.plan.blocks.filter(blockVisible).map(b=>{
+    const it = state.items.find(i=>i.id===b.itemId), c = it && classById(it.classId), d = parseYmd(b.date);
+    const sum = `📚 ${b.title}${c?" ("+c.name+")":""}`;
+    const L = ["BEGIN:VEVENT",`UID:${b.id}@study-planner`,`DTSTAMP:${stamp}`,
+      "DTSTART:"+localStamp(withTime(d,b.start)), "DTEND:"+localStamp(withTime(d,b.end)),
+      "SUMMARY:"+icsEsc(sum), "DESCRIPTION:"+icsEsc(b.focus || "Study session")];
+    if(+s.remindStudy && !b.done && b.date >= tk) L.push(...alarm(sum, `-PT${+s.remindStudy}M`));
+    L.push("END:VEVENT");
+    return L;
+  });
+}
 /** The whole calendar as it should look right now. */
 function buildFeed(){
   const s = state.settings, stamp = utcStamp(new Date());
@@ -1423,6 +1778,7 @@ function buildFeed(){
     swapEvents(stamp, term).forEach(e=>lines.push(...e));
     specialEvents(stamp).forEach(e=>lines.push(...e));
   }
+  if(s.incStudy) studyEvents(stamp).forEach(e=>lines.push(...e));
   lines.push("END:VCALENDAR");
   return lines.map(fold).join("\r\n") + "\r\n";
 }
@@ -1473,6 +1829,11 @@ $("#view").addEventListener("click",async e=>{
   const edit = t.closest("[data-edit]"); if(edit){ openItem(edit.dataset.edit); return; }
   const ec = t.closest("[data-editclass]"); if(ec){ openClass(ec.dataset.editclass); return; }
   const es = t.closest("[data-editspecial]"); if(es){ openSpecial(es.dataset.editspecial); return; }
+  const dj = t.closest("[data-dayjump]");
+  if(dj){ const n = +dj.dataset.dayjump; ui.day = n===0 ? today() : addDays(ui.day, n); render(); return; }
+  const gd = t.closest("[data-goday]"); if(gd){ ui.day = parseYmd(gd.dataset.goday); ui.tab = "day"; render(); window.scrollTo({top:0}); return; }
+  const bd = t.closest("[data-blockdel]");
+  if(bd){ state.plan.blocks = state.plan.blocks.filter(x=>x.id!==bd.dataset.blockdel); commit(); render(); toast("Study session removed"); return; }
   const fil = t.closest("[data-filter]"); if(fil){ ui.filter = fil.dataset.filter; render(); return; }
   const wk = t.closest("[data-week]");
   if(wk){ const n=+wk.dataset.week; ui.weekStart = n===0 ? mondayOf(today()) : addDays(ui.weekStart,7*n); render(); return; }
@@ -1480,6 +1841,13 @@ $("#view").addEventListener("click",async e=>{
   const a = act.dataset.action;
   if(a==="add-class") openClass();
   else if(a==="import") openImport();
+  else if(a==="plan") openPlanner();
+  else if(a==="share"){
+    const url = location.origin + location.pathname.replace(/index\.html$/,"");
+    const data = {title:"Study Planner", text:"A free planner for homework, exams and classes. It syncs with Apple Calendar, and its AI reads your timetable and plans your study time.", url};
+    if(navigator.share){ try{ await navigator.share(data); }catch(err){} }
+    else { try{ await navigator.clipboard.writeText(url); toast("Link copied. Send it to your friends."); }catch(err){ prompt("Send this link to your friends:", url); } }
+  }
   else if(a==="add-special") openSpecial();
   else if(a==="sample") loadSample();
   else if(a==="goto-sync"){ ui.tab="sync"; render(); window.scrollTo({top:0}); }
@@ -1505,7 +1873,7 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="restore") $("#restoreInput").click();
   else if(a==="erase"){
     if(confirm("Erase all classes, deadlines and settings?" + (connected()?" Your synced calendar will empty too.":"") + " This can't be undone.")){
-      state = blank(); commit(); ui.tab="agenda"; render(); toast("Everything erased");
+      state = blank(); commit(); ui.tab="day"; ui.day = today(); render(); toast("Everything erased");
     }
   }
 });
@@ -1520,8 +1888,13 @@ $("#view").addEventListener("change",e=>{
     return;
   }
   if(t.id==="termStart"||t.id==="termEnd"){ s[t.id] = t.value; s.termRev = (s.termRev||0)+1; commit(); toast("Semester dates saved"); return; }
-  if(["incTasks","incExams","incClasses"].includes(t.id)){ s[t.id] = t.checked; commit(); return; }
-  if(["remindTask","remindExam","remindClass"].includes(t.id)){ s[t.id] = +t.value; commit(); return; }
+  if(["incTasks","incExams","incClasses","incStudy"].includes(t.id)){ s[t.id] = t.checked; commit(); return; }
+  if(["remindTask","remindExam","remindClass","remindStudy"].includes(t.id)){ s[t.id] = +t.value; commit(); return; }
+  if(t.matches("[data-blockdone]")){
+    const b = state.plan.blocks.find(x=>x.id===t.dataset.blockdone);
+    if(b){ b.done = t.checked; commit(); render(); if(b.done) toast("Nice work."); }
+    return;
+  }
 });
 $("#restoreInput").addEventListener("change",e=>{
   const file = e.target.files[0]; if(!file) return;
