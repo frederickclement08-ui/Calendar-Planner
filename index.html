@@ -38,6 +38,7 @@
   --accent:#8095FF; --accent-ink:#0E1220; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -146,7 +147,31 @@ input[type=text],input[type=date],input[type=time],input[type=number],select,tex
 textarea{min-height:80px;resize:vertical}
 dialog{border:0;border-radius:18px;padding:0;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 40px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
 dialog::backdrop{background:rgba(10,14,25,.45)}
-dialog form{padding:22px;display:flex;flex-direction:column;gap:14px}
+dialog form,dialog .dlg{padding:22px;display:flex;flex-direction:column;gap:14px}
+dialog{overflow:auto}
+dialog .dlg p{margin:0}
+.emoji{font-size:1.2rem;width:18px;text-align:center}
+.slot.special{background:transparent;border:1px solid var(--line);border-left:4px solid var(--muted)}
+.drop{display:block;position:relative;border:2px dashed var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;background:var(--paper)}
+.drop:hover,.drop:focus-within{border-color:var(--accent)}
+.drop b{display:block;font-family:var(--display);font-size:1.05rem}
+.drop > span{display:block;color:var(--muted);font-size:.9rem}
+.drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs:empty{display:none}
+.thumb{position:relative;width:68px;height:68px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:.72rem;text-align:center;padding:4px;overflow-wrap:anywhere}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:.95rem;line-height:1;padding:0;z-index:1}
+.review h3{font-family:var(--display);font-size:1.02rem;margin:8px 0 0}
+.pick{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.pick input{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
+.pick small{display:block;color:var(--muted);font-size:.88rem}
+.tag{font-size:.75rem;font-weight:700;background:var(--soft);border-radius:999px;padding:1px 8px;margin-left:6px;white-space:nowrap}
+.loading{padding:26px 0;text-align:center}
+.loading .bar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden;margin:18px auto 0;max-width:240px}
+.loading .bar i{display:block;height:100%;width:40%;background:var(--accent);border-radius:3px;animation:slide 1.2s ease-in-out infinite}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+.ai-note{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:.9rem}
 dialog h2{margin:0;font-family:var(--display);font-size:1.35rem}
 .field{display:flex;flex-direction:column;gap:5px}
 .field > span{font-weight:700;font-size:.9rem}
@@ -189,7 +214,8 @@ dialog h2{margin:0;font-family:var(--display);font-size:1.35rem}
 .fine{font-size:.9rem;color:var(--muted)}
 .status{font-weight:700;color:var(--ink)!important}
 .linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline}
-a.btn{text-decoration:none;display:inline-block}
+a.btn{text-decoration:none;display:inline-block;color:inherit}
+a.btn.primary{color:var(--accent-ink)}
 .box a{color:var(--accent)}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:20}
 .toast.show{opacity:1}
@@ -243,6 +269,43 @@ a.btn{text-decoration:none;display:inline-block}
   </form>
 </dialog>
 
+<!-- Import dialog -->
+<dialog id="importDlg" aria-labelledby="importTitle">
+  <div class="dlg">
+    <h2 id="importTitle">Import from a photo</h2>
+    <div id="importBody" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+</dialog>
+
+<!-- Day off dialog -->
+<dialog id="specialDlg">
+  <form id="specialForm" method="dialog" novalidate>
+    <h2 id="specialDlgTitle">Add a day off</h2>
+    <label class="field"><span>Name</span><input type="text" name="label" placeholder="e.g. Thanksgiving, study week" autocomplete="off"></label>
+    <label class="field"><span>What happens that day</span>
+      <select name="follows">
+        <option value="0">No classes</option>
+        <option value="1">Follows Monday's schedule</option>
+        <option value="2">Follows Tuesday's schedule</option>
+        <option value="3">Follows Wednesday's schedule</option>
+        <option value="4">Follows Thursday's schedule</option>
+        <option value="5">Follows Friday's schedule</option>
+      </select></label>
+    <div class="two">
+      <label class="field"><span id="specialStartLabel">From</span><input type="date" name="start"></label>
+      <label class="field" id="specialEndWrap"><span>To <span class="hint">(optional)</span></span><input type="date" name="end"></label>
+    </div>
+    <p class="error" id="specialError" hidden></p>
+    <div class="foot">
+      <button type="button" class="btn danger" id="specialDelete" hidden>Delete</button>
+      <div class="right">
+        <button type="button" class="btn ghost" data-close>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
 <!-- Class dialog -->
 <dialog id="classDlg">
   <form id="classForm" method="dialog" novalidate>
@@ -285,11 +348,12 @@ const KINDS = {
   exam:{label:"Exam",icon:"🧪"}
 };
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const DAYS_LONG = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const NOCLASS = "#9AA3B5";
 
 /* ---------- local storage ---------- */
 function blank(){
-  return {classes:[],items:[],meta:{updatedAt:0},
+  return {classes:[],items:[],specialDays:[],meta:{updatedAt:0},
     settings:{termStart:"",termEnd:"",termRev:0,remindTask:1440,remindExam:1440,remindClass:0,incTasks:true,incExams:true,incClasses:true}};
 }
 function normalize(d){
@@ -297,6 +361,7 @@ function normalize(d){
   return {
     classes: Array.isArray(d.classes) ? d.classes : [],
     items: Array.isArray(d.items) ? d.items : [],
+    specialDays: Array.isArray(d.specialDays) ? d.specialDays : [],
     meta: Object.assign(b.meta, d.meta || {}),
     settings: Object.assign(b.settings, d.settings || {})
   };
@@ -355,9 +420,10 @@ function toast(msg){
 
 /* =========================================================
    LIVE SYNC
-   The planner keeps a private GitHub gist up to date with two files:
-   school.ics (the calendar Apple Calendar subscribes to) and
-   study-planner.json (your data, so other devices can load it).
+   Two secret GitHub gists:
+   - the calendar gist holds school.ics, the link Apple Calendar subscribes to;
+   - the data gist holds study-planner.json and settings.json (your Gemini key),
+     so your iPhone, iPad and Mac share everything. Its link is never shared.
    ========================================================= */
 function loadSync(){ try{ return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; }catch(e){ return {}; } }
 function saveSync(){ try{ localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); }catch(e){} }
@@ -380,16 +446,58 @@ async function gh(path, opts={}){
   if(!res.ok){ const e=new Error("http "+res.status); e.code="http"; e.status=res.status; throw e; }
   return res.status===204 ? null : res.json();
 }
-function filesPayload(){
-  return {[ICS_FILE]:{content:buildFeed()}, [DATA_FILE]:{content:JSON.stringify(state)}};
+const DATA_DESC = "Study Planner data (private)";
+const SETTINGS_FILE = "settings.json";
+const tagGist = (p, which)=>p.catch(e=>{ e.which = which; throw e; });
+async function listGists(){
+  const all = [];
+  for(let page=1; page<=5; page++){
+    const list = await gh(`/gists?per_page=100&page=${page}`);
+    all.push(...list);
+    if(list.length < 100) break;
+  }
+  return all;
+}
+async function readGistFile(g, name){
+  const f = g.files && g.files[name];
+  if(!f) return null;
+  if(f.truncated){ const r = await fetch(f.raw_url,{cache:"no-store"}); return r.text(); }
+  return f.content;
+}
+function settingsPayload(){ return {geminiKey: ai.key || "", keyUpdatedAt: ai.updatedAt || 0}; }
+function applyRemoteSettings(st){
+  if(st && st.geminiKey && (+st.keyUpdatedAt||0) > (ai.updatedAt||0)){
+    ai = {key: st.geminiKey, updatedAt: +st.keyUpdatedAt||Date.now()}; saveAi();
+  }
+}
+/**
+ * Private data lives in its own gist, separate from the calendar gist whose link
+ * is shared with Apple Calendar. Older versions kept both in one gist; this moves
+ * the data out. Returns "found", "legacy" or "new".
+ */
+async function ensureDataGist(list){
+  if(sync.dataGistId) return "found";
+  list = list || await listGists();
+  const found = list.find(g=>g.description===DATA_DESC && g.files && g.files[DATA_FILE]);
+  if(found){ sync.dataGistId = found.id; saveSync(); return "found"; }
+  let legacy = null;
+  if(sync.gistId){
+    try{ legacy = await readGistFile(await gh(`/gists/${sync.gistId}`), DATA_FILE); }
+    catch(e){ if(e.code!=="missing") throw e; }
+  }
+  const g = await gh("/gists", {method:"POST", body:JSON.stringify({description:DATA_DESC, public:false, files:{
+    [DATA_FILE]:{content: legacy || JSON.stringify(state)},
+    [SETTINGS_FILE]:{content: JSON.stringify(settingsPayload())}}})});
+  sync.dataGistId = g.id; saveSync();
+  if(legacy){ try{ await gh(`/gists/${sync.gistId}`, {method:"PATCH", body:JSON.stringify({files:{[DATA_FILE]:null}})}); }catch(e){} }
+  return legacy ? "legacy" : "new";
 }
 async function fetchRemote(){
-  const g = await gh(`/gists/${sync.gistId}`);
-  const f = g.files && g.files[DATA_FILE];
-  if(!f) return null;
-  let text = f.content;
-  if(f.truncated){ const r = await fetch(f.raw_url,{cache:"no-store"}); text = await r.text(); }
-  try{ return normalize(JSON.parse(text)); }catch(e){ return null; }
+  const g = await tagGist(gh(`/gists/${sync.dataGistId}`), "data");
+  let data = null, settings = null;
+  try{ const t = await readGistFile(g, DATA_FILE); if(t) data = normalize(JSON.parse(t)); }catch(e){}
+  try{ const t = await readGistFile(g, SETTINGS_FILE); if(t) settings = JSON.parse(t); }catch(e){}
+  return {data, settings};
 }
 const hasData = d=>d && (d.items.length || d.classes.length);
 
@@ -429,8 +537,13 @@ async function push(){
   pushing = true; setStatus("syncing");
   const started = Date.now();
   try{
-    await gh(`/gists/${sync.gistId}`, {method:"PATCH", body:JSON.stringify({files:filesPayload()})});
+    await ensureDataGist();
+    const files = {[DATA_FILE]:{content:JSON.stringify(state)}};
+    if(sync.settingsDirty) files[SETTINGS_FILE] = {content:JSON.stringify(settingsPayload())};
+    await tagGist(gh(`/gists/${sync.dataGistId}`, {method:"PATCH", body:JSON.stringify({files})}), "data");
+    await tagGist(gh(`/gists/${sync.gistId}`, {method:"PATCH", body:JSON.stringify({files:{[ICS_FILE]:{content:buildFeed()}}})}), "cal");
     if((sync.dirtyAt||0) <= started) sync.dirty = false;
+    if(files[SETTINGS_FILE] && (ai.updatedAt||0) <= started) sync.settingsDirty = false;
     sync.lastSync = Date.now(); sync.needsKey = false; saveSync();
     setStatus(sync.dirty ? "pending" : "ok");
   }catch(e){ handleSyncError(e); }
@@ -440,11 +553,13 @@ async function pull(){
   if(!connected() || pushing) return;
   try{
     setStatus("syncing");
+    await ensureDataGist();
     const remote = await fetchRemote();
-    const r = remote ? (remote.meta.updatedAt||0) : 0, l = state.meta.updatedAt||0;
-    if(remote && r > l && !sync.dirty){
-      state = remote; saveLocal(); render();
-    } else if(sync.dirty || l > r){
+    applyRemoteSettings(remote.settings);
+    const r = remote.data ? (remote.data.meta.updatedAt||0) : 0, l = state.meta.updatedAt||0;
+    if(remote.data && r > l && !sync.dirty){
+      state = remote.data; saveLocal(); render();
+    } else if(sync.dirty || sync.settingsDirty || l > r){
       await push(); return;
     }
     sync.lastSync = Date.now(); saveSync(); setStatus("ok");
@@ -459,9 +574,14 @@ function handleSyncError(e){
     if(ui.tab==="sync") render();
     return;
   }
+  if(e.code==="missing" && e.which==="data"){
+    // The private data file was deleted: make a new one from this device and carry on.
+    sync.dataGistId = null; sync.dirty = true; saveSync();
+    retryTimer = setTimeout(push, 1000); return;
+  }
   if(e.code==="missing"){
     sync.gistId = null; saveSync();
-    setStatus("error","The sync file on GitHub was deleted. Connect again to make a new one.");
+    setStatus("error","The calendar file on GitHub was deleted. Connect again to make a new one, then subscribe again in Apple Calendar.");
     render(); return;
   }
   setStatus("error","Couldn't reach GitHub. Trying again soon.");
@@ -472,38 +592,36 @@ async function connect(token, keepGist){
   token = (token||"").trim();
   if(!token){ setStatus("error","Paste your GitHub key first."); render(); return; }
   const prev = sync;
-  sync = {token, gistId: keepGist ? prev.gistId : null, login: keepGist ? prev.login : null};
+  sync = keepGist ? Object.assign({}, prev, {token}) : {token};
   setStatus("syncing"); render();
   try{
     const me = await gh("/user");
     sync.login = me.login;
-    if(keepGist && sync.gistId){ saveSync(); await push(); toast("Key updated"); render(); return; }
-    let found = null;
-    for(let page=1; page<=5 && !found; page++){
-      const list = await gh(`/gists?per_page=100&page=${page}`);
-      found = list.find(g=>g.description===GIST_DESC && g.files && g.files[DATA_FILE]);
-      if(list.length < 100) break;
-    }
-    if(found){
-      sync.gistId = found.id; saveSync();
-      const remote = await fetchRemote();
-      if(hasData(remote)){
-        const useRemote = !hasData(state) || confirm(`Found your planner on GitHub (${remote.items.length} deadlines, ${remote.classes.length} classes). Load it on this device?\n\nCancel keeps what's on this device and replaces the GitHub copy.`);
-        if(useRemote){
-          state = remote; saveLocal();
-          sync.lastSync = Date.now(); saveSync(); setStatus("ok"); render();
-          toast("Planner loaded from GitHub"); return;
-        }
-      }
-      sync.dirty = true; sync.dirtyAt = Date.now(); saveSync();
-      await push();
-    } else {
-      const g = await gh("/gists", {method:"POST", body:JSON.stringify({description:GIST_DESC, public:false, files:filesPayload()})});
+    if(keepGist && sync.gistId){ sync.needsKey = false; saveSync(); await pull(); toast("Key updated"); render(); return; }
+    const list = await listGists();
+    const cal = list.find(g=>g.description===GIST_DESC && g.files && g.files[ICS_FILE]);
+    if(cal) sync.gistId = cal.id;
+    else {
+      const g = await gh("/gists", {method:"POST", body:JSON.stringify({description:GIST_DESC, public:false, files:{[ICS_FILE]:{content:buildFeed()}}})});
       sync.gistId = g.id;
       if(g.owner && g.owner.login) sync.login = g.owner.login;
-      sync.lastSync = Date.now(); saveSync(); setStatus("ok");
     }
-    toast("Connected. Now subscribe in Apple Calendar.");
+    saveSync();
+    const how = await ensureDataGist(list);
+    if(how !== "new"){
+      const remote = await fetchRemote();
+      applyRemoteSettings(remote.settings);
+      if(hasData(remote.data)){
+        const useRemote = !hasData(state) || confirm(`Found your planner on GitHub (${remote.data.items.length} deadlines, ${remote.data.classes.length} classes). Load it on this device?\n\nCancel keeps what's on this device and replaces the GitHub copy.`);
+        if(useRemote){ state = remote.data; saveLocal(); }
+      }
+    }
+    if(ai.key && how==="new") sync.settingsDirty = true;
+    sync.dirty = true; sync.dirtyAt = Date.now(); saveSync();
+    await push();
+    render();
+    toast(hasData(state) ? "Connected. Your planner is synced." : "Connected. Now subscribe in Apple Calendar.");
+    return;
   }catch(e){
     const msg = e.code==="auth" ? "GitHub didn't accept that key. Check you copied all of it and that the gist box was ticked."
       : e.code==="offline" ? "You're offline. Connect once you're back online."
@@ -583,7 +701,7 @@ function renderAgenda(){
   if(!state.items.length && !state.classes.length){
     return banner + `<section class="empty"><h2>Start with your classes</h2>
       <p>Add each class and when it meets, then add homework, assignments and exams. Turn on sync and everything shows up in Apple Calendar on its own.</p>
-      <div class="row-actions"><button class="btn primary" data-action="add-class">Add a class</button><button class="btn" data-action="goto-sync">Set up sync</button><button class="btn" data-action="sample">Try it with example data</button></div></section>`;
+      <div class="row-actions"><button class="btn primary" data-action="import">✨ Import from a photo</button><button class="btn" data-action="add-class">Add a class</button><button class="btn" data-action="goto-sync">Set up sync</button><button class="btn" data-action="sample">Try it with example data</button></div></section>`;
   }
   const f = ui.filter;
   const match = i => f==="all" || (f==="exam" ? i.kind==="exam" : i.kind!=="exam");
@@ -616,6 +734,25 @@ function inTerm(d){
   return true;
 }
 
+/** A day off or a schedule swap covering this date, if any (swaps win). */
+function specialFor(d){
+  const k = ymd(d);
+  const list = state.specialDays.filter(x=>k>=x.start && k<=(x.end||x.start));
+  return list.find(x=>+x.follows) || list[0] || null;
+}
+/** The class meetings that actually happen on this date. */
+function sessionsOn(d){
+  if(!inTerm(d)) return [];
+  const sp = specialFor(d);
+  if(sp && !+sp.follows) return [];
+  const day = sp ? +sp.follows : isoDay(d);
+  const out = [];
+  for(const c of state.classes) for(const s of (c.sessions||[])) if(+s.day===day) out.push({c,s});
+  return out.sort((a,b)=>a.s.start.localeCompare(b.s.start));
+}
+const fmtRange = (a,b)=> (!b || a===b) ? fmtDate(parseYmd(a)) : `${fmtDate(parseYmd(a))} – ${fmtDate(parseYmd(b))}`;
+const normName = n=>String(n||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+
 function renderWeek(){
   const start = ui.weekStart, end = addDays(start,6), t = today();
   const title = `${start.toLocaleDateString(undefined,{month:"short",day:"numeric"})} – ${end.toLocaleDateString(undefined,{month:"short",day:"numeric"})}`;
@@ -625,12 +762,12 @@ function renderWeek(){
     <button class="btn" data-week="1" aria-label="Next week">Next ›</button></div></div><div class="week-grid">`;
   for(let i=0;i<7;i++){
     const d = addDays(start,i), key = ymd(d);
-    const classes = [];
-    if(inTerm(d)) for(const c of state.classes) for(const s of (c.sessions||[])) if(+s.day===i+1) classes.push({c,s});
-    classes.sort((a,b)=>a.s.start.localeCompare(b.s.start));
+    const sp = specialFor(d);
+    const classes = sessionsOn(d);
     const items = state.items.filter(it=>it.due===key).sort((a,b)=>dueAt(a)-dueAt(b));
-    const has = classes.length || items.length;
+    const has = classes.length || items.length || sp;
     html += `<div class="day${dayDiff(d,t)===0?" today":""}${has?" has":""}"><h3><span>${DAYS[i]}</span><b>${d.getDate()}</b></h3>`;
+    if(sp) html += `<div class="slot special">${+sp.follows ? `🔁 ${esc(sp.label||"Schedule change")}<small>${DAYS_LONG[sp.follows-1]} schedule</small>` : `🏖️ ${esc(sp.label||"Day off")}<small>No classes</small>`}</div>`;
     for(const {c,s} of classes){
       html += `<div class="slot" style="--c:${c.color}"><strong>${esc(c.name)}</strong><small>${fmtTime(s.start)}–${fmtTime(s.end)}${s.room?", "+esc(s.room):""}</small></div>`;
     }
@@ -653,6 +790,7 @@ function sessionSummary(c){
 function renderClasses(){
   const s = state.settings;
   let html = `<section class="panel"><h2>Your classes</h2><p>Classes repeat every week between the semester dates below. Their colors carry through your deadlines and your calendar.</p>
+    <div class="row-actions" style="margin-bottom:18px"><button class="btn primary" data-action="import">✨ Import from a photo</button></div>
     <div class="term">
       <label>Semester starts<input type="date" id="termStart" value="${esc(s.termStart)}"></label>
       <label>Semester ends<input type="date" id="termEnd" value="${esc(s.termEnd)}"></label>
@@ -664,6 +802,14 @@ function renderClasses(){
       <div><h3>${esc(c.name)}</h3><p>${c.teacher?esc(c.teacher)+" — ":""}${sessionSummary(c)}</p></div>
       <button class="btn" data-editclass="${c.id}">Edit</button></div>`).join("");
   }
+  const specials = state.specialDays.slice().sort((a,b)=>a.start.localeCompare(b.start));
+  html += `<h2 style="margin-top:36px">Days off and schedule changes</h2>
+    <p>Holidays, study weeks, and days that follow another day's schedule. Classes skip these days, in the planner and in Apple Calendar.</p>`;
+  html += specials.length ? specials.map(x=>`<div class="class-row"><span class="emoji" aria-hidden="true">${+x.follows?"🔁":"🏖️"}</span>
+      <div><h3>${esc(x.label || (+x.follows?"Schedule change":"Day off"))}</h3><p>${+x.follows ? `${fmtDate(parseYmd(x.start))}: follows the ${DAYS_LONG[x.follows-1]} schedule` : fmtRange(x.start,x.end)}</p></div>
+      <button class="btn" data-editspecial="${x.id}">Edit</button></div>`).join("")
+    : `<p class="fine">None yet. Import your school calendar, or add them yourself.</p>`;
+  html += `<div class="row-actions" style="margin-top:14px"><button class="btn" data-action="add-special">Add a day off</button></div>`;
   return html + `</section>`;
 }
 
@@ -705,6 +851,19 @@ function renderSync(){
         <li>You only subscribe once. Apple Calendar rechecks the link on its own schedule, so a change can take a little while to appear.</li>
       </ol>
       <p class="fine">Changes flow one way, from this planner into Apple Calendar. Connected as @${esc(sync.login)}. <button class="linkbtn" data-action="disconnect">Turn off sync on this device</button></p>
+    </div>
+    <div class="box"><h3>Use it on your iPad and Mac</h3>
+      <p>Everything stays in sync between your devices: classes, deadlines, days off, even your Gemini key.</p>
+      <ol class="steps">
+        <li><b>iPad:</b> open the planner's address in Safari, tap Share, then Add to Home Screen.</li>
+        <li><b>Mac:</b> open the address in Safari, then choose File, Add to Dock.</li>
+        <li>Open the new app, go to the Sync tab, and paste your GitHub key. Your planner loads by itself.</li>
+      </ol>
+      <div class="row-actions" style="margin-top:12px">
+        <button class="btn" data-action="copy-address">Copy the planner's address</button>
+        <button class="btn" data-action="copy-token">Copy my GitHub key</button>
+      </div>
+      <p class="fine" style="margin-top:10px">With Handoff on, something you copy on your iPhone can be pasted right away on your iPad or Mac.</p>
     </div>`;
   }
   return `<section class="panel"><h2>Apple Calendar</h2>
@@ -842,6 +1001,320 @@ $("#classDelete").addEventListener("click",()=>{
 });
 document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>b.closest("dialog").close()));
 
+/* ---------- day off dialog ---------- */
+let editingSpecial = null;
+function toggleSpecialEnd(){
+  const f = $("#specialForm"), swap = f.follows.value!=="0";
+  $("#specialEndWrap").hidden = swap;
+  $("#specialStartLabel").textContent = swap ? "Date" : "From";
+}
+function openSpecial(id){
+  const f = $("#specialForm"), sp = id ? state.specialDays.find(x=>x.id===id) : null;
+  editingSpecial = sp;
+  f.label.value = sp ? (sp.label||"") : "";
+  f.follows.value = sp ? String(+sp.follows||0) : "0";
+  f.start.value = sp ? sp.start : ymd(today());
+  f.end.value = sp && sp.end!==sp.start ? sp.end : "";
+  toggleSpecialEnd();
+  $("#specialDlgTitle").textContent = sp ? "Edit day off" : "Add a day off";
+  $("#specialDelete").hidden = !sp; $("#specialError").hidden = true;
+  $("#specialDlg").showModal();
+}
+$("#specialForm").follows.addEventListener("change", toggleSpecialEnd);
+$("#specialForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const f = e.target, follows = +f.follows.value, start = f.start.value;
+  const end = follows ? start : (f.end.value || start);
+  const er = $("#specialError");
+  if(!start){ er.textContent = "Pick a date."; er.hidden = false; return; }
+  if(end < start){ er.textContent = "The end date is before the start date."; er.hidden = false; return; }
+  const data = {label:f.label.value.trim(), start, end, follows};
+  if(editingSpecial) Object.assign(editingSpecial, data);
+  else state.specialDays.push(Object.assign({id:uid()}, data));
+  state.settings.termRev = (state.settings.termRev||0)+1;
+  commit(); $("#specialDlg").close(); render(); toast("Saved");
+});
+$("#specialDelete").addEventListener("click",()=>{
+  if(!editingSpecial || !confirm("Delete this day off?")) return;
+  state.specialDays = state.specialDays.filter(x=>x!==editingSpecial);
+  state.settings.termRev = (state.settings.termRev||0)+1;
+  commit(); $("#specialDlg").close(); render(); toast("Deleted");
+});
+
+/* =========================================================
+   AI IMPORT
+   Sends photos of the timetable and school calendar to Google Gemini
+   (free tier) and turns the answer into classes, semester dates,
+   days off and schedule swaps. The Gemini key syncs to your other
+   devices through the private data gist, never through the calendar link.
+   ========================================================= */
+const AI_KEY = "studyplanner:ai";
+const GEMINI_MODELS = ["gemini-flash-latest","gemini-3.1-flash-lite","gemini-2.5-flash"];
+function loadAi(){
+  try{
+    const d = JSON.parse(localStorage.getItem(AI_KEY)) || {};
+    if(d.provider && d.provider!=="gemini") return {key:"", updatedAt:0}; // older versions could hold a Claude key
+    return {key: d.key || "", updatedAt: d.updatedAt || (d.key ? 1 : 0)};
+  }catch(e){ return {key:"", updatedAt:0}; }
+}
+function saveAi(){ try{ localStorage.setItem(AI_KEY, JSON.stringify(ai)); }catch(e){} }
+let ai = loadAi();
+const imp = {stage:"pick", files:{schedule:[], calendar:[]}, result:null, error:"", abort:null};
+const userErr = (msg, code)=>{ const e = new Error(msg); e.userMsg = msg; e.code = code; return e; };
+
+function openImport(){
+  imp.stage = ai.key ? "pick" : "setup"; imp.error = ""; imp.result = null;
+  renderImport(); $("#importDlg").showModal();
+}
+function clearImportFiles(){
+  for(const k of ["schedule","calendar"]){ imp.files[k].forEach(f=>f.url && URL.revokeObjectURL(f.url)); imp.files[k] = []; }
+}
+$("#importDlg").addEventListener("close",()=>{ if(imp.abort){ imp.abort.abort(); imp.abort = null; } clearImportFiles(); });
+
+function fileSlot(slot, title, sub){
+  const thumbs = imp.files[slot].map((f,i)=>`<div class="thumb">${f.url?`<img src="${f.url}" alt="">`:`📄 ${esc(f.name)}`}<button type="button" data-imp="remove" data-slot="${slot}" data-idx="${i}" aria-label="Remove ${esc(f.name)}">×</button></div>`).join("");
+  return `<label class="drop"><b>${title}</b><span>${sub}</span><input type="file" accept="image/*,application/pdf" multiple data-slot="${slot}"></label><div class="thumbs">${thumbs}</div>`;
+}
+function renderImport(){
+  const body = $("#importBody");
+  let h = "";
+  if(imp.stage==="setup"){
+    h = `<p>The AI reads your photos and fills in your classes for you. It uses Google Gemini, which is free. It needs a key once.</p>
+      <ol class="steps"><li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with a Google account.</li><li>Tap Create API key and copy it. No credit card needed.</li><li>Paste it below.</li></ol>
+      <label class="field"><span>Gemini key</span><input type="password" id="aiKey" value="${esc(ai.key)}" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+      <p class="fine">${connected() ? "Your iPad and Mac get this key automatically through sync." : "Turn on sync and your other devices get this key automatically."} On the free tier, Google may use what you send to improve its products. Your photos go to Google only when you tap Read.</p>
+      ${imp.error?`<p class="error">${esc(imp.error)}</p>`:""}
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-imp="close">Cancel</button><button type="button" class="btn primary" data-imp="save-key">Save key</button></div></div>`;
+  } else if(imp.stage==="pick"){
+    const n = imp.files.schedule.length + imp.files.calendar.length;
+    h = fileSlot("schedule","Your class schedule","A screenshot or photo of your timetable (Omnivox, Léa, a PDF…)")
+      + fileSlot("calendar",'School calendar <span class="hint">(optional)</span>',"Semester dates, holidays, study week, days that follow another day's schedule")
+      + `<p class="fine">Reads with Google Gemini. <button type="button" class="linkbtn" data-imp="settings">Change key</button></p>
+      ${imp.error?`<p class="error">${esc(imp.error)}</p>`:""}
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-imp="close">Cancel</button><button type="button" class="btn primary" data-imp="read" ${n?"":"disabled"}>Read my photos</button></div></div>`;
+  } else if(imp.stage==="loading"){
+    h = `<div class="loading"><p><b>Reading your photos…</b></p><p class="fine">This usually takes 10 to 40 seconds.</p><div class="bar"><i></i></div></div>
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-imp="close">Cancel</button></div></div>`;
+  } else {
+    h = renderReview();
+  }
+  body.innerHTML = h;
+}
+function renderReview(){
+  const r = imp.result;
+  let h = `<div class="review" style="display:flex;flex-direction:column;gap:4px"><p>Here's what the AI found. Untick anything that's wrong, then add the rest. You can edit everything afterwards.</p>`;
+  if(r.classes.length){
+    h += `<h3>Classes</h3>` + r.classes.map((c,i)=>{
+      const ex = state.classes.find(x=>normName(x.name)===normName(c.name));
+      return `<label class="pick"><input type="checkbox" data-pick="class:${i}" checked><span><b>${esc(c.name)}</b>${ex?'<span class="tag">replaces existing</span>':""}<small>${c.teacher?esc(c.teacher)+" — ":""}${sessionSummary(c)}</small></span></label>`;
+    }).join("");
+  }
+  if(r.term.start || r.term.end){
+    h += `<h3>Semester</h3><label class="pick"><input type="checkbox" data-pick="term" checked><span>${r.term.start?"Starts "+fmtDate(parseYmd(r.term.start)):""}${r.term.start&&r.term.end?", ":""}${r.term.end?"ends "+fmtDate(parseYmd(r.term.end)):""}</span></label>`;
+  }
+  if(r.daysOff.length){
+    h += `<h3>Days off</h3>` + r.daysOff.map((x,i)=>`<label class="pick"><input type="checkbox" data-pick="off:${i}" checked><span>🏖️ <b>${esc(x.label||"Day off")}</b><small>${fmtRange(x.start,x.end)}</small></span></label>`).join("");
+  }
+  if(r.swapDays.length){
+    h += `<h3>Schedule changes</h3>` + r.swapDays.map((x,i)=>`<label class="pick"><input type="checkbox" data-pick="swap:${i}" checked><span>🔁 <b>${esc(x.label||"Schedule change")}</b><small>${fmtDate(parseYmd(x.date))}: follows the ${DAYS_LONG[x.follows-1]} schedule</small></span></label>`).join("");
+  }
+  if(r.notes) h += `<p class="ai-note" style="margin-top:10px">🤖 ${esc(r.notes)}</p>`;
+  h += `</div><div class="foot"><button type="button" class="btn ghost" data-imp="back">Back</button><div class="right"><button type="button" class="btn primary" data-imp="apply">Add to my planner</button></div></div>`;
+  return h;
+}
+
+$("#importBody").addEventListener("change",e=>{
+  const t = e.target;
+  if(t.matches('input[type=file]')){
+    for(const file of t.files){
+      const isPdf = file.type==="application/pdf" || /\.pdf$/i.test(file.name);
+      imp.files[t.dataset.slot].push({file, name:file.name, url: isPdf ? null : URL.createObjectURL(file)});
+    }
+    imp.error = ""; renderImport();
+  }
+});
+$("#importBody").addEventListener("click",e=>{
+  const b = e.target.closest("[data-imp]"); if(!b) return;
+  const a = b.dataset.imp;
+  if(a==="close") $("#importDlg").close();
+  else if(a==="settings"){ imp.stage = "setup"; imp.error = ""; renderImport(); }
+  else if(a==="save-key"){
+    const key = ($("#aiKey").value||"").trim();
+    if(!key){ imp.error = "Paste your key first."; renderImport(); return; }
+    ai = {key, updatedAt: Date.now()}; saveAi();
+    if(connected()){ sync.settingsDirty = true; saveSync(); clearTimeout(pushTimer); pushTimer = setTimeout(push, 300); }
+    imp.stage = "pick"; imp.error = ""; renderImport();
+  }
+  else if(a==="remove"){
+    const list = imp.files[b.dataset.slot], f = list[+b.dataset.idx];
+    if(f && f.url) URL.revokeObjectURL(f.url);
+    list.splice(+b.dataset.idx,1); renderImport();
+  }
+  else if(a==="read") readPhotos();
+  else if(a==="back"){ imp.stage = "pick"; renderImport(); }
+  else if(a==="apply") applyImport();
+});
+
+function b64(blob){
+  return new Promise((res,rej)=>{ const r = new FileReader(); r.onload = ()=>res(String(r.result).split(",")[1]); r.onerror = ()=>rej(r.error); r.readAsDataURL(blob); });
+}
+async function toJpeg(file){
+  const url = URL.createObjectURL(file);
+  try{
+    const img = await new Promise((res,rej)=>{ const i = new Image(); i.onload = ()=>res(i); i.onerror = rej; i.src = url; });
+    const max = 2400, k = Math.min(1, max/Math.max(img.naturalWidth, img.naturalHeight));
+    const w = Math.round(img.naturalWidth*k), h = Math.round(img.naturalHeight*k);
+    const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0,0,w,h); cx.drawImage(img,0,0,w,h);
+    const blob = await new Promise(r=>cv.toBlob(r,"image/jpeg",0.88));
+    if(!blob) throw new Error("encode");
+    return blob;
+  } finally { URL.revokeObjectURL(url); }
+}
+async function prepFile(file){
+  const isPdf = file.type==="application/pdf" || /\.pdf$/i.test(file.name);
+  if(isPdf){
+    if(file.size > 15e6) throw userErr(`${file.name} is too big. Keep PDFs under 15 MB.`);
+    return {mime:"application/pdf", data: await b64(file)};
+  }
+  let blob;
+  try{ blob = await toJpeg(file); }
+  catch(e){
+    if(/^image\/(jpeg|png|webp|gif)$/.test(file.type)) blob = file;
+    else throw userErr(`Couldn't open ${file.name}. Try a screenshot, JPEG or PNG instead.`);
+  }
+  return {mime: blob.type || "image/jpeg", data: await b64(blob)};
+}
+
+function importPrompt(){
+  return `You read a student's class timetable and their school's academic calendar, and return JSON only.
+Today is ${ymd(today())}. Documents may be in French (Québec cégep or university) or English. Lundi=1, Mardi=2, Mercredi=3, Jeudi=4, Vendredi=5, Samedi=6, Dimanche=7.
+
+Return exactly this shape:
+{"classes":[{"name":"","teacher":"","sessions":[{"day":1,"start":"HH:MM","end":"HH:MM","room":""}]}],
+ "term":{"start":"YYYY-MM-DD or null","end":"YYYY-MM-DD or null"},
+ "daysOff":[{"start":"YYYY-MM-DD","end":"YYYY-MM-DD","label":""}],
+ "swapDays":[{"date":"YYYY-MM-DD","follows":1,"label":""}],
+ "notes":""}
+
+Rules:
+- One entry per course. Put every weekly meeting of that course (lectures, labs, théorie, laboratoire) in its sessions. Use the course title as the name, short and readable, without the course code unless there is no title. Keep rooms (local) as written. Times in 24-hour format.
+- term.start is the first day of classes and term.end the last day of classes of the semester the timetable belongs to (or the current or upcoming semester if unclear). Use null when not shown.
+- daysOff: every day or range with no classes (holidays, congés, fériés, journées pédagogiques, journées d'étude, semaine de lecture, relâche). For a single day, start equals end. Only days inside or touching the semester.
+- swapDays: days that follow another weekday's schedule (for example "horaire du lundi" or "Monday schedule"). follows is that weekday's number.
+- Work out the year from the calendar and today's date.
+- Only include what you can actually read. Do not invent anything. Use empty arrays when there is nothing.
+- notes: one or two short sentences about anything you were unsure of, in the same language as the documents. Empty string if nothing.
+- Output the JSON object only, with no markdown.`;
+}
+const groupLabel = slot => slot==="schedule" ? "The next file(s) are the student's class timetable." : "The next file(s) are the school's academic calendar.";
+
+async function askGemini(groups, signal){
+  const parts = [{text: importPrompt()}];
+  for(const g of groups){ parts.push({text: groupLabel(g.slot)}); for(const p of g.parts) parts.push({inlineData:{mimeType:p.mime, data:p.data}}); }
+  const body = JSON.stringify({contents:[{role:"user", parts}], generationConfig:{responseMimeType:"application/json", temperature:0.1}});
+  let lastErr = userErr("The AI isn't available right now. Try again later.");
+  for(const model of GEMINI_MODELS){
+    let res;
+    try{
+      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(ai.key)}`,
+        {method:"POST", headers:{"Content-Type":"application/json"}, body, signal});
+    }catch(e){ if(e.name==="AbortError") throw e; throw userErr("No connection. Check your internet and try again."); }
+    if(res.status===404) continue; // model name retired: try the next one
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok){
+      const msg = (data.error && data.error.message) || "";
+      if((res.status===400 && /api.?key/i.test(msg)) || res.status===401 || res.status===403) throw userErr("Google didn't accept that key. Check it and paste it again.","key");
+      if(res.status===429) throw userErr("You've reached the free limit for now. Wait a minute and try again.");
+      if(res.status>=500) { lastErr = userErr("Google's AI is busy right now. Try again in a minute."); continue; }
+      throw userErr(`The AI couldn't read these files (error ${res.status}). Try a different photo.`);
+    }
+    const cand = data.candidates && data.candidates[0];
+    const text = cand && cand.content ? (cand.content.parts||[]).map(p=>p.text||"").join("") : "";
+    if(!text) throw userErr("The AI didn't send anything back. Try again with a clearer photo.");
+    return text;
+  }
+  throw lastErr;
+}
+function parseJson(text){
+  let t = String(text).replace(/```(?:json)?/gi,"");
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if(a<0 || b<a) throw userErr("The AI's answer came back garbled. Try again.");
+  try{ return JSON.parse(t.slice(a,b+1)); }catch(e){ throw userErr("The AI's answer came back garbled. Try again."); }
+}
+function cleanResult(r){
+  r = r && typeof r==="object" ? r : {};
+  const str = (x,n)=>String(x ?? "").trim().slice(0,n);
+  const hm = x=>{ const m = String(x ?? "").trim().match(/^(\d{1,2})\s*[:hH]\s*(\d{2})$/); if(!m) return null; const h=+m[1], mi=+m[2]; return h<24 && mi<60 ? pad(h)+":"+pad(mi) : null; };
+  const dt = x=>{ const v = String(x ?? "").trim(); if(!/^\d{4}-\d{2}-\d{2}$/.test(v)) return null; const d = parseYmd(v); return ymd(d)===v ? v : null; };
+  const day = x=>{ const n = Math.round(+x); return n>=1 && n<=7 ? n : null; };
+  const classes = (Array.isArray(r.classes)?r.classes:[]).map(c=>({
+    name: str(c && c.name, 80), teacher: str(c && c.teacher, 80),
+    sessions: (Array.isArray(c && c.sessions)?c.sessions:[]).map(s=>({day:day(s&&s.day), start:hm(s&&s.start), end:hm(s&&s.end), room:str(s&&s.room,40)}))
+      .filter(s=>s.day && s.start && s.end && s.end>s.start)
+  })).filter(c=>c.name && c.sessions.length);
+  const term = {start: dt(r.term && r.term.start), end: dt(r.term && r.term.end)};
+  if(term.start && term.end && term.end < term.start) term.end = null;
+  const daysOff = (Array.isArray(r.daysOff)?r.daysOff:[]).map(x=>{ let s = dt(x&&x.start), e = dt(x&&x.end) || s; if(s && e < s) [s,e] = [e,s]; return {start:s, end:e, label:str(x&&x.label,60)}; }).filter(x=>x.start);
+  const swapDays = (Array.isArray(r.swapDays)?r.swapDays:[]).map(x=>({date:dt(x&&x.date), follows:day(x&&x.follows), label:str(x&&x.label,60)})).filter(x=>x.date && x.follows);
+  return {classes, term, daysOff, swapDays, notes: str(r.notes, 400)};
+}
+
+async function readPhotos(){
+  if(!(imp.files.schedule.length + imp.files.calendar.length)) return;
+  imp.stage = "loading"; imp.error = ""; renderImport();
+  const ctrl = new AbortController(); imp.abort = ctrl;
+  try{
+    const groups = [];
+    for(const slot of ["schedule","calendar"]){
+      const parts = [];
+      for(const f of imp.files[slot]) parts.push(await prepFile(f.file));
+      if(parts.length) groups.push({slot, parts});
+    }
+    const text = await askGemini(groups, ctrl.signal);
+    const r = cleanResult(parseJson(text));
+    if(!r.classes.length && !r.daysOff.length && !r.swapDays.length && !r.term.start && !r.term.end)
+      throw userErr("The AI couldn't find a schedule in these files. Try a closer, sharper photo or a screenshot.");
+    imp.result = r; imp.stage = "review";
+  }catch(e){
+    if(e.name==="AbortError" || ctrl.signal.aborted) return;
+    imp.stage = e.code==="key" ? "setup" : "pick";
+    imp.error = e.userMsg || "Something went wrong while reading the files. Try again.";
+  }finally{
+    if(imp.abort===ctrl) imp.abort = null;
+  }
+  if($("#importDlg").open) renderImport();
+}
+
+function applyImport(){
+  const r = imp.result, s = state.settings, body = $("#importBody");
+  const picked = k=>{ const el = body.querySelector(`[data-pick="${k}"]`); return !!(el && el.checked); };
+  let added = 0, updated = 0, other = 0;
+  r.classes.forEach((c,i)=>{
+    if(!picked("class:"+i)) return;
+    const sessions = c.sessions.map(x=>Object.assign({id:uid()}, x));
+    const ex = state.classes.find(x=>normName(x.name)===normName(c.name));
+    if(ex){ ex.sessions = sessions; if(c.teacher) ex.teacher = c.teacher; ex.rev = (ex.rev||0)+1; ex.updatedAt = Date.now(); updated++; }
+    else {
+      const used = state.classes.map(x=>x.color);
+      state.classes.push({id:uid(), name:c.name, teacher:c.teacher, color: COLORS.find(x=>!used.includes(x)) || COLORS[state.classes.length % COLORS.length], sessions, rev:0, updatedAt:Date.now()});
+      added++;
+    }
+  });
+  if(picked("term")){ if(r.term.start) s.termStart = r.term.start; if(r.term.end) s.termEnd = r.term.end; other++; }
+  const exists = (st,en,fo)=>state.specialDays.some(x=>x.start===st && (x.end||x.start)===en && (+x.follows||0)===fo);
+  r.daysOff.forEach((x,i)=>{ if(picked("off:"+i) && !exists(x.start,x.end,0)){ state.specialDays.push({id:uid(), label:x.label, start:x.start, end:x.end, follows:0}); other++; } });
+  r.swapDays.forEach((x,i)=>{ if(picked("swap:"+i) && !exists(x.date,x.date,x.follows)){ state.specialDays.push({id:uid(), label:x.label, start:x.date, end:x.date, follows:x.follows}); other++; } });
+  if(!added && !updated && !other){ toast("Nothing was ticked, so nothing changed."); return; }
+  s.termRev = (s.termRev||0)+1;
+  commit(); $("#importDlg").close(); ui.tab = "classes"; render(); window.scrollTo({top:0});
+  const bits = [];
+  if(added) bits.push(`${added} class${added>1?"es":""} added`);
+  if(updated) bits.push(`${updated} updated`);
+  if(other) bits.push("calendar dates saved");
+  toast(bits.join(", ").replace(/^./,c=>c.toUpperCase()));
+}
+
 /* ---------- calendar feed (.ics) ---------- */
 function icsEsc(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
 const compact = d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
@@ -895,6 +1368,9 @@ function classEvents(c, stamp, term){
     const L = ["BEGIN:VEVENT",`UID:${c.id}-${se.id}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${(c.rev||0)+(s.termRev||0)}`,
       "DTSTART:"+localStamp(withTime(first,se.start)), "DTEND:"+localStamp(withTime(first,se.end)),
       `RRULE:FREQ=WEEKLY;UNTIL=${compact(term.end)}T235959`, "SUMMARY:"+icsEsc(c.name)];
+    const skip = [];
+    for(let d = new Date(first); d <= term.end; d = addDays(d,7)) if(specialFor(d)) skip.push(localStamp(withTime(d,se.start)));
+    if(skip.length) L.push("EXDATE:"+skip.join(","));
     if(se.room) L.push("LOCATION:"+icsEsc(se.room));
     if(c.teacher) L.push("DESCRIPTION:"+icsEsc("Teacher: "+c.teacher));
     if(+s.remindClass) L.push(...alarm(c.name, `-PT${+s.remindClass}M`));
@@ -902,6 +1378,33 @@ function classEvents(c, stamp, term){
     out.push(L);
   }
   return out;
+}
+/** Days that follow another weekday's schedule get that weekday's classes. */
+function swapEvents(stamp, term){
+  const s = state.settings, out = [];
+  for(const sp of state.specialDays){
+    if(!+sp.follows) continue;
+    const d = parseYmd(sp.start);
+    if(d < term.start || d > term.end) continue;
+    for(const c of state.classes) for(const se of (c.sessions||[])) if(+se.day===+sp.follows){
+      const L = ["BEGIN:VEVENT",`UID:${c.id}-${se.id}-${compact(d)}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${(c.rev||0)+(s.termRev||0)}`,
+        "DTSTART:"+localStamp(withTime(d,se.start)), "DTEND:"+localStamp(withTime(d,se.end)), "SUMMARY:"+icsEsc(c.name),
+        "DESCRIPTION:"+icsEsc(`${sp.label||"Schedule change"}: ${DAYS_LONG[sp.follows-1]} schedule`)];
+      if(se.room) L.push("LOCATION:"+icsEsc(se.room));
+      if(+s.remindClass) L.push(...alarm(c.name, `-PT${+s.remindClass}M`));
+      L.push("END:VEVENT"); out.push(L);
+    }
+  }
+  return out;
+}
+/** An all-day marker for each day off or schedule change. */
+function specialEvents(stamp){
+  return state.specialDays.map(sp=>{
+    const d = parseYmd(sp.start), e = parseYmd(sp.end||sp.start);
+    const sum = +sp.follows ? `🔁 ${sp.label||"Schedule change"} (${DAYS_LONG[sp.follows-1]} schedule)` : `🏖️ ${sp.label||"Day off"}`;
+    return ["BEGIN:VEVENT",`UID:${sp.id}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${state.settings.termRev||0}`,
+      "DTSTART;VALUE=DATE:"+compact(d), "DTEND;VALUE=DATE:"+compact(addDays(e,1)), "TRANSP:TRANSPARENT", "SUMMARY:"+icsEsc(sum), "END:VEVENT"];
+  });
 }
 /** The whole calendar as it should look right now. */
 function buildFeed(){
@@ -914,7 +1417,12 @@ function buildFeed(){
     if(it.kind==="exam" ? !s.incExams : !s.incTasks) continue;
     lines.push(...itemEvent(it, stamp));
   }
-  if(s.incClasses){ const term = termRange(); for(const c of state.classes) classEvents(c, stamp, term).forEach(e=>lines.push(...e)); }
+  if(s.incClasses){
+    const term = termRange();
+    for(const c of state.classes) classEvents(c, stamp, term).forEach(e=>lines.push(...e));
+    swapEvents(stamp, term).forEach(e=>lines.push(...e));
+    specialEvents(stamp).forEach(e=>lines.push(...e));
+  }
   lines.push("END:VCALENDAR");
   return lines.map(fold).join("\r\n") + "\r\n";
 }
@@ -937,6 +1445,10 @@ function loadSample(){
   state = blank();
   state.settings = Object.assign(settings, {termStart:ymd(mon), termEnd:ymd(addDays(mon, 7*15-3)), termRev:(settings.termRev||0)+1});
   state.classes = [en,ca,ec,ps];
+  state.specialDays = [
+    {id:uid(), label:"Thanksgiving", start:ymd(addDays(mon,14)), end:ymd(addDays(mon,14)), follows:0},
+    {id:uid(), label:"Schedule change", start:ymd(addDays(mon,17)), end:ymd(addDays(mon,17)), follows:1}
+  ];
   state.items = [
     it("homework","Problem set 4",ca,1,"23:59"),
     it("assignment","Essay: The Great Gatsby",en,3,"23:59",{priority:"high",notes:"1200 words, MLA format"}),
@@ -960,12 +1472,15 @@ $("#view").addEventListener("click",async e=>{
   const t = e.target;
   const edit = t.closest("[data-edit]"); if(edit){ openItem(edit.dataset.edit); return; }
   const ec = t.closest("[data-editclass]"); if(ec){ openClass(ec.dataset.editclass); return; }
+  const es = t.closest("[data-editspecial]"); if(es){ openSpecial(es.dataset.editspecial); return; }
   const fil = t.closest("[data-filter]"); if(fil){ ui.filter = fil.dataset.filter; render(); return; }
   const wk = t.closest("[data-week]");
   if(wk){ const n=+wk.dataset.week; ui.weekStart = n===0 ? mondayOf(today()) : addDays(ui.weekStart,7*n); render(); return; }
   const act = t.closest("[data-action]"); if(!act) return;
   const a = act.dataset.action;
   if(a==="add-class") openClass();
+  else if(a==="import") openImport();
+  else if(a==="add-special") openSpecial();
   else if(a==="sample") loadSample();
   else if(a==="goto-sync"){ ui.tab="sync"; render(); window.scrollTo({top:0}); }
   else if(a==="hide-banner"){ try{ localStorage.setItem(BANNER_KEY,"1"); }catch(err){} render(); }
@@ -973,6 +1488,14 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="update-key") connect($("#tokenInput").value, true);
   else if(a==="disconnect") disconnect();
   else if(a==="sync-now"){ sync.dirty = true; sync.dirtyAt = Date.now(); saveSync(); await push(); if(syncUi.s==="ok") toast("Synced"); }
+  else if(a==="copy-address"){
+    const addr = location.origin + location.pathname.replace(/index\.html$/,"");
+    try{ await navigator.clipboard.writeText(addr); toast("Address copied"); }catch(err){ prompt("The planner's address:", addr); }
+  }
+  else if(a==="copy-token"){
+    try{ await navigator.clipboard.writeText(sync.token); toast("GitHub key copied. Paste it in the Sync tab on your other device."); }
+    catch(err){ prompt("Your GitHub key (keep it private):", sync.token); }
+  }
   else if(a==="copy-feed"){
     try{ await navigator.clipboard.writeText(feedUrl().replace(/^https:/,"webcal:")); toast("Calendar link copied"); }
     catch(err){ prompt("Copy this calendar link:", feedUrl().replace(/^https:/,"webcal:")); }
