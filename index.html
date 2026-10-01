@@ -10,16 +10,23 @@
 <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#12161F" media="(prefers-color-scheme: dark)">
 <title>Study Planner</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest?v=2">
+<link rel="apple-touch-icon" href="icon-180.png?v=2">
+<link rel="icon" type="image/png" href="icon-192.png?v=2">
+<script>
+/* Apply the saved theme before the page paints, so there's no flash. */
+(function(){ try{ var t = (JSON.parse(localStorage.getItem("studyplanner:prefs"))||{}).theme;
+  if(t==="light"||t==="dark"){ document.documentElement.setAttribute("data-theme", t);
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){ m.setAttribute("content", t==="dark"?"#12161F":"#F6F7F9"); }); }
+}catch(e){} })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#F6F7F9; --surface:#FFFFFF; --ink:#182032; --muted:#5B6474; --line:#DDE1E8;
-  --accent:#2F4BD8; --accent-ink:#FFFFFF; --danger:#C62F3A; --soft:#EDF0F5;
+  --accent:#5B3FE8; --accent-ink:#FFFFFF; --danger:#C62F3A; --soft:#EDF0F5;
   --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body:"Atkinson Hyperlegible", -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
   color-scheme: light;
@@ -30,12 +37,12 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#12161F; --surface:#1B212C; --ink:#E9EDF5; --muted:#9AA3B5; --line:#2A3242;
-    --accent:#8095FF; --accent-ink:#0E1220; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
+    --accent:#A58FFF; --accent-ink:#120D24; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#12161F; --surface:#1B212C; --ink:#E9EDF5; --muted:#9AA3B5; --line:#2A3242;
-  --accent:#8095FF; --accent-ink:#0E1220; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
+  --accent:#A58FFF; --accent-ink:#120D24; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
@@ -49,8 +56,7 @@ button{cursor:pointer}
 /* Header */
 header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 8px;flex-wrap:wrap}
 .brand{font-family:var(--display);font-weight:800;font-size:1.25rem;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
-.brand-mark{width:28px;height:28px;border-radius:8px;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px;background:var(--ink)}
-.brand-mark i{border-radius:2px}
+.brand-mark{width:30px;height:30px;flex:none;display:block;filter:drop-shadow(0 2px 6px rgba(160,60,200,.3))}
 
 /* Hero */
 .hero{padding:36px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px}
@@ -346,6 +352,17 @@ button.tile:hover{border-color:var(--accent)}
 .selbar .btn{padding:8px 14px}
 .selbar .btn.ghost{color:var(--paper);opacity:.8}
 @media (min-width:900px){ .selbar{left:calc(50% + 105px);bottom:24px} }
+/* Settings: theme and page order */
+.seg{display:inline-flex;gap:4px;background:var(--soft);padding:4px;border-radius:12px;flex-wrap:wrap}
+.seg-btn{border:0;background:transparent;padding:8px 14px;border-radius:9px;font-weight:700;color:var(--muted)}
+.seg-btn[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+ol.order{list-style:none;margin:0 0 10px;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+ol.order li{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+ol.order li:last-child{border-bottom:0}
+ol.order li span:not(.tag){flex:1;font-weight:700}
+ol.order svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--accent)}
+.obtn{border:1px solid var(--line);background:var(--paper);width:38px;height:38px;border-radius:10px;font-size:1.1rem;font-weight:700}
+.obtn:disabled{opacity:.3;cursor:default}
 .toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:20}
 .toast.show{opacity:1}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -355,19 +372,11 @@ button.tile:hover{border-color:var(--accent)}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="top-left"><div class="brand"><span class="brand-mark" aria-hidden="true"><i style="background:#F5C518"></i><i style="background:#FF6FA3"></i><i style="background:#3FA7F5"></i><i style="background:#39C27A"></i></span>Study Planner</div><button type="button" class="sync-chip" id="syncChip" hidden>Synced</button></div>
+    <div class="top-left"><div class="brand"><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="bmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A4DFF"/><stop offset=".55" stop-color="#E9407A"/><stop offset="1" stop-color="#FF8A3D"/></linearGradient><linearGradient id="bmi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A4DFF"/><stop offset="1" stop-color="#F0437A"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#bmg)"/><rect x="15" y="17.5" width="34" height="31" rx="7.5" fill="#fff"/><rect x="21.5" y="13" width="4.5" height="9" rx="2.25" fill="#fff"/><rect x="38" y="13" width="4.5" height="9" rx="2.25" fill="#fff"/><path d="M24.5 34.5l5 5 10.5-11" fill="none" stroke="url(#bmi)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M51 6c.7 3.6 2 4.9 5.6 5.6C53 12.3 51.7 13.6 51 17.2c-.7-3.6-2-4.9-5.6-5.6C49 10.9 50.3 9.6 51 6z" fill="#fff"/></svg>Study Planner</div><button type="button" class="sync-chip" id="syncChip" hidden>Synced</button></div>
   </header>
   <main id="view"></main>
 </div>
-  <nav class="tabbar" role="tablist" aria-label="Sections">
-    <button role="tab" data-tab="day" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><circle cx="12" cy="15" r="2.2" fill="currentColor" stroke="none"/></svg><span>Day</span></button>
-    <button role="tab" data-tab="agenda" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6.5h10M10 12h10M10 17.5h10"/><path d="M3.5 6.5l1.5 1.5 2.5-3M3.5 12l1.5 1.5 2.5-3M3.5 17.5l1.5 1.5 2.5-3"/></svg><span>Due</span></button>
-    <button role="tab" data-tab="week" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M9 9.5V21M15 9.5V21"/></svg><span>Week</span></button>
-    <button role="tab" data-tab="month" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M3 15.2h18M9 9.5V21M15 9.5V21"/></svg><span>Month</span></button>
-    <button role="tab" data-tab="ai" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg><span>AI</span></button>
-    <button role="tab" data-tab="classes" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7.5h6"/></svg><span>Classes</span></button>
-    <button role="tab" data-tab="sync" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5A8 8 0 0 0 6 6.3L4 8.5M4 4v4.5h4.5M4 12.5A8 8 0 0 0 18 17.7l2-2.2M20 20v-4.5h-4.5"/></svg><span>Sync</span></button>
-  </nav>
+  <nav class="tabbar" role="tablist" aria-label="Sections"></nav>
 
 <button class="fab" id="fab" type="button"><span aria-hidden="true">+</span> Add</button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -495,7 +504,15 @@ const NOCLASS = "#9AA3B5";
 function blank(){
   return {classes:[],items:[],specialDays:[],plan:{createdAt:0,summary:"",blocks:[]},meta:{updatedAt:0},
     settings:{termStart:"",termEnd:"",termRev:0,remindTask:1440,remindExam:1440,remindClass:0,remindStudy:15,incTasks:true,incExams:true,incClasses:true,incStudy:true,
+      tabOrder:["day","agenda","week","month","ai","classes","sync"],
       planner:{wdFrom:"16:00",wdTo:"22:00",weFrom:"10:00",weTo:"18:00",maxMin:180,session:45,horizon:7,notes:""}}};
+}
+const TAB_KEYS = ["day","agenda","week","month","ai","classes","sync"];
+function cleanOrder(o){
+  const seen = new Set(), out = [];
+  (Array.isArray(o)?o:[]).forEach(k=>{ if(TAB_KEYS.includes(k) && !seen.has(k)){ seen.add(k); out.push(k); } });
+  TAB_KEYS.forEach(k=>{ if(!seen.has(k)) out.push(k); });
+  return out;
 }
 function normalize(d){
   const b = blank();
@@ -505,7 +522,8 @@ function normalize(d){
     specialDays: Array.isArray(d.specialDays) ? d.specialDays : [],
     plan: Object.assign(b.plan, d.plan || {}),
     meta: Object.assign(b.meta, d.meta || {}),
-    settings: Object.assign(b.settings, d.settings || {}, {planner: Object.assign(b.settings.planner, (d.settings||{}).planner || {})})
+    settings: Object.assign(b.settings, d.settings || {}, {planner: Object.assign(b.settings.planner, (d.settings||{}).planner || {}),
+      tabOrder: cleanOrder((d.settings||{}).tabOrder)})
   };
 }
 function load(){
@@ -712,7 +730,7 @@ function handleSyncError(e){
   if(e.code==="offline"){ setStatus("offline"); return; }
   if(e.code==="auth"){
     sync.needsKey = true; saveSync();
-    setStatus("error","Your GitHub key expired or was removed. Paste a new one in the Sync tab.");
+    setStatus("error","Your GitHub key expired or was removed. Paste a new one in Settings.");
     if(ui.tab==="sync") render();
     return;
   }
@@ -778,12 +796,64 @@ function disconnect(){
   sync = {}; saveSync(); setStatus("off"); render(); toast("Sync turned off on this device");
 }
 
+/* ---------- tabs, theme ---------- */
+const TAB_META = {
+  day:{label:"Day", icon:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><circle cx="12" cy="15" r="2.2" fill="currentColor" stroke="none"/>'},
+  agenda:{label:"Due", icon:'<path d="M10 6.5h10M10 12h10M10 17.5h10"/><path d="M3.5 6.5l1.5 1.5 2.5-3M3.5 12l1.5 1.5 2.5-3M3.5 17.5l1.5 1.5 2.5-3"/>'},
+  week:{label:"Week", icon:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M9 9.5V21M15 9.5V21"/>'},
+  month:{label:"Month", icon:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M3 15.2h18M9 9.5V21M15 9.5V21"/>'},
+  ai:{label:"AI", icon:'<path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>'},
+  classes:{label:"Classes", icon:'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7.5h6"/>'},
+  sync:{label:"Settings", icon:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'}
+};
+let tabbarKey = "";
+function renderTabbar(){
+  const order = state.settings.tabOrder, k = order.join(",");
+  const nav = document.querySelector("nav.tabbar");
+  if(k !== tabbarKey){
+    tabbarKey = k;
+    nav.innerHTML = order.map(t=>`<button role="tab" data-tab="${t}"><svg viewBox="0 0 24 24" aria-hidden="true">${TAB_META[t].icon}</svg><span>${TAB_META[t].label}</span></button>`).join("");
+  }
+  nav.querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.tab===ui.tab)));
+}
+const PREFS_KEY = "studyplanner:prefs";
+let prefs = (()=>{ try{ return Object.assign({theme:"auto"}, JSON.parse(localStorage.getItem(PREFS_KEY))||{}); }catch(e){ return {theme:"auto"}; } })();
+function applyTheme(){
+  const root = document.documentElement, t = prefs.theme;
+  if(t==="light" || t==="dark") root.setAttribute("data-theme", t); else root.removeAttribute("data-theme");
+  const metas = document.querySelectorAll('meta[name="theme-color"]');
+  metas.forEach(m=>{
+    const isDark = (m.getAttribute("media")||"").includes("dark");
+    m.setAttribute("content", t==="dark" ? "#12161F" : t==="light" ? "#F6F7F9" : (isDark ? "#12161F" : "#F6F7F9"));
+  });
+}
+function setTheme(t){ prefs.theme = t; try{ localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); }catch(e){} applyTheme(); render(); }
+function moveTab(key, dir){
+  const o = state.settings.tabOrder.slice(), i = o.indexOf(key), j = i + dir;
+  if(i<0 || j<0 || j>=o.length) return;
+  [o[i], o[j]] = [o[j], o[i]];
+  state.settings.tabOrder = o; commit(); render();
+}
+function appearanceBox(){
+  const o = state.settings.tabOrder;
+  return `<div class="box"><h3>Appearance</h3>
+    <div class="seg" role="radiogroup" aria-label="Theme">${[["auto","Automatic"],["light","Light"],["dark","Dark"]].map(([v,l])=>`<button type="button" class="seg-btn" role="radio" aria-checked="${prefs.theme===v}" data-theme-set="${v}">${l}</button>`).join("")}</div>
+    <p class="fine" style="margin-top:8px">Automatic follows your device, so the app goes dark when your iPhone does.</p>
+    <h3 style="margin-top:20px">Page order</h3>
+    <p>Move pages up or down. The app opens on the first one.</p>
+    <ol class="order">${o.map((k,i)=>`<li><svg viewBox="0 0 24 24" aria-hidden="true">${TAB_META[k].icon}</svg><span>${TAB_META[k].label}</span>${i===0?'<span class="tag">opens first</span>':""}
+      <button type="button" class="obtn" data-move="${k}" data-dir="-1" ${i===0?"disabled":""} aria-label="Move ${TAB_META[k].label} up">↑</button>
+      <button type="button" class="obtn" data-move="${k}" data-dir="1" ${i===o.length-1?"disabled":""} aria-label="Move ${TAB_META[k].label} down">↓</button></li>`).join("")}</ol>
+    <button type="button" class="linkbtn" data-action="reset-order">Back to the original order</button>
+  </div>`;
+}
+
 /* ---------- UI state ---------- */
-const ui = {tab:"day", day: today(), month: new Date(today().getFullYear(), today().getMonth(), 1), filter:"all", weekStart: mondayOf(today()), selecting:false, selected:new Set()};
+const ui = {tab: state.settings.tabOrder[0], day: today(), month: new Date(today().getFullYear(), today().getMonth(), 1), filter:"all", weekStart: mondayOf(today()), selecting:false, selected:new Set()};
 
 /* ---------- rendering ---------- */
 function render(){
-  document.querySelectorAll("nav.tabbar button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.tab===ui.tab)));
+  renderTabbar();
   if(ui.tab!=="agenda" && ui.selecting){ ui.selecting = false; ui.selected.clear(); }
   const v = $("#view");
   if(ui.tab==="day") v.innerHTML = renderDay();
@@ -1116,7 +1186,7 @@ function renderSync(){
       <ol class="steps">
         <li><b>iPad:</b> open the planner's address in Safari, tap Share, then Add to Home Screen.</li>
         <li><b>Mac:</b> open the address in Safari, then choose File, Add to Dock.</li>
-        <li>Open the new app, go to the Sync tab, and paste your GitHub key. Your planner loads by itself.</li>
+        <li>Open the new app, go to Settings, and paste your GitHub key. Your planner loads by itself.</li>
       </ol>
       <div class="row-actions" style="margin-top:12px">
         <button class="btn" data-action="copy-address">Copy the planner's address</button>
@@ -1125,7 +1195,8 @@ function renderSync(){
       <p class="fine" style="margin-top:10px">With Handoff on, something you copy on your iPhone can be pasted right away on your iPad or Mac.</p>
     </div>`;
   }
-  return `<section class="panel"><h2>Apple Calendar</h2>
+  return `<div class="page-head"><div><h1 class="page-title">Settings</h1></div></div>
+    <section class="panel" style="padding-top:0"><h2>Apple Calendar</h2>
     <p>See your deadlines, exams and classes in Apple Calendar next to the rest of your life.</p>
     ${top}
     <div class="box">
@@ -1142,6 +1213,7 @@ function renderSync(){
       </div>
       <p class="fine">Things you check off disappear from the calendar at the next sync.</p>
     </div>
+    ${appearanceBox()}
     <div class="box">
       <h3>Share with friends</h3>
       <p>Friends can use the planner too. Each person gets their own private planner: they can't see yours, and you can't see theirs.</p>
@@ -2145,7 +2217,7 @@ function loadSample(){
     it("homework","Grammar exercises p.42",en,-1,"08:00"),
     it("homework","Worksheet 2",ec,-3,"",{done:true})
   ];
-  commit(); render(); toast("Example data loaded. Erase it any time from the Apple Calendar tab.");
+  commit(); render(); toast("Example data loaded. Erase it any time from Settings.");
 }
 
 /* ---------- events ---------- */
@@ -2160,6 +2232,8 @@ $("#view").addEventListener("click",async e=>{
   const edit = t.closest("[data-edit]"); if(edit){ openItem(edit.dataset.edit); return; }
   const ec = t.closest("[data-editclass]"); if(ec){ openClass(ec.dataset.editclass); return; }
   const es = t.closest("[data-editspecial]"); if(es){ openSpecial(es.dataset.editspecial); return; }
+  const ts = t.closest("[data-theme-set]"); if(ts){ setTheme(ts.dataset.themeSet); return; }
+  const mv = t.closest("[data-move]"); if(mv){ moveTab(mv.dataset.move, +mv.dataset.dir); const again = $(`[data-move="${mv.dataset.move}"][data-dir="${mv.dataset.dir}"]`); if(again && !again.disabled) again.focus(); return; }
   const gt = t.closest("[data-goto]"); if(gt){ ui.tab = gt.dataset.goto; render(); window.scrollTo({top:0}); return; }
   const mo = t.closest("[data-month]");
   if(mo){ const n = +mo.dataset.month; ui.month = n===0 ? new Date(today().getFullYear(), today().getMonth(), 1) : new Date(ui.month.getFullYear(), ui.month.getMonth()+n, 1); render(); return; }
@@ -2179,6 +2253,7 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="import") openImport();
   else if(a==="plan") openPlanner();
   else if(a==="add-item") openItem();
+  else if(a==="reset-order"){ state.settings.tabOrder = TAB_KEYS.slice(); commit(); render(); toast("Pages back in the original order"); }
   else if(a==="sel-start"){ ui.selecting = true; ui.selected.clear(); render(); }
   else if(a==="sel-cancel"){ ui.selecting = false; ui.selected.clear(); render(); }
   else if(a==="sel-share") shareSelected();
@@ -2202,7 +2277,7 @@ $("#view").addEventListener("click",async e=>{
     try{ await navigator.clipboard.writeText(addr); toast("Address copied"); }catch(err){ prompt("The planner's address:", addr); }
   }
   else if(a==="copy-token"){
-    try{ await navigator.clipboard.writeText(sync.token); toast("GitHub key copied. Paste it in the Sync tab on your other device."); }
+    try{ await navigator.clipboard.writeText(sync.token); toast("GitHub key copied. Paste it in Settings on your other device."); }
     catch(err){ prompt("Your GitHub key (keep it private):", sync.token); }
   }
   else if(a==="copy-feed"){
@@ -2272,6 +2347,7 @@ if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=
   navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
 
+applyTheme();
 render();
 if(connected()) pull();
 checkShareHash();

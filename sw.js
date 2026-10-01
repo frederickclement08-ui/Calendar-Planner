@@ -1,6 +1,6 @@
 // Study Planner service worker: makes the app open offline from the Home Screen.
-const CACHE = "study-planner-v8";
-const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
+const CACHE = "study-planner-v9";
+const SHELL = ["./", "./index.html", "./manifest.webmanifest?v=2", "./icon-180.png?v=2", "./icon-192.png?v=2", "./icon-512.png?v=2"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
