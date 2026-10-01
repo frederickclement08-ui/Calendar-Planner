@@ -44,18 +44,13 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);f
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
-.wrap{max-width:1080px;margin:0 auto;padding:0 20px 120px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px calc(150px + env(safe-area-inset-bottom,0px))}
 
 /* Header */
 header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 8px;flex-wrap:wrap}
 .brand{font-family:var(--display);font-weight:800;font-size:1.25rem;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
 .brand-mark{width:28px;height:28px;border-radius:8px;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px;background:var(--ink)}
 .brand-mark i{border-radius:2px}
-nav.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:999px;overflow-x:auto;max-width:100%}
-nav.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-weight:700;color:var(--muted);white-space:nowrap}
-nav.tabs .short{display:none}
-@media (max-width:520px){nav.tabs{width:100%}nav.tabs button{flex:1;padding:8px 4px;font-size:.92rem}nav.tabs .long{display:none}nav.tabs .short{display:inline}}
-nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
 /* Hero */
 .hero{padding:36px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px}
@@ -102,7 +97,7 @@ details.done-group summary{cursor:pointer;font-family:var(--display);font-weight
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .btn.danger{color:var(--danger)}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
-.fab{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--accent-ink);border:0;border-radius:18px;padding:16px 22px;font-weight:700;font-size:1rem;box-shadow:0 6px 20px rgba(20,30,80,.25);display:flex;align-items:center;gap:8px;z-index:5}
+.fab{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--accent-ink);border:0;border-radius:18px;padding:16px 22px;font-weight:700;font-size:1rem;box-shadow:0 6px 20px rgba(20,30,80,.25);display:flex;align-items:center;gap:8px;z-index:5}
 .fab span{font-size:1.4rem;line-height:1}
 
 /* Week */
@@ -149,6 +144,7 @@ dialog{border:0;border-radius:18px;padding:0;background:var(--surface);color:var
 dialog::backdrop{background:rgba(10,14,25,.45)}
 dialog form,dialog .dlg{padding:22px;display:flex;flex-direction:column;gap:14px}
 dialog{overflow:auto}
+dialog:focus,dialog:focus-visible{outline:none}
 dialog .dlg p{margin:0}
 .emoji{font-size:1.2rem;width:18px;text-align:center}
 .slot.special{background:transparent;border:1px solid var(--line);border-left:4px solid var(--muted)}
@@ -259,7 +255,98 @@ ul.timeline{list-style:none;margin:0;padding:0}
 .welcome-steps li::before{content:counter(w);width:30px;height:30px;border-radius:9px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;font-family:var(--display)}
 .welcome-steps b{font-family:var(--display);font-size:1.1rem}
 .welcome-steps p{margin:2px 0 10px;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:20}
+/* Tab bar: bottom on phones, sidebar on wide screens */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:saturate(1.8) blur(18px);backdrop-filter:saturate(1.8) blur(18px);border-top:1px solid var(--line);padding:6px max(4px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0 3px;color:var(--muted);font-size:.66rem;font-weight:700;border-radius:12px;min-width:0}
+.tabbar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-selected="true"]{color:var(--accent)}
+.tabbar button[aria-selected="true"] svg{stroke-width:2.3}
+.tabbar button[data-tab="ai"] svg{color:inherit}
+@media (min-width:900px){
+  .tabbar{top:0;bottom:0;right:auto;width:210px;grid-template-columns:1fr;grid-auto-rows:min-content;align-content:start;gap:4px;padding:84px 14px 20px;border-top:0;border-right:1px solid var(--line)}
+  .tabbar button{flex-direction:row;gap:12px;font-size:.98rem;padding:10px 14px;justify-content:flex-start}
+  .tabbar button[aria-selected="true"]{background:var(--soft);color:var(--ink)}
+  .tabbar button[aria-selected="true"] svg{color:var(--accent)}
+  .wrap{margin-left:210px;padding-left:36px;padding-right:36px}
+  .fab{bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .toast{bottom:90px}
+}
+/* Page heads */
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:26px 0 16px}
+.page-title{font-family:var(--display);font-weight:800;font-size:clamp(1.9rem,6vw,2.8rem);letter-spacing:-.025em;line-height:1.05;margin:0}
+.page-sub{margin:6px 0 0;color:var(--muted)}
+.eyebrow{margin:0 0 4px;color:var(--accent);font-weight:700;font-size:.9rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card.flow{display:flex;flex-direction:column;gap:14px;max-width:640px}
+/* Dashboard */
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:2px 0 12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;min-width:0;color:inherit;font:inherit}
+button.tile{cursor:pointer}
+button.tile:hover{border-color:var(--accent)}
+.tile .l{font-size:.76rem;color:var(--muted);font-weight:700}
+.tile .n{font-family:var(--display);font-size:1.9rem;font-weight:800;line-height:1}
+.tile small{font-size:.78rem;color:var(--muted);line-height:1.25;overflow-wrap:anywhere}
+.tile .bar{display:block;height:6px;border-radius:3px;background:var(--soft);overflow:hidden;margin-top:4px}
+.tile .bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.quick{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none}
+.quick::-webkit-scrollbar{display:none}
+.qbtn{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:.9rem}
+.qbtn:hover{border-color:var(--accent)}
+/* Month */
+.mhead{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px}
+.mhead span{font-size:.75rem;font-weight:700;color:var(--muted);text-align:center}
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.mcell{min-height:104px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;text-align:left;display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden;color:inherit;font:inherit;cursor:pointer}
+.mcell:hover{border-color:var(--accent)}
+.mcell.out{opacity:.38}
+.mcell.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.mcell.today .mnum{background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:0 6px}
+.mcell.off{background:var(--soft)}
+.mnum{font-family:var(--display);font-weight:800;font-size:.95rem;align-self:flex-start}
+.mitems{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mchip{font-size:.72rem;line-height:1.25;padding:2px 5px;border-radius:5px;background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:3px solid var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mchip.exam{font-weight:700}
+.mchip.done{opacity:.5;text-decoration:line-through}
+.mmore,.mstudy,.moff{font-size:.72rem;color:var(--muted);font-weight:700}
+@media (max-width:640px){
+  .mgrid,.mhead{gap:3px}
+  .mcell{min-height:62px;padding:4px;border-radius:9px}
+  .mnum{font-size:.85rem}
+  .mitems{flex-direction:row;flex-wrap:wrap;gap:3px}
+  .mchip{font-size:0;width:8px;height:8px;padding:0;border:0;border-radius:50%;background:var(--c)}
+  .mchip.exam{width:10px;height:10px;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
+  .mstudy,.mmore,.moff{font-size:.62rem}
+}
+/* AI page */
+.ai-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface) 70%);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;max-width:720px}
+.ai-hero p{margin:0}
+.ai-title{font-family:var(--display);font-size:1.5rem;margin:0;letter-spacing:-.01em}
+.ai-summary{font-size:1.12rem;line-height:1.45}
+.ai-stats{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
+.ai-stats b{color:var(--ink);font-family:var(--display);font-size:1.05rem}
+.sess-day{margin-bottom:10px;max-width:720px}
+.sess-date{border:0;background:none;padding:6px 0;font-weight:700;color:var(--muted);font-size:.9rem;cursor:pointer}
+.sess{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:12px;margin-bottom:6px}
+.sess .txt{flex:1;min-width:0}
+.sess b{display:block;overflow-wrap:anywhere}
+.sess small{display:block;color:var(--muted);font-size:.86rem}
+.sess.done b{text-decoration:line-through;color:var(--muted)}
+.tool{display:flex;gap:14px;align-items:flex-start;width:100%;max-width:720px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;color:inherit;font:inherit;cursor:pointer}
+.tool:hover{border-color:var(--accent)}
+.tool-ic{font-size:1.5rem;line-height:1}
+.tool b{display:block;font-family:var(--display);font-size:1.05rem}
+.tool small{display:block;color:var(--muted);font-size:.9rem;margin-top:2px}
+/* Selecting items to share */
+.filters .spacer{flex:1}
+.item.selected{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.check.sel{border-radius:50%}
+.check.sel:checked{background:var(--accent);border-color:var(--accent)}
+.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:12;display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);border-radius:16px;padding:8px 8px 8px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);width:min(560px,calc(100vw - 24px))}
+.selbar .count{flex:1;font-weight:700}
+.selbar .btn{padding:8px 14px}
+.selbar .btn.ghost{color:var(--paper);opacity:.8}
+@media (min-width:900px){ .selbar{left:calc(50% + 105px);bottom:24px} }
+.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:20}
 .toast.show{opacity:1}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -269,16 +356,18 @@ ul.timeline{list-style:none;margin:0;padding:0}
 <div class="wrap">
   <header class="top">
     <div class="top-left"><div class="brand"><span class="brand-mark" aria-hidden="true"><i style="background:#F5C518"></i><i style="background:#FF6FA3"></i><i style="background:#3FA7F5"></i><i style="background:#39C27A"></i></span>Study Planner</div><button type="button" class="sync-chip" id="syncChip" hidden>Synced</button></div>
-    <nav class="tabs" role="tablist" aria-label="Sections">
-      <button role="tab" data-tab="day" aria-selected="true">Day</button>
-      <button role="tab" data-tab="agenda" aria-selected="false">Due</button>
-      <button role="tab" data-tab="week" aria-selected="false">Week</button>
-      <button role="tab" data-tab="classes" aria-selected="false">Classes</button>
-      <button role="tab" data-tab="sync" aria-selected="false"><span class="long">Apple Calendar</span><span class="short">Sync</span></button>
-    </nav>
   </header>
   <main id="view"></main>
 </div>
+  <nav class="tabbar" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="day" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><circle cx="12" cy="15" r="2.2" fill="currentColor" stroke="none"/></svg><span>Day</span></button>
+    <button role="tab" data-tab="agenda" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6.5h10M10 12h10M10 17.5h10"/><path d="M3.5 6.5l1.5 1.5 2.5-3M3.5 12l1.5 1.5 2.5-3M3.5 17.5l1.5 1.5 2.5-3"/></svg><span>Due</span></button>
+    <button role="tab" data-tab="week" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M9 9.5V21M15 9.5V21"/></svg><span>Week</span></button>
+    <button role="tab" data-tab="month" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M3 15.2h18M9 9.5V21M15 9.5V21"/></svg><span>Month</span></button>
+    <button role="tab" data-tab="ai" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg><span>AI</span></button>
+    <button role="tab" data-tab="classes" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7.5h6"/></svg><span>Classes</span></button>
+    <button role="tab" data-tab="sync" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5A8 8 0 0 0 6 6.3L4 8.5M4 4v4.5h4.5M4 12.5A8 8 0 0 0 18 17.7l2-2.2M20 20v-4.5h-4.5"/></svg><span>Sync</span></button>
+  </nav>
 
 <button class="fab" id="fab" type="button"><span aria-hidden="true">+</span> Add</button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -320,11 +409,11 @@ ul.timeline{list-style:none;margin:0;padding:0}
   </div>
 </dialog>
 
-<!-- AI planner dialog -->
-<dialog id="planDlg" aria-labelledby="planTitle">
+<!-- From a friend dialog -->
+<dialog id="sharedDlg" aria-labelledby="sharedTitle">
   <div class="dlg">
-    <h2 id="planTitle">✨ Plan my days</h2>
-    <div id="planBody" style="display:flex;flex-direction:column;gap:14px"></div>
+    <h2 id="sharedTitle">From a friend</h2>
+    <div id="sharedBody" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
 </dialog>
 
@@ -690,18 +779,22 @@ function disconnect(){
 }
 
 /* ---------- UI state ---------- */
-const ui = {tab:"day", day: today(), filter:"all", weekStart: mondayOf(today())};
+const ui = {tab:"day", day: today(), month: new Date(today().getFullYear(), today().getMonth(), 1), filter:"all", weekStart: mondayOf(today()), selecting:false, selected:new Set()};
 
 /* ---------- rendering ---------- */
 function render(){
-  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.tab===ui.tab)));
+  document.querySelectorAll("nav.tabbar button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.tab===ui.tab)));
+  if(ui.tab!=="agenda" && ui.selecting){ ui.selecting = false; ui.selected.clear(); }
   const v = $("#view");
   if(ui.tab==="day") v.innerHTML = renderDay();
   else if(ui.tab==="agenda") v.innerHTML = renderAgenda();
   else if(ui.tab==="week") v.innerHTML = renderWeek();
+  else if(ui.tab==="month") v.innerHTML = renderMonth();
+  else if(ui.tab==="ai") v.innerHTML = renderAI();
   else if(ui.tab==="classes") v.innerHTML = renderClasses();
   else v.innerHTML = renderSync();
   $("#fab").innerHTML = ui.tab==="classes" ? '<span aria-hidden="true">+</span> Add class' : '<span aria-hidden="true">+</span> Add';
+  $("#fab").hidden = ui.tab==="ai" || ui.tab==="sync" || ui.selecting;
   setStatus(syncUi.s, syncUi.msg);
 }
 
@@ -740,9 +833,11 @@ function itemRow(it){
   const c = classById(it.classId), k = KINDS[it.kind] || KINDS.homework, w = relWhen(it);
   const due = parseYmd(it.due);
   const when = it.done ? "" : `<span class="when ${w.cls}">${esc(w.text)}</span>`;
-  return `<li class="item${it.done?" done":""}" style="--c:${colorOf(it)}">
-    <input type="checkbox" class="check" data-done="${it.id}" ${it.done?"checked":""} aria-label="Mark ${esc(it.title)} as done">
-    <button type="button" class="item-main" data-edit="${it.id}">
+  const sel = ui.selecting && ui.tab==="agenda", on = sel && ui.selected.has(it.id);
+  return `<li class="item${it.done?" done":""}${on?" selected":""}" style="--c:${colorOf(it)}">
+    ${sel ? `<input type="checkbox" class="check sel" data-select="${it.id}" ${on?"checked":""} aria-label="Select ${esc(it.title)}">`
+          : `<input type="checkbox" class="check" data-done="${it.id}" ${it.done?"checked":""} aria-label="Mark ${esc(it.title)} as done">`}
+    <button type="button" class="item-main" ${sel?`data-selecttoggle="${it.id}"`:`data-edit="${it.id}"`}>
       <span class="item-title">${k.icon} ${esc(it.title)}${it.priority==="high"?' <span class="flag" title="Important">!</span>':""}</span>
       <span class="item-meta"><span>${c?esc(c.name):"No class"}</span><span>${k.label}</span><span>${fmtDate(due)}${it.time?", "+fmtTime(it.time):""}</span></span>
     </button>
@@ -751,6 +846,25 @@ function itemRow(it){
 }
 
 /* ---------- day view ---------- */
+function dashboard(){
+  const t = today(), now = new Date(), nowM = now.getHours()*60+now.getMinutes(), key = ymd(t);
+  const classes = sessionsOn(t);
+  const nextClass = classes.find(x=>toMin(x.s.end) > nowM);
+  const weekDue = state.items.filter(i=>{ if(i.done) return false; const x = dayDiff(parseYmd(i.due),t); return x>=0 && x<=7; });
+  const late = state.items.filter(i=>!i.done && dayDiff(parseYmd(i.due),t)<0).length;
+  const exams = weekDue.filter(i=>i.kind==="exam").length;
+  const blocks = state.plan.blocks.filter(b=>b.date===key && blockVisible(b));
+  const done = blocks.filter(b=>b.done).length;
+  const classNote = !classes.length ? "No classes" : !nextClass ? "All done for today"
+    : `${toMin(nextClass.s.start)<=nowM?"Now":"Next"}: ${esc(nextClass.c.name)}, ${fmtTime(nextClass.s.start)}`;
+  const dueNote = late ? `<span style="color:var(--danger);font-weight:700">${late} late</span>` : exams ? `Including ${exams} exam${exams>1?"s":""}` : weekDue.length ? "Next 7 days" : "Nothing due";
+  return `<div class="tiles">
+      <div class="tile"><span class="l">Classes today</span><span class="n">${classes.length}</span><small>${classNote}</small></div>
+      <button type="button" class="tile" data-goto="agenda"><span class="l">Due this week</span><span class="n">${weekDue.length}</span><small>${dueNote}</small></button>
+      <button type="button" class="tile" data-goto="ai"><span class="l">Study today</span><span class="n">${blocks.length ? `${done}/${blocks.length}` : "—"}</span>${blocks.length ? `<span class="bar"><i style="width:${Math.round(done/blocks.length*100)}%"></i></span>` : `<small>Plan it with AI</small>`}</button>
+    </div>
+    <div class="quick"><button class="qbtn" data-action="add-item">＋ Deadline</button><button class="qbtn" data-action="plan">✨ Plan my days</button><button class="qbtn" data-action="import">📷 Import timetable</button><button class="qbtn" data-goto="month">🗓️ This month</button></div>`;
+}
 const toMin = t=>{ const [h,m] = String(t).split(":").map(Number); return h*60+m; };
 const fromMin = n=>`${pad(Math.floor(n/60)%24)}:${pad(n%60)}`;
 /** A study session shows if it's in the past, or its task still needs doing. */
@@ -775,15 +889,15 @@ function renderDay(){
   if(!state.items.length && !state.classes.length) return h + welcomeHtml();
   const title = diff===0 ? "Today" : diff===1 ? "Tomorrow" : diff===-1 ? "Yesterday" : d.toLocaleDateString(undefined,{weekday:"long"});
   const sub = d.toLocaleDateString(undefined, Math.abs(diff)<=1 ? {weekday:"long",month:"long",day:"numeric"} : {month:"long",day:"numeric",year: d.getFullYear()!==t.getFullYear()?"numeric":undefined});
-  h += `<div class="day-head"><div><h1 class="day-title">${title}</h1><p class="day-sub">${esc(sub)}</p></div>
+  const hr = new Date().getHours();
+  const greet = diff===0 ? `<p class="eyebrow">${hr<12?"Good morning":hr<18?"Good afternoon":"Good evening"}</p>` : "";
+  h += `<div class="day-head"><div>${greet}<h1 class="day-title">${title}</h1><p class="day-sub">${esc(sub)}</p></div>
     <div class="row-actions"><button class="btn" data-dayjump="-1" aria-label="Previous day">‹</button><button class="btn" data-dayjump="0">Today</button><button class="btn" data-dayjump="1" aria-label="Next day">›</button></div></div>`;
 
-  const openCount = state.items.filter(i=>!i.done).length;
+  if(diff===0) h += dashboard();
   const futureBlocks = state.plan.blocks.some(b=>b.date>=ymd(t) && !b.done && blockVisible(b));
   if(diff===0 && state.plan.summary && futureBlocks){
     h += `<div class="coach"><span class="coach-label">✨ Your plan</span><p>${esc(state.plan.summary)}</p><button class="linkbtn" data-action="plan">Redo my plan</button></div>`;
-  } else if(diff>=0 && openCount && !futureBlocks){
-    h += `<div class="coach"><p><b>Not sure where to start?</b> The AI planner can spread your work into study sessions that fit around your classes.</p><button class="btn primary" data-action="plan">✨ Plan my days</button></div>`;
   }
 
   const sp = specialFor(d);
@@ -849,7 +963,11 @@ function renderAgenda(){
   let html = banner + heroSentence(open);
   html += `<div class="filters" role="group" aria-label="Show">
     ${[["all","Everything"],["tasks","Homework & assignments"],["exam","Exams"]].map(([k,l])=>`<button class="chip" data-filter="${k}" aria-pressed="${f===k}">${l}</button>`).join("")}
+    <span class="spacer"></span>
+    ${ui.selecting ? "" : `<button class="chip" data-action="sel-start">↗ Share with a friend</button><button class="chip" data-action="from-friend">↙ Add from a friend</button>`}
   </div>`;
+  if(ui.selecting) html += `<div class="selbar" role="region" aria-label="Sharing"><span class="count">${ui.selected.size ? ui.selected.size+" selected" : "Tap items to share"}</span>
+    <button class="btn ghost" data-action="sel-cancel">Cancel</button><button class="btn primary" data-action="sel-share" ${ui.selected.size?"":"disabled"}>Share</button></div>`;
   for(const [label,cls,test] of groups){
     const list = open.filter(i=>test(dayDiff(parseYmd(i.due),t)));
     if(!list.length) continue;
@@ -1475,14 +1593,13 @@ function applyImport(){
    it must sit inside your study window, before the task's due time,
    and never on top of a class, an exam or another session.
    ========================================================= */
-const pl = {stage:"prefs", result:null, ctx:null, error:"", abort:null};
+const pl = {stage:"overview", result:null, ctx:null, error:"", abort:null};
 function openPlanner(){
   pl.stage = ai.key ? "prefs" : "key"; pl.error = ""; pl.result = null;
-  renderPlanner(); $("#planDlg").showModal();
+  ui.tab = "ai"; render(); window.scrollTo({top:0});
 }
-$("#planDlg").addEventListener("close",()=>{ if(pl.abort){ pl.abort.abort(); pl.abort = null; } });
-
-function renderPlanner(){
+function renderPlanner(){ if(ui.tab==="ai") render(); }
+function plannerHtml(){
   const P = state.settings.planner;
   const opt = (list, val, fmt)=>list.map(v=>`<option value="${v}" ${+val===v?"selected":""}>${fmt(v)}</option>`).join("");
   const hrs = m=> m<60 ? `${m} min` : (m%60 ? `${Math.floor(m/60)} h ${m%60}` : `${m/60} h`);
@@ -1530,19 +1647,21 @@ function renderPlanner(){
         <div class="foot"><button type="button" class="btn ghost" data-pl="back">Change my hours</button><div class="right"><button type="button" class="btn" data-pl="make">Try again</button><button type="button" class="btn primary" data-pl="save">Save plan</button></div></div>`;
     }
   }
-  $("#planBody").innerHTML = h;
+  return h;
 }
 
-$("#planBody").addEventListener("click",e=>{
+$("#view").addEventListener("click",e=>{
   const b = e.target.closest("[data-pl]"); if(!b) return;
   const a = b.dataset.pl;
-  if(a==="close") $("#planDlg").close();
+  if(a==="close"){ pl.stage = "overview"; pl.error = ""; if(pl.abort){ pl.abort.abort(); pl.abort = null; } render(); }
+  else if(a==="new"){ pl.stage = ai.key ? "prefs" : "key"; pl.error = ""; render(); }
+  else if(a==="key"){ pl.stage = "key"; pl.error = ""; render(); }
   else if(a==="save-key"){
     const key = ($("#planKey").value||"").trim();
     if(!key){ pl.error = "Paste your key first."; renderPlanner(); return; }
     ai = {key, updatedAt: Date.now()}; saveAi();
     if(connected()){ sync.settingsDirty = true; saveSync(); clearTimeout(pushTimer); pushTimer = setTimeout(push, 300); }
-    pl.stage = "prefs"; pl.error = ""; renderPlanner();
+    pl.stage = "prefs"; pl.error = ""; renderPlanner(); toast("Gemini key saved");
   }
   else if(a==="make") makePlan();
   else if(a==="back"){ pl.stage = "prefs"; pl.error = ""; renderPlanner(); }
@@ -1643,7 +1762,7 @@ async function makePlan(){
   }finally{
     if(pl.abort===ctrl) pl.abort = null;
   }
-  if($("#planDlg").open) renderPlanner();
+  renderPlanner();
 }
 function savePlan(){
   const r = pl.result, tk = ymd(today()), oldest = ymd(addDays(today(),-30));
@@ -1651,10 +1770,222 @@ function savePlan(){
   const keep = state.plan.blocks.filter(b=>b.date >= oldest && (b.date < tk || b.done));
   const fresh = r.blocks.map(b=>{ const it = state.items.find(i=>i.id===b.taskId); return {id:uid(), date:b.date, start:b.start, end:b.end, itemId:b.taskId, title: it?it.title:"Study", focus:b.focus, done:false}; });
   state.plan = {createdAt: Date.now(), summary: r.summary, blocks: keep.concat(fresh)};
-  commit(); $("#planDlg").close();
-  ui.tab = "day"; ui.day = today(); render(); window.scrollTo({top:0});
+  commit(); pl.stage = "overview"; pl.result = null;
+  ui.tab = "ai"; render(); window.scrollTo({top:0});
   toast("Plan saved" + (connected() && state.settings.incStudy ? ". It's on its way to Apple Calendar too." : "."));
 }
+
+/* ---------- month view ---------- */
+function renderMonth(){
+  const m = ui.month, t = today();
+  const title = m.toLocaleDateString(undefined,{month:"long", year:"numeric"});
+  const last = new Date(m.getFullYear(), m.getMonth()+1, 0);
+  const start = mondayOf(m), end = addDays(mondayOf(last), 6);
+  let h = `<div class="page-head"><div><h1 class="page-title">${esc(title.charAt(0).toUpperCase()+title.slice(1))}</h1></div>
+    <div class="row-actions"><button class="btn" data-month="-1" aria-label="Previous month">‹</button><button class="btn" data-month="0">This month</button><button class="btn" data-month="1" aria-label="Next month">›</button></div></div>
+    <div class="mhead">${DAYS.map(d=>`<span>${d}</span>`).join("")}</div><div class="mgrid">`;
+  for(let d = new Date(start); d <= end; d = addDays(d,1)){
+    const key = ymd(d), sp = specialFor(d);
+    const items = state.items.filter(i=>i.due===key).sort((a,b)=>(b.kind==="exam")-(a.kind==="exam") || dueAt(a)-dueAt(b));
+    const study = state.plan.blocks.filter(b=>b.date===key && blockVisible(b) && !b.done).length;
+    const cls = ["mcell"];
+    if(d.getMonth()!==m.getMonth()) cls.push("out");
+    if(dayDiff(d,t)===0) cls.push("today");
+    if(sp && !+sp.follows) cls.push("off");
+    const chips = items.slice(0,3).map(i=>`<span class="mchip${i.kind==="exam"?" exam":""}${i.done?" done":""}" style="--c:${colorOf(i)}">${(KINDS[i.kind]||KINDS.homework).icon} ${esc(i.title)}</span>`).join("");
+    const more = items.length>3 ? `<span class="mmore">+${items.length-3}</span>` : "";
+    const label = `${fmtDate(d)}: ${items.length} due${study?`, ${study} study session${study>1?"s":""}`:""}${sp?", "+(sp.label||"day off"):""}`;
+    h += `<button type="button" class="${cls.join(" ")}" data-goday="${key}" aria-label="${esc(label)}"><span class="mnum">${d.getDate()}</span>
+      <span class="mitems">${chips}${more}${study?`<span class="mstudy">📚${study>1?" "+study:""}</span>`:""}${sp&&!+sp.follows?`<span class="moff">🏖️</span>`:""}</span></button>`;
+  }
+  h += `</div>`;
+  const inMonth = state.items.filter(i=>{ const d = parseYmd(i.due); return d.getMonth()===m.getMonth() && d.getFullYear()===m.getFullYear() && !i.done; }).sort((a,b)=>dueAt(a)-dueAt(b));
+  const exams = inMonth.filter(i=>i.kind==="exam"), big = inMonth.filter(i=>i.kind==="assignment"||i.kind==="project");
+  if(exams.length) h += `<h2 class="section-label">Exams this month</h2><ul class="items">${exams.map(itemRow).join("")}</ul>`;
+  if(big.length) h += `<h2 class="section-label">Assignments and projects</h2><ul class="items">${big.map(itemRow).join("")}</ul>`;
+  return h;
+}
+
+/* ---------- AI page ---------- */
+function renderAI(){
+  let h = `<div class="page-head"><div><h1 class="page-title">AI coach</h1><p class="page-sub">Plans your study time and reads your timetable. Powered by Google Gemini, free.</p></div></div>`;
+  if(pl.stage !== "overview") return h + `<section class="card flow">${plannerHtml()}</section>`;
+  const tk = ymd(today());
+  const ahead = state.plan.blocks.filter(b=>b.date>=tk && blockVisible(b)).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  const left = ahead.filter(b=>!b.done);
+  const mins = left.reduce((n,b)=>n+toMin(b.end)-toMin(b.start),0);
+  const doneCount = ahead.filter(b=>b.done).length;
+  const hrs = m=> m<60 ? `${m} min` : (m%60 ? `${Math.floor(m/60)} h ${m%60}` : `${m/60} h`);
+  if(left.length && state.plan.summary){
+    h += `<section class="ai-hero"><span class="coach-label">✨ Your plan</span><p class="ai-summary">${esc(state.plan.summary)}</p>
+      <div class="ai-stats"><span><b>${left.length}</b> sessions to go</span><span><b>${hrs(mins)}</b> planned</span><span><b>${doneCount}</b> done</span></div>
+      <div class="row-actions"><button class="btn primary" data-pl="new">Make a new plan</button></div></section>`;
+  } else {
+    h += `<section class="ai-hero"><span class="coach-label">✨ Study planner</span><h2 class="ai-title">Let the AI plan your week</h2>
+      <p>It spreads homework, assignments and exam prep into study sessions that fit around your classes, and tells you what to do first.</p>
+      <div class="row-actions"><button class="btn primary" data-pl="new">✨ Plan my days</button></div></section>`;
+  }
+  if(ahead.length){
+    const by = {}; ahead.forEach(b=>(by[b.date] = by[b.date] || []).push(b));
+    h += `<h2 class="section-label">Coming sessions</h2>` + Object.keys(by).sort().slice(0,14).map(dk=>{
+      const d = parseYmd(dk), diff = dayDiff(d,today());
+      const label = diff===0 ? "Today" : diff===1 ? "Tomorrow" : fmtDate(d);
+      return `<div class="sess-day"><button type="button" class="sess-date" data-goday="${dk}">${label}</button>` + by[dk].map(b=>{
+        const it = state.items.find(i=>i.id===b.itemId);
+        return `<div class="sess${b.done?" done":""}" style="--c:${it?colorOf(it):NOCLASS}"><input type="checkbox" class="check" data-blockdone="${b.id}" ${b.done?"checked":""} aria-label="Mark this study session done">
+          <div class="txt"><b>${esc(b.title)}</b><small>${fmtTime(b.start)}–${fmtTime(b.end)}${b.focus?" · "+esc(b.focus):""}</small></div>
+          <button type="button" class="xbtn" data-blockdel="${b.id}" aria-label="Remove this study session">×</button></div>`;
+      }).join("") + `</div>`;
+    }).join("");
+  }
+  h += `<h2 class="section-label">More AI tools</h2>
+    <button type="button" class="tool" data-action="import"><span class="tool-ic" aria-hidden="true">📷</span><span><b>Import from a photo</b><small>The AI reads your timetable and school calendar, then fills in your classes, semester dates and days off.</small></span></button>
+    <p class="fine" style="margin-top:14px">${ai.key ? `Gemini key saved${connected()?", and synced to your other devices":""}. <button class="linkbtn" data-pl="key">Change key</button>` : `No Gemini key yet. <button class="linkbtn" data-pl="key">Add your free key</button>`}</p>`;
+  return h;
+}
+
+/* =========================================================
+   SHARING WITH FRIENDS
+   Selected deadlines and exams are packed into the link itself
+   (after #share=), compressed. Nothing goes through a server.
+   ========================================================= */
+const b64u = bytes=>{ let s = ""; for(let i=0;i<bytes.length;i+=0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i,i+0x8000)); return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); };
+const unb64u = str=>{ str = str.replace(/-/g,"+").replace(/_/g,"/"); while(str.length%4) str += "="; const bin = atob(str); const out = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) out[i] = bin.charCodeAt(i); return out; };
+async function packShare(obj){
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  if(typeof CompressionStream !== "undefined"){
+    try{ const out = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer()); return "z"+b64u(out); }catch(e){}
+  }
+  return "j"+b64u(bytes);
+}
+async function unpackShare(code){
+  const kind = code[0]; let raw = unb64u(code.slice(1));
+  if(kind==="z"){
+    if(typeof DecompressionStream === "undefined") throw userErr("This device is too old to open shared items. Update iOS or your browser, then try again.");
+    raw = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+  } else if(kind!=="j") throw new Error("bad");
+  return JSON.parse(new TextDecoder().decode(raw));
+}
+const appAddress = ()=>location.origin + location.pathname.replace(/index\.html$/,"");
+
+async function shareSelected(){
+  const items = state.items.filter(i=>ui.selected.has(i.id));
+  if(!items.length){ toast("Select at least one item."); return; }
+  const classes = [], idx = {};
+  const payload = {v:1, items: items.map(i=>{
+    const c = classById(i.classId); let ci = -1;
+    if(c){ if(!(c.id in idx)){ idx[c.id] = classes.length; classes.push({n:c.name, c:c.color}); } ci = idx[c.id]; }
+    const o = {k:i.kind, t:i.title, d:i.due};
+    if(i.time) o.tm = i.time; if(i.kind==="exam"){ o.du = +i.duration||120; if(i.room) o.r = i.room; }
+    if(i.notes) o.n = i.notes; if(i.priority==="high") o.p = 1; if(ci>=0) o.c = ci;
+    return o;
+  })};
+  payload.classes = classes;
+  const url = appAddress() + "#share=" + await packShare(payload);
+  const what = items.length===1 ? `“${items[0].title}”` : `${items.length} deadlines and exams`;
+  const text = `${what} from my Study Planner. Open the link, or copy it and paste it in the app (Due tab, Add from a friend).`;
+  if(navigator.share){
+    try{ await navigator.share({title:"Study Planner", text, url}); }catch(e){ if(e && e.name==="AbortError") return; }
+  } else {
+    try{ await navigator.clipboard.writeText(url); toast("Link copied. Send it to your friend."); }
+    catch(e){ prompt("Send this link to your friend:", url); }
+  }
+  ui.selecting = false; ui.selected.clear(); render();
+}
+
+const sh = {stage:"paste", result:null, error:"", fromLink:false, link:""};
+function openShared(code, fromLink, link){
+  sh.error = ""; sh.fromLink = !!fromLink; sh.link = link || "";
+  if(code){ loadShared(code); } else { sh.stage = "paste"; renderShared(); }
+  if(!$("#sharedDlg").open) $("#sharedDlg").showModal();
+}
+async function loadShared(code){
+  try{
+    const r = cleanShared(await unpackShare(code));
+    if(!r.items.length) throw userErr("There's nothing to add in that link.");
+    sh.result = r; sh.stage = "review"; sh.error = "";
+  }catch(e){
+    sh.stage = "paste"; sh.error = e.userMsg || "That link doesn't work. Ask your friend to share it again.";
+  }
+  renderShared();
+}
+function cleanShared(p){
+  p = p && typeof p==="object" ? p : {};
+  const classes = (Array.isArray(p.classes)?p.classes:[]).slice(0,40).map(c=>({name:String(c&&c.n||"").trim().slice(0,80), color: /^#[0-9a-f]{6}$/i.test(c&&c.c) ? c.c : COLORS[0]}));
+  const hm = x=>/^\d{2}:\d{2}$/.test(String(x||"")) ? String(x) : "";
+  const items = (Array.isArray(p.items)?p.items:[]).slice(0,200).map(o=>({
+    kind: KINDS[o&&o.k] ? o.k : "homework", title:String(o&&o.t||"").trim().slice(0,120),
+    due: /^\d{4}-\d{2}-\d{2}$/.test(String(o&&o.d||"")) ? o.d : "", time: hm(o&&o.tm),
+    duration: Math.max(15, Math.min(600, +(o&&o.du)||120)), room:String(o&&o.r||"").slice(0,40),
+    notes:String(o&&o.n||"").slice(0,1000), priority: o&&o.p ? "high" : "normal",
+    cls: Number.isInteger(o&&o.c) && classes[o.c] ? classes[o.c] : null
+  })).filter(i=>i.title && i.due);
+  return {items};
+}
+function renderShared(){
+  const body = $("#sharedBody"); let h = "";
+  if(sh.stage==="paste"){
+    h = `<p>Paste the link your friend sent you.</p>
+      <label class="field"><span>Link</span><textarea id="sharedPaste" placeholder="https://…#share=…" spellcheck="false" autocapitalize="off"></textarea></label>
+      ${sh.error?`<p class="error">${esc(sh.error)}</p>`:""}
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-sh="close">Cancel</button><button type="button" class="btn primary" data-sh="read">Continue</button></div></div>`;
+  } else {
+    const r = sh.result;
+    const dup = i=>state.items.some(x=>normName(x.title)===normName(i.title) && x.due===i.due && x.kind===i.kind);
+    h = (sh.fromLink && isIOS && !isStandalone ? `<p class="ai-note">Using Study Planner from your Home Screen? It keeps its own copy of your planner, so add these there: copy this link, open the app, then tap Due, Add from a friend. <button type="button" class="linkbtn" data-sh="copy-link">Copy link</button></p>` : "")
+      + `<p>Your friend shared ${r.items.length===1?"this":"these"} with you. Untick anything you don't want.</p><div class="review">`
+      + r.items.map((i,n)=>{
+        const isDup = dup(i), k = KINDS[i.kind];
+        const newCls = i.cls && !state.classes.some(c=>normName(c.name)===normName(i.cls.name));
+        return `<label class="pick"><input type="checkbox" data-shpick="${n}" ${isDup?"":"checked"}><span><b>${k.icon} ${esc(i.title)}</b>${isDup?'<span class="tag">already in your planner</span>':""}${newCls?`<span class="tag">new class</span>`:""}
+          <small>${i.cls?esc(i.cls.name)+" — ":""}${k.label}, ${fmtDate(parseYmd(i.due))}${i.time?", "+fmtTime(i.time):""}</small></span></label>`;
+      }).join("") + `</div>
+      <div class="foot"><div class="right"><button type="button" class="btn ghost" data-sh="close">Cancel</button><button type="button" class="btn primary" data-sh="add">Add to my planner</button></div></div>`;
+  }
+  body.innerHTML = h;
+}
+$("#sharedBody").addEventListener("click", async e=>{
+  const b = e.target.closest("[data-sh]"); if(!b) return;
+  const a = b.dataset.sh;
+  if(a==="close") $("#sharedDlg").close();
+  else if(a==="read"){
+    const v = ($("#sharedPaste").value||"").trim();
+    const m = v.match(/#share=([A-Za-z0-9_-]+)/) || v.match(/^([zj][A-Za-z0-9_-]{8,})$/);
+    if(!m){ sh.error = "That doesn't look like a Study Planner link."; renderShared(); return; }
+    loadShared(m[1]);
+  }
+  else if(a==="copy-link"){ try{ await navigator.clipboard.writeText(sh.link); toast("Link copied"); }catch(err){ prompt("Copy this link:", sh.link); } }
+  else if(a==="add"){
+    const r = sh.result, picked = r.items.filter((_,n)=>{ const el = $("#sharedBody").querySelector(`[data-shpick="${n}"]`); return el && el.checked; });
+    if(!picked.length){ toast("Nothing ticked, so nothing was added."); return; }
+    let newClasses = 0;
+    for(const i of picked){
+      let classId = "";
+      if(i.cls){
+        let c = state.classes.find(x=>normName(x.name)===normName(i.cls.name));
+        if(!c){
+          const used = state.classes.map(x=>x.color);
+          c = {id:uid(), name:i.cls.name, teacher:"", color: used.includes(i.cls.color) ? (COLORS.find(x=>!used.includes(x)) || i.cls.color) : i.cls.color, sessions:[], rev:0, updatedAt:Date.now()};
+          state.classes.push(c); newClasses++;
+        }
+        classId = c.id;
+      }
+      state.items.push({id:uid(), kind:i.kind, title:i.title, classId, due:i.due, time:i.time,
+        duration: i.kind==="exam" ? i.duration : undefined, room: i.kind==="exam" ? i.room : "",
+        priority:i.priority, notes:i.notes, done:false, rev:0, updatedAt:Date.now()});
+    }
+    commit(); $("#sharedDlg").close(); ui.tab = "agenda"; render(); window.scrollTo({top:0});
+    toast(`Added ${picked.length} item${picked.length>1?"s":""}` + (newClasses?`. Add class times for the new class${newClasses>1?"es":""} in Classes.`:"."));
+  }
+});
+function checkShareHash(){
+  const m = location.hash.match(/^#share=([A-Za-z0-9_-]+)/);
+  if(!m) return;
+  const link = location.href;
+  history.replaceState(null, "", location.pathname + location.search);
+  openShared(m[1], true, link);
+}
+window.addEventListener("hashchange", checkShareHash);
 
 /* ---------- calendar feed (.ics) ---------- */
 function icsEsc(s){ return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n"); }
@@ -1818,7 +2149,7 @@ function loadSample(){
 }
 
 /* ---------- events ---------- */
-document.querySelector("nav.tabs").addEventListener("click",e=>{
+document.querySelector("nav.tabbar").addEventListener("click",e=>{
   const b = e.target.closest("[data-tab]"); if(!b) return; ui.tab = b.dataset.tab; render(); window.scrollTo({top:0});
 });
 $("#syncChip").addEventListener("click",()=>{ ui.tab="sync"; render(); window.scrollTo({top:0}); });
@@ -1829,6 +2160,11 @@ $("#view").addEventListener("click",async e=>{
   const edit = t.closest("[data-edit]"); if(edit){ openItem(edit.dataset.edit); return; }
   const ec = t.closest("[data-editclass]"); if(ec){ openClass(ec.dataset.editclass); return; }
   const es = t.closest("[data-editspecial]"); if(es){ openSpecial(es.dataset.editspecial); return; }
+  const gt = t.closest("[data-goto]"); if(gt){ ui.tab = gt.dataset.goto; render(); window.scrollTo({top:0}); return; }
+  const mo = t.closest("[data-month]");
+  if(mo){ const n = +mo.dataset.month; ui.month = n===0 ? new Date(today().getFullYear(), today().getMonth(), 1) : new Date(ui.month.getFullYear(), ui.month.getMonth()+n, 1); render(); return; }
+  const st = t.closest("[data-selecttoggle]");
+  if(st){ const id = st.dataset.selecttoggle; ui.selected.has(id) ? ui.selected.delete(id) : ui.selected.add(id); render(); return; }
   const dj = t.closest("[data-dayjump]");
   if(dj){ const n = +dj.dataset.dayjump; ui.day = n===0 ? today() : addDays(ui.day, n); render(); return; }
   const gd = t.closest("[data-goday]"); if(gd){ ui.day = parseYmd(gd.dataset.goday); ui.tab = "day"; render(); window.scrollTo({top:0}); return; }
@@ -1842,6 +2178,11 @@ $("#view").addEventListener("click",async e=>{
   if(a==="add-class") openClass();
   else if(a==="import") openImport();
   else if(a==="plan") openPlanner();
+  else if(a==="add-item") openItem();
+  else if(a==="sel-start"){ ui.selecting = true; ui.selected.clear(); render(); }
+  else if(a==="sel-cancel"){ ui.selecting = false; ui.selected.clear(); render(); }
+  else if(a==="sel-share") shareSelected();
+  else if(a==="from-friend") openShared(null, false);
   else if(a==="share"){
     const url = location.origin + location.pathname.replace(/index\.html$/,"");
     const data = {title:"Study Planner", text:"A free planner for homework, exams and classes. It syncs with Apple Calendar, and its AI reads your timetable and plans your study time.", url};
@@ -1890,6 +2231,9 @@ $("#view").addEventListener("change",e=>{
   if(t.id==="termStart"||t.id==="termEnd"){ s[t.id] = t.value; s.termRev = (s.termRev||0)+1; commit(); toast("Semester dates saved"); return; }
   if(["incTasks","incExams","incClasses","incStudy"].includes(t.id)){ s[t.id] = t.checked; commit(); return; }
   if(["remindTask","remindExam","remindClass","remindStudy"].includes(t.id)){ s[t.id] = +t.value; commit(); return; }
+  if(t.matches("[data-select]")){
+    const id = t.dataset.select; t.checked ? ui.selected.add(id) : ui.selected.delete(id); render(); return;
+  }
   if(t.matches("[data-blockdone]")){
     const b = state.plan.blocks.find(x=>x.id===t.dataset.blockdone);
     if(b){ b.done = t.checked; commit(); render(); if(b.done) toast("Nice work."); }
@@ -1930,6 +2274,7 @@ if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=
 
 render();
 if(connected()) pull();
+checkShareHash();
 })();
 
 </script>
