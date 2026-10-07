@@ -1233,19 +1233,30 @@ function githubBox(){
       <li>On your Home Screen, add a <b>Scriptable</b> widget (small, medium or large). While editing, tap it and choose <b>Calendar Planner</b> as the script.</li>
     </ol>
     <div class="row-actions"><button class="btn primary" data-action="gh-widget">Copy widget for Scriptable</button></div>
-    <p class="fine" style="margin-top:10px">The widget reads your planner from your private GitHub file. Don't share the copied script: anyone with it could see your planner.</p>` : ""}
+    <h3 style="margin-top:20px">Mac widget</h3>
+    <p>The same widget for your Mac desktop and Notification Center, using ScriptWidget, a free app.</p>
+    <ol class="steps">
+      <li>Install <b>ScriptWidget</b> from the Mac App Store.</li>
+      <li>Click <b>Copy Mac widget</b> below.</li>
+      <li>In ScriptWidget, click <b>New Widget</b>, choose <b>Blank Widget</b>, and name it <b>Calendar Planner</b>. Select everything in <b>main.jsx</b> and paste.</li>
+      <li>Open the <b>Config</b> tab. Under <b>Permissions</b>, turn on <b>Network</b>. Under <b>Network allowlist</b>, type <code>gist.githubusercontent.com</code>. Click <b>Save widget.json</b>.</li>
+      <li>Right-click your desktop, choose <b>Edit Widgets</b>, find <b>ScriptWidget</b>, and drag a size onto the desktop. Right-click the new widget, choose <b>Edit</b>, and pick <b>Calendar Planner</b>.</li>
+    </ol>
+    <div class="row-actions"><button class="btn primary" data-action="gh-macwidget">Copy Mac widget</button></div>
+    <p class="fine" style="margin-top:10px">Both widgets read your planner from your private GitHub file. Don't share the copied scripts: anyone with one could see your planner.</p>` : ""}
   </div>`;
 }
 /** Copies the Scriptable widget with this planner's private address filled in. */
-function copyWidgetScript(){
+function copyWidgetScript(file, label){
+  file = file || "scriptable-widget.js"; label = label || "Scriptable";
   const dataUrl = `https://gist.githubusercontent.com/${gh.login}/${gh.dataId}/raw/${GH_DATA_FILE}`;
-  const make = fetch("scriptable-widget.js", {cache:"no-store"})
+  const make = fetch(file, {cache:"no-store"})
     .then(r=>{ if(!r.ok) throw new Error("missing"); return r.text(); })
     .then(t=>t.replace('const DATA_URL = "";', `const DATA_URL = ${JSON.stringify(dataUrl)};`)
               .replace('const APP_URL = "";', `const APP_URL = ${JSON.stringify(appAddress())};`));
-  const done = ()=>toast("Widget copied. Now paste it into Scriptable.");
-  const fallback = ()=>make.then(t=>{ download("Calendar Planner widget.js", t, "text/javascript"); toast("Saved the widget as a file instead. Open it with Scriptable."); })
-    .catch(()=>toast("Couldn't get the widget. Upload scriptable-widget.js to your site first."));
+  const done = ()=>toast(`Widget copied. Now paste it into ${label}.`);
+  const fallback = ()=>make.then(t=>{ download(file.endsWith(".jsx") ? "main.jsx" : "Calendar Planner widget.js", t, "text/javascript"); toast(`Saved the widget as a file instead. Open it with ${label}.`); })
+    .catch(()=>toast(`Couldn't get the widget. Upload ${file} to your site first.`));
   try{
     if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
       // Safari needs the copy to start right away, with the text arriving a moment later.
@@ -2803,7 +2814,8 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="acc-back"){ ui.accStage = ""; ui.accError = ""; render(); }
   else if(a==="gh-connect"){ const v = $("#ghToken") ? $("#ghToken").value : ""; await ghConnect(v); }
   else if(a==="gh-sync"){ await (gh.dirty ? ghPush() : ghPull()); if(syncUi.s==="ok") toast("Synced"); render(); }
-  else if(a==="gh-widget"){ copyWidgetScript(); }
+  else if(a==="gh-widget"){ copyWidgetScript("scriptable-widget.js", "Scriptable"); }
+  else if(a==="gh-macwidget"){ copyWidgetScript("scriptwidget-mac.jsx", "ScriptWidget"); }
   else if(a==="gh-copykey"){ try{ await navigator.clipboard.writeText(gh.token); toast("Key copied. Paste it in Settings on your other device."); }catch(err){ prompt("Copy your GitHub key:", gh.token); } }
   else if(a==="gh-copyfeed"){ const f = ghFeed().replace(/^https:/,"webcal:"); try{ await navigator.clipboard.writeText(f); toast("Calendar address copied"); }catch(err){ prompt("Copy the calendar address:", f); } }
   else if(a==="gh-disconnect"){
