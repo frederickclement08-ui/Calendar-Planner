@@ -1074,7 +1074,10 @@ async function ghApi(path, opts={}){
   }catch(e){ const err = new Error("offline"); err.code = "offline"; throw err; }
   if(res.status===401){ const e = new Error("auth"); e.code = "auth"; throw e; }
   if(res.status===404){ const e = new Error("missing"); e.code = "missing"; throw e; }
-  if(!res.ok){ const e = new Error("http "+res.status); e.code = "http"; e.status = res.status; throw e; }
+  if(!res.ok){
+    let detail = ""; try{ detail = (await res.json()).message || ""; }catch(x){}
+    const e = new Error("http "+res.status+(detail?": "+detail:"")); e.code = "http"; e.status = res.status; throw e;
+  }
   return res.status===204 ? null : res.json();
 }
 async function ghListGists(){
@@ -1143,7 +1146,16 @@ function ghError(e){
       : "The planner file on GitHub was deleted. Disconnect, then connect again; this device's copy is saved to GitHub again.");
     return;
   }
-  setStatus("error", "Couldn't reach GitHub. Trying again soon.");
+  // Say exactly what went wrong, so it can be fixed.
+  console.error("GitHub sync:", e);
+  let why;
+  if(e.status===403) why = "GitHub refused the request (error 403). Your key may be missing the gist permission, or GitHub is limiting requests. Make a new classic key with only gist ticked, and paste it in Settings.";
+  else if(e.status===422) why = "GitHub didn't accept the file (error 422). Tap Sync now; if it keeps happening, tell the developer.";
+  else if(e.status >= 500) why = `GitHub is having trouble right now (error ${e.status}). Trying again soon.`;
+  else if(e.status) why = `Couldn't reach GitHub (error ${e.status}). Trying again soon.`;
+  else why = `Couldn't sync with GitHub: ${String(e && e.message || e).slice(0,140)}. Trying again soon.`;
+  setStatus("error", why);
+  if(ui.tab==="sync") render();
   retryTimer = setTimeout(()=>ghSoon(0), 30000);
 }
 async function ghConnect(token){
@@ -1211,8 +1223,37 @@ function githubBox(){
     ${feed ? `<h3 style="margin-top:20px">Live Apple Calendar</h3>
     <p>Subscribe once. Your classes, deadlines and study sessions then update in Calendar by themselves, on all your Apple devices.</p>
     <div class="row-actions"><a class="btn primary" href="${esc(feed.replace(/^https:/,"webcal:"))}">Subscribe in Calendar</a><button class="btn" data-action="gh-copyfeed">Copy calendar address</button></div>
-    <p class="fine" style="margin-top:10px">Already subscribed with the first version of your planner? It keeps working: it's the same calendar.</p>` : ""}
+    <p class="fine" style="margin-top:10px">Already subscribed with the first version of your planner? It keeps working: it's the same calendar.</p>
+    <h3 style="margin-top:20px">iPhone and iPad widget</h3>
+    <p>Show today's classes and what's due next on your Home Screen or Lock Screen, in Calendar Planner's style. It uses Scriptable, a free app.</p>
+    <ol class="steps">
+      <li>Install <b>Scriptable</b> from the App Store.</li>
+      <li>Tap <b>Copy widget for Scriptable</b> below.</li>
+      <li>In Scriptable, tap <b>+</b>, paste, and name the script <b>Calendar Planner</b>.</li>
+      <li>On your Home Screen, add a <b>Scriptable</b> widget (small, medium or large). While editing, tap it and choose <b>Calendar Planner</b> as the script.</li>
+    </ol>
+    <div class="row-actions"><button class="btn primary" data-action="gh-widget">Copy widget for Scriptable</button></div>
+    <p class="fine" style="margin-top:10px">The widget reads your planner from your private GitHub file. Don't share the copied script: anyone with it could see your planner.</p>` : ""}
   </div>`;
+}
+/** Copies the Scriptable widget with this planner's private address filled in. */
+function copyWidgetScript(){
+  const dataUrl = `https://gist.githubusercontent.com/${gh.login}/${gh.dataId}/raw/${GH_DATA_FILE}`;
+  const make = fetch("scriptable-widget.js", {cache:"no-store"})
+    .then(r=>{ if(!r.ok) throw new Error("missing"); return r.text(); })
+    .then(t=>t.replace('const DATA_URL = "";', `const DATA_URL = ${JSON.stringify(dataUrl)};`)
+              .replace('const APP_URL = "";', `const APP_URL = ${JSON.stringify(appAddress())};`));
+  const done = ()=>toast("Widget copied. Now paste it into Scriptable.");
+  const fallback = ()=>make.then(t=>{ download("Calendar Planner widget.js", t, "text/javascript"); toast("Saved the widget as a file instead. Open it with Scriptable."); })
+    .catch(()=>toast("Couldn't get the widget. Upload scriptable-widget.js to your site first."));
+  try{
+    if(window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      // Safari needs the copy to start right away, with the text arriving a moment later.
+      navigator.clipboard.write([new ClipboardItem({"text/plain": make.then(t=>new Blob([t],{type:"text/plain"}))})]).then(done, fallback);
+    } else {
+      make.then(t=>navigator.clipboard.writeText(t)).then(done, fallback);
+    }
+  }catch(err){ fallback(); }
 }
 
 /* ----- installing on Windows (Edge and Chrome) ----- */
@@ -2762,6 +2803,7 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="acc-back"){ ui.accStage = ""; ui.accError = ""; render(); }
   else if(a==="gh-connect"){ const v = $("#ghToken") ? $("#ghToken").value : ""; await ghConnect(v); }
   else if(a==="gh-sync"){ await (gh.dirty ? ghPush() : ghPull()); if(syncUi.s==="ok") toast("Synced"); render(); }
+  else if(a==="gh-widget"){ copyWidgetScript(); }
   else if(a==="gh-copykey"){ try{ await navigator.clipboard.writeText(gh.token); toast("Key copied. Paste it in Settings on your other device."); }catch(err){ prompt("Copy your GitHub key:", gh.token); } }
   else if(a==="gh-copyfeed"){ const f = ghFeed().replace(/^https:/,"webcal:"); try{ await navigator.clipboard.writeText(f); toast("Calendar address copied"); }catch(err){ prompt("Copy the calendar address:", f); } }
   else if(a==="gh-disconnect"){

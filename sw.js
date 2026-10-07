@@ -1,6 +1,6 @@
 // Calendar Planner service worker: lets the app open offline.
 // Change the version name whenever you upload new files, so installed copies update.
-const CACHE = "calendar-planner-v3";
+const CACHE = "calendar-planner-v5";
 const SHELL = ["./", "./index.html", "./config.js", "./manifest.webmanifest?v=3", "./icon-180.png?v=3", "./icon-192.png?v=3", "./icon-512.png?v=3"];
 
 self.addEventListener("install", e => {
