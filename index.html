@@ -364,6 +364,17 @@ ol.order svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1
 .obtn{border:0;background:var(--cardbg);width:36px;height:36px;border-radius:50%;font-size:16px;font-weight:700;color:var(--accent)}
 .obtn:disabled{opacity:.3;cursor:default}
 .key-row{display:flex;gap:10px;margin:12px 0 8px;flex-wrap:wrap}
+input[type=password]{border:0;background:var(--fill);border-radius:10px;padding:10px 12px;width:100%;min-width:0;font-size:17px}
+.ghbox summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ghbox summary::-webkit-details-marker{display:none}
+.ghbox summary::after{content:"›";font-size:22px;color:var(--muted);transform:rotate(90deg);transition:transform .2s}
+.ghbox[open] summary::after{transform:rotate(-90deg)}
+.ghbox summary b{display:block;font-weight:600}
+.ghbox summary small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+ol.steps{margin:4px 0 4px;padding-left:1.3em;color:var(--muted);font-size:15px}
+ol.steps li{margin-bottom:6px}
+ol.steps b{color:var(--ink);font-weight:600}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--fill);padding:1px 5px;border-radius:5px}
 .key-row input{flex:1 1 220px}
 .social{display:grid;gap:10px;max-width:380px;margin:14px 0 4px}
 .social-btn{width:100%;font-size:17px;padding:13px 18px;background:var(--sheetcell);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
@@ -926,8 +937,9 @@ function removeLocal(id, type){
 
 /* ----- the sync itself: pull what changed elsewhere, then push what changed here ----- */
 let syncBusy = false, syncAgain = false, syncTimer = null, retryTimer = null;
-function schedulePush(){ scheduleSync(1500); }
+function schedulePush(){ if(ghOn()) ghSchedulePush(); else scheduleSync(1500); }
 function scheduleSync(ms){
+  if(ghOn()){ ghSoon(ms); return; }
   if(!connected()) return;
   if(syncUi.s!=="syncing") setStatus("pending");
   clearTimeout(syncTimer); syncTimer = setTimeout(runSync, ms ?? 1500);
@@ -1011,11 +1023,12 @@ function statusLine(){
   switch(syncUi.s){
     case "pending": case "syncing": return "Syncing your changes…";
     case "offline": return "You're offline. Changes will sync when you're back online.";
-    case "error": return syncUi.msg || "Couldn't reach your account. Trying again soon.";
+    case "error": return syncUi.msg || (ghOn() ? "Couldn't reach GitHub. Trying again soon." : "Couldn't reach your account. Trying again soon.");
     default: {
-      if(!acc.lastSync) return "Signed in.";
-      const mins = Math.round((Date.now()-acc.lastSync)/6e4);
-      return "Synced " + (mins<1 ? "just now" : mins<60 ? `${mins} min ago` : new Date(acc.lastSync).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"})) + ".";
+      const last = ghOn() ? gh.lastSync : acc.lastSync;
+      if(!last) return ghOn() ? "Connected." : "Signed in.";
+      const mins = Math.round((Date.now()-last)/6e4);
+      return "Synced " + (mins<1 ? "just now" : mins<60 ? `${mins} min ago` : new Date(last).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"})) + ".";
     }
   }
 }
@@ -1023,11 +1036,183 @@ function setStatus(s, msg){
   syncUi = {s, msg:msg||""};
   const chip = $("#syncChip");
   if(chip){
-    chip.hidden = !connected() && s!=="error";
+    chip.hidden = !syncOn() && s!=="error";
     chip.dataset.s = s;
     chip.textContent = {pending:"Saving…",syncing:"Syncing…",offline:"Offline",error:"Sync problem"}[s] || "Synced";
   }
   const line = $("#syncStatus"); if(line) line.textContent = statusLine();
+}
+
+/* =========================================================
+   SYNC WITH GITHUB (for the app's owner)
+   An alternative to email sign-in for people with a GitHub account.
+   Two private gists: one holds the planner, the other holds school.ics,
+   a live calendar Apple Calendar can subscribe to. The newest copy wins.
+   ========================================================= */
+const GH_KEY = "calendarplanner:github";
+const GH_API = "https://api.github.com";
+const GH_ICS = "school.ics";
+const GH_CAL_DESC = "Calendar Planner calendar", GH_OLD_CAL_DESC = "Study Planner sync";
+const GH_DATA_DESC = "Calendar Planner data (private)", GH_DATA_FILE = "calendar-planner.json";
+const GH_OLD_DATA_DESC = "Study Planner data (private)", GH_OLD_DATA_FILE = "study-planner.json";
+function loadGh(){ try{ return JSON.parse(localStorage.getItem(GH_KEY)) || {}; }catch(e){ return {}; } }
+function saveGh(){ try{ localStorage.setItem(GH_KEY, JSON.stringify(gh)); }catch(e){} }
+let gh = loadGh();   // {token, login, calId, dataId, lastSync, dirty, dirtyAt, needsKey}
+const ghOn = ()=>!!(gh.token && gh.calId && gh.dataId);
+const syncOn = ()=>connected() || ghOn();
+const ghFeed = ()=>`https://gist.githubusercontent.com/${gh.login}/${gh.calId}/raw/${GH_ICS}`;
+const hasData = d=>!!(d && (d.items.length || d.classes.length));
+
+async function ghApi(path, opts={}){
+  let res;
+  try{
+    res = await fetch(GH_API+path, Object.assign({}, opts, {cache:"no-store", headers:Object.assign({
+      "Accept":"application/vnd.github+json",
+      "Authorization":"Bearer "+gh.token,
+      "X-GitHub-Api-Version":"2022-11-28"
+    }, opts.body ? {"Content-Type":"application/json"} : {})}));
+  }catch(e){ const err = new Error("offline"); err.code = "offline"; throw err; }
+  if(res.status===401){ const e = new Error("auth"); e.code = "auth"; throw e; }
+  if(res.status===404){ const e = new Error("missing"); e.code = "missing"; throw e; }
+  if(!res.ok){ const e = new Error("http "+res.status); e.code = "http"; e.status = res.status; throw e; }
+  return res.status===204 ? null : res.json();
+}
+async function ghListGists(){
+  const all = [];
+  for(let page=1; page<=5; page++){
+    const list = await ghApi(`/gists?per_page=100&page=${page}`);
+    all.push(...list);
+    if(list.length < 100) break;
+  }
+  return all;
+}
+async function ghReadFile(g, name){
+  const f = g.files && g.files[name];
+  if(!f) return null;
+  if(f.truncated){ const r = await fetch(f.raw_url,{cache:"no-store"}); return r.text(); }
+  return f.content;
+}
+let ghTimer = null, ghBusy = false;
+function ghSchedulePush(){
+  gh.dirty = true; gh.dirtyAt = Date.now(); saveGh();
+  setStatus("pending");
+  clearTimeout(ghTimer); ghTimer = setTimeout(ghPush, 1500);
+}
+function ghSoon(ms){ clearTimeout(ghTimer); ghTimer = setTimeout(()=> gh.dirty ? ghPush() : ghPull(), ms || 0); }
+async function ghPush(){
+  if(!ghOn()) return;
+  if(ghBusy){ clearTimeout(ghTimer); ghTimer = setTimeout(ghPush, 1500); return; }
+  ghBusy = true; setStatus("syncing");
+  const started = Date.now();
+  try{
+    await ghApi(`/gists/${gh.dataId}`, {method:"PATCH", body:JSON.stringify({files:{[GH_DATA_FILE]:{content:JSON.stringify(state)}}})}).catch(e=>{ e.which = "data"; throw e; });
+    await ghApi(`/gists/${gh.calId}`, {method:"PATCH", body:JSON.stringify({files:{[GH_ICS]:{content:buildFeed()}}})}).catch(e=>{ e.which = "cal"; throw e; });
+    if((gh.dirtyAt||0) <= started) gh.dirty = false;
+    gh.lastSync = Date.now(); gh.needsKey = false; saveGh();
+    setStatus(gh.dirty ? "pending" : "ok");
+  }catch(e){ ghError(e); }
+  finally{ ghBusy = false; }
+}
+async function ghPull(){
+  if(!ghOn() || ghBusy) return;
+  try{
+    setStatus("syncing");
+    const g = await ghApi(`/gists/${gh.dataId}`).catch(e=>{ e.which = "data"; throw e; });
+    let remote = null;
+    try{ const t = await ghReadFile(g, GH_DATA_FILE); if(t) remote = normalize(JSON.parse(t)); }catch(e){}
+    const r = remote ? (remote.meta.updatedAt||0) : 0, l = state.meta.updatedAt||0;
+    if(remote && r > l && !gh.dirty){
+      state = remote; saveLocal();
+      if(!document.querySelector("dialog[open]")) render();
+    } else if(gh.dirty || l > r){ await ghPush(); return; }
+    gh.lastSync = Date.now(); saveGh(); setStatus("ok");
+  }catch(e){ ghError(e); }
+}
+function ghError(e){
+  clearTimeout(retryTimer);
+  if(e.code==="offline"){ setStatus("offline"); return; }
+  if(e.code==="auth"){
+    gh.needsKey = true; saveGh();
+    setStatus("error", "Your GitHub key expired or was removed. Paste a new one in Settings.");
+    if(ui.tab==="sync") render();
+    return;
+  }
+  if(e.code==="missing"){
+    setStatus("error", e.which==="cal"
+      ? "The calendar file on GitHub was deleted. Disconnect, then connect again to make a new one."
+      : "The planner file on GitHub was deleted. Disconnect, then connect again; this device's copy is saved to GitHub again.");
+    return;
+  }
+  setStatus("error", "Couldn't reach GitHub. Trying again soon.");
+  retryTimer = setTimeout(()=>ghSoon(0), 30000);
+}
+async function ghConnect(token){
+  token = String(token||"").trim();
+  if(!token){ ui.ghError = "Paste your GitHub key first."; render(); return; }
+  const keepIds = gh.needsKey && gh.calId && gh.dataId ? {calId:gh.calId, dataId:gh.dataId} : null;
+  gh = Object.assign({token}, keepIds || {});
+  ui.ghBusy = true; ui.ghError = ""; render();
+  try{
+    const me = await ghApi("/user");
+    gh.login = me.login;
+    if(keepIds){ saveGh(); await ghPull(); ui.ghBusy = false; render(); toast("Key updated"); return; }
+    const list = await ghListGists();
+    // Reuse the calendar from the first version, so an existing Apple Calendar subscription keeps working.
+    const cal = list.find(g=>(g.description===GH_CAL_DESC || g.description===GH_OLD_CAL_DESC) && g.files && g.files[GH_ICS]);
+    gh.calId = cal ? cal.id : (await ghApi("/gists",{method:"POST", body:JSON.stringify({description:GH_CAL_DESC, public:false, files:{[GH_ICS]:{content:buildFeed()}}})})).id;
+    let remote = null;
+    const dataG = list.find(g=>g.description===GH_DATA_DESC && g.files && g.files[GH_DATA_FILE]);
+    if(dataG){
+      gh.dataId = dataG.id;
+      try{ const t = await ghReadFile(await ghApi(`/gists/${dataG.id}`), GH_DATA_FILE); if(t) remote = normalize(JSON.parse(t)); }catch(e){}
+    } else {
+      // First time: bring over the planner saved by the first version, if there is one.
+      const old = list.find(g=>g.description===GH_OLD_DATA_DESC && g.files && g.files[GH_OLD_DATA_FILE]);
+      if(old){ try{ const t = await ghReadFile(await ghApi(`/gists/${old.id}`), GH_OLD_DATA_FILE); if(t) remote = normalize(JSON.parse(t)); }catch(e){} }
+      gh.dataId = (await ghApi("/gists",{method:"POST", body:JSON.stringify({description:GH_DATA_DESC, public:false, files:{[GH_DATA_FILE]:{content:JSON.stringify(state)}}})})).id;
+    }
+    saveGh();
+    if(hasData(remote)){
+      const useRemote = !hasData(state) || confirm(`Found your planner on GitHub (${remote.items.length} deadlines, ${remote.classes.length} classes). Load it on this device?\n\nCancel keeps what's on this device and replaces the GitHub copy.`);
+      if(useRemote){ state = remote; state.meta.updatedAt = Date.now(); saveLocal(); }
+    }
+    gh.dirty = true; gh.dirtyAt = Date.now(); saveGh();
+    await ghPush();
+    ui.ghBusy = false; render();
+    toast("Connected to GitHub. Your planner is synced.");
+  }catch(e){
+    ui.ghError = e.code==="auth" ? "GitHub didn't accept that key. Check you copied all of it and that the gist box was ticked."
+      : e.code==="offline" ? "You're offline. Connect once you're back online."
+      : "Couldn't connect to GitHub. Try again in a minute.";
+    gh = keepIds ? Object.assign(loadGh(), {needsKey:true}) : {};
+    saveGh(); ui.ghBusy = false; setStatus("ok"); render();
+  }
+}
+function githubSetupBox(open){
+  return `<details class="box ghbox"${open?" open":""}><summary><span><b>Sync with GitHub instead</b><small>For people with a GitHub account. Adds a live Apple Calendar.</small></span></summary>
+    <p style="margin-top:12px">Your planner is saved in a private file on your GitHub account, and Apple Calendar can subscribe to a calendar that updates by itself.</p>
+    <ol class="steps">
+      <li>Open <a href="https://github.com/settings/tokens/new?scopes=gist&description=Calendar%20Planner" target="_blank" rel="noopener">this GitHub page</a> and sign in if asked.</li>
+      <li>Set <b>Expiration</b> to <b>No expiration</b>, keep only <b>gist</b> ticked, then click <b>Generate token</b>.</li>
+      <li>Copy the key (it starts with <code>ghp_</code>) and paste it here.</li>
+    </ol>
+    <div class="key-row"><input type="password" id="ghToken" placeholder="ghp_…" autocomplete="off" aria-label="GitHub key"><button class="btn primary" data-action="gh-connect"${ui.ghBusy?" disabled":""}>${ui.ghBusy?"Connecting…":"Connect"}</button></div>
+    ${ui.ghError ? `<p class="error">${esc(ui.ghError)}</p>` : ""}
+    <p class="fine">The key stays on this device. On your other devices, paste the same key here.</p>
+  </details>`;
+}
+function githubBox(){
+  const feed = ghOn() ? ghFeed() : "";
+  return `<div class="box"><h3>Synced with GitHub</h3>
+    <p>Connected as <b>${esc(gh.login||"")}</b>.</p>
+    <p id="syncStatus" class="status">${esc(statusLine())}</p>
+    ${gh.needsKey ? `<div class="key-row"><input type="password" id="ghToken" placeholder="Paste a new GitHub key (ghp_…)" autocomplete="off" aria-label="New GitHub key"><button class="btn primary" data-action="gh-connect">Update key</button></div>${ui.ghError?`<p class="error">${esc(ui.ghError)}</p>`:""}` : ""}
+    <div class="row-actions"><button class="btn primary" data-action="gh-sync">Sync now</button><button class="btn" data-action="gh-copykey">Copy key for another device</button><button class="btn danger" data-action="gh-disconnect">Disconnect</button></div>
+    ${feed ? `<h3 style="margin-top:20px">Live Apple Calendar</h3>
+    <p>Subscribe once. Your classes, deadlines and study sessions then update in Calendar by themselves, on all your Apple devices.</p>
+    <div class="row-actions"><a class="btn primary" href="${esc(feed.replace(/^https:/,"webcal:"))}">Subscribe in Calendar</a><button class="btn" data-action="gh-copyfeed">Copy calendar address</button></div>
+    <p class="fine" style="margin-top:10px">Already subscribed with the first version of your planner? It keeps working: it's the same calendar.</p>` : ""}
+  </div>`;
 }
 
 /* ----- installing on Windows (Edge and Chrome) ----- */
@@ -1419,9 +1604,12 @@ function remindSelect(id,val){
 }
 
 function accountBox(){
-  if(!accountReady()) return `<div class="box"><h3>Sync isn't set up yet</h3>
-    <p>This copy of Calendar Planner has no account server yet, so your planner stays on this device. Save a backup now and then.</p>
-    <p class="fine">Setting up the app yourself? Add your Supabase address and key where it says ACCOUNT near the top of the app's code. The setup guide explains it.</p></div>`;
+  if(ghOn()) return githubBox();
+  if(connected()) return emailAccountBox();
+  return emailAccountBox() + githubSetupBox(!accountReady());
+}
+function emailAccountBox(){
+  if(!accountReady()) return "";
   if(connected()) return `<div class="box"><h3>Your account</h3>
     <p>Signed in as <b>${esc(acc.email||"")}</b>.</p>
     <p id="syncStatus" class="status">${esc(statusLine())}</p>
@@ -1485,7 +1673,7 @@ function renderSync(){
     </div>
     <div class="box">
       <h3>Backup</h3>
-      <p>${connected() ? "Your account already keeps a copy. You can also save one yourself." : "Save a copy of your planner now and then."}</p>
+      <p>${syncOn() ? "Your synced copy is safe online. You can also save one yourself." : "Save a copy of your planner now and then."}</p>
       <div class="row-actions">
         <button class="btn" data-action="backup">Save backup</button>
         <button class="btn" data-action="restore">Restore backup</button>
@@ -2111,7 +2299,7 @@ function savePlan(){
   state.settings.updatedAt = Date.now();
   commit(); pl.stage = "overview"; pl.result = null;
   ui.tab = "ai"; render(); window.scrollTo({top:0});
-  toast("Plan saved" + (connected() ? ". It's syncing to your other devices." : "."));
+  toast("Plan saved" + (syncOn() ? ". It's syncing to your other devices." : "."));
 }
 
 /* ---------- month view ---------- */
@@ -2572,6 +2760,15 @@ $("#view").addEventListener("click",async e=>{
     ui.accBusy = false; render();
   }
   else if(a==="acc-back"){ ui.accStage = ""; ui.accError = ""; render(); }
+  else if(a==="gh-connect"){ const v = $("#ghToken") ? $("#ghToken").value : ""; await ghConnect(v); }
+  else if(a==="gh-sync"){ await (gh.dirty ? ghPush() : ghPull()); if(syncUi.s==="ok") toast("Synced"); render(); }
+  else if(a==="gh-copykey"){ try{ await navigator.clipboard.writeText(gh.token); toast("Key copied. Paste it in Settings on your other device."); }catch(err){ prompt("Copy your GitHub key:", gh.token); } }
+  else if(a==="gh-copyfeed"){ const f = ghFeed().replace(/^https:/,"webcal:"); try{ await navigator.clipboard.writeText(f); toast("Calendar address copied"); }catch(err){ prompt("Copy the calendar address:", f); } }
+  else if(a==="gh-disconnect"){
+    if(confirm("Stop syncing with GitHub on this device?\n\nYour planner stays on this device and on GitHub, and Apple Calendar keeps the last synced version.")){
+      clearTimeout(ghTimer); gh = {}; saveGh(); setStatus("ok"); render(); toast("GitHub sync turned off on this device");
+    }
+  }
   else if(a==="acc-google" || a==="acc-apple"){
     ui.accError = "";
     try{ await startOAuth(a==="acc-google" ? "google" : "apple"); }
@@ -2614,12 +2811,13 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="backup"){ download(`calendar-planner-backup-${ymd(new Date())}.json`, JSON.stringify(state,null,2), "application/json"); toast("Backup saved"); }
   else if(a==="restore") $("#restoreInput").click();
   else if(a==="erase"){
-    if(confirm("Erase all classes, deadlines and settings?" + (connected()?" They're erased from your account and your other devices too.":"") + " This can't be undone.")){
+    if(confirm("Erase all classes, deadlines and settings?" + (syncOn()?" They're erased from your other devices too.":"") + " This can't be undone.")){
       state = blank(); commit(); ui.tab="day"; ui.day = today(); render(); toast("Everything erased");
     }
   }
 });
 $("#view").addEventListener("keydown",e=>{
+  if(e.key==="Enter" && e.target.id==="ghToken"){ e.preventDefault(); $('[data-action="gh-connect"]').click(); }
   if(e.key==="Enter" && e.target.id==="emailInput"){ e.preventDefault(); $('[data-action="acc-send"]').click(); }
   if(e.key==="Enter" && e.target.id==="codeInput"){ e.preventDefault(); $('[data-action="acc-verify"]').click(); }
 });
@@ -2665,11 +2863,11 @@ document.addEventListener("keydown",e=>{
 // Keep in step with other devices and the clock.
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState==="visible"){ if(!document.querySelector("dialog[open]")) render(); scheduleSync(0); }
-  else if(syncUi.s==="pending"){ clearTimeout(syncTimer); runSync(); }
+  else if(syncUi.s==="pending"){ if(ghOn()){ clearTimeout(ghTimer); ghPush(); } else { clearTimeout(syncTimer); runSync(); } }
 });
 window.addEventListener("online",()=>scheduleSync(0));
 // Another tab or window of the app changed something: reload it here.
-window.addEventListener("storage",e=>{ if(e.key===KEY && e.newValue && !document.querySelector("dialog[open]")){ try{ state = normalize(JSON.parse(e.newValue)); render(); }catch(err){} } if(e.key===ACC_KEY){ acc = loadAcc(); } });
+window.addEventListener("storage",e=>{ if(e.key===KEY && e.newValue && !document.querySelector("dialog[open]")){ try{ state = normalize(JSON.parse(e.newValue)); render(); }catch(err){} } if(e.key===ACC_KEY){ acc = loadAcc(); } if(e.key===GH_KEY){ gh = loadGh(); } });
 setInterval(()=>{ if(document.visibilityState==="visible" && !document.querySelector("dialog[open]")){ render(); scheduleSync(0); } }, 60*1000);
 
 if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=="file:"){
@@ -2678,7 +2876,7 @@ if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=
 
 applyTheme();
 render();
-if(connected()) scheduleSync(0);
+if(syncOn()) scheduleSync(0);
 finishOAuth();
 checkShareHash();
 })();
