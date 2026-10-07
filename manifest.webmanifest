@@ -1,11 +1,18 @@
 {
-  "name": "Study Planner",
-  "short_name": "Planner",
+  "id": "./",
+  "name": "Calendar Planner",
+  "short_name": "Calendar Planner",
+  "description": "Plan your classes, homework, readings, exams and events, get a study plan, and sync across Windows, Android, iPhone and the web.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F6F7F9",
-  "theme_color": "#F6F7F9",
+  "theme_color": "#5B3FE8",
+  "lang": "en",
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icon-192.png?v=3",
@@ -23,5 +30,8 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
 }

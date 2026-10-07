@@ -7,405 +7,503 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Planner">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#12161F" media="(prefers-color-scheme: dark)">
-<title>Study Planner</title>
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<title>Calendar Planner</title>
 <link rel="manifest" href="manifest.webmanifest?v=3">
 <link rel="apple-touch-icon" href="icon-180.png?v=3">
 <link rel="icon" type="image/png" href="icon-192.png?v=3">
 <script>
 /* Apply the saved theme before the page paints, so there's no flash. */
-(function(){ try{ var t = (JSON.parse(localStorage.getItem("studyplanner:prefs"))||{}).theme;
+(function(){ try{ var t = (JSON.parse(localStorage.getItem("calendarplanner:prefs"))||{}).theme;
   if(t==="light"||t==="dark"){ document.documentElement.setAttribute("data-theme", t);
-    document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){ m.setAttribute("content", t==="dark"?"#12161F":"#F6F7F9"); }); }
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){ m.setAttribute("content", t==="dark"?"#000000":"#FFFFFF"); }); }
 }catch(e){} })();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
+/* Calendar Planner: styled to match the iPhone, iPad and Mac app.
+   System fonts (San Francisco on Apple devices, Segoe UI on Windows), grouped lists,
+   glass bars and sheets, and the violet-pink-orange brand gradient. */
 :root{
-  --paper:#F6F7F9; --surface:#FFFFFF; --ink:#182032; --muted:#5B6474; --line:#DDE1E8;
-  --accent:#5B3FE8; --accent-ink:#FFFFFF; --danger:#C62F3A; --soft:#EDF0F5;
-  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --body:"Atkinson Hyperlegible", -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
-  color-scheme: light;
+  --bg:#F2F2F7;            /* grouped background (lists) */
+  --paper:#FFFFFF;         /* plain background (Day, AI) */
+  --surface:#FFFFFF;       /* cells on grouped pages */
+  --card:#F2F2F7;          /* cards on plain pages */
+  --sheet:#F2F2F7; --sheetcell:#FFFFFF;
+  --fill:rgba(120,120,128,.12); --fill2:rgba(120,120,128,.20);
+  --ink:#000000; --muted:rgba(60,60,67,.6); --line:rgba(60,60,67,.16);
+  --accent:#5B3FE8; --accent-fill:#5B3FE8; --tint:rgba(91,63,232,.12);
+  --danger:#FF3B30; --orange:#FF9500; --green:#34C759;
+  --glass:rgba(255,255,255,.72); --glass-line:rgba(255,255,255,.6); --shadow:0 8px 30px rgba(0,0,0,.12);
+  --violet:#6A4DFF; --pink:#E9407A; --orangeb:#FF8A3D;
+  --brand:linear-gradient(135deg,var(--violet),var(--pink) 55%,var(--orangeb));
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,system-ui,sans-serif;
+  --display:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
   box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme: dark){
+@media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --paper:#12161F; --surface:#1B212C; --ink:#E9EDF5; --muted:#9AA3B5; --line:#2A3242;
-    --accent:#A58FFF; --accent-ink:#120D24; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
+    --bg:#000000; --paper:#000000; --surface:#1C1C1E; --card:#1C1C1E; --sheet:#1C1C1E; --sheetcell:#2C2C2E;
+    --fill:rgba(118,118,128,.24); --fill2:rgba(118,118,128,.36);
+    --ink:#FFFFFF; --muted:rgba(235,235,245,.6); --line:rgba(84,84,88,.55);
+    --accent:#A898FF; --accent-fill:#6A4DFF; --tint:rgba(152,134,255,.18);
+    --danger:#FF453A; --orange:#FF9F0A; --green:#30D158;
+    --glass:rgba(30,30,32,.72); --glass-line:rgba(255,255,255,.08); --shadow:0 8px 30px rgba(0,0,0,.5);
+    color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#12161F; --surface:#1B212C; --ink:#E9EDF5; --muted:#9AA3B5; --line:#2A3242;
-  --accent:#A58FFF; --accent-ink:#120D24; --danger:#FF6B74; --soft:#232A37; color-scheme:dark;
+  --bg:#000000; --paper:#000000; --surface:#1C1C1E; --card:#1C1C1E; --sheet:#1C1C1E; --sheetcell:#2C2C2E;
+  --fill:rgba(118,118,128,.24); --fill2:rgba(118,118,128,.36);
+  --ink:#FFFFFF; --muted:rgba(235,235,245,.6); --line:rgba(84,84,88,.55);
+  --accent:#A898FF; --accent-fill:#6A4DFF; --tint:rgba(152,134,255,.18);
+  --danger:#FF453A; --orange:#FF9F0A; --green:#30D158;
+  --glass:rgba(30,30,32,.72); --glass-line:rgba(255,255,255,.08); --shadow:0 8px 30px rgba(0,0,0,.5);
+  color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
-.wrap{max-width:1080px;margin:0 auto;padding:0 20px calc(150px + env(safe-area-inset-bottom,0px))}
+html{scroll-padding-top:calc(70px + env(safe-area-inset-top,0px))}
+/* Grouped pages: gray background, white cells. Day and AI: white background, gray cards. */
+body{--page:var(--bg);--cardbg:var(--surface);margin:0;background:var(--page);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.35;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+body[data-tab="day"],body[data-tab="ai"]{--page:var(--paper);--cardbg:var(--card)}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+svg.i{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px calc(120px + env(safe-area-inset-bottom,0px))}
 
-/* Header */
-header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0 8px;flex-wrap:wrap}
-.brand{font-family:var(--display);font-weight:800;font-size:1.25rem;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
-.brand-mark{width:30px;height:30px;flex:none;display:block;filter:drop-shadow(0 2px 6px rgba(160,60,200,.3))}
+/* Soft brand colour at the top of the Day page, fading out */
+.glow{position:absolute;left:0;right:0;top:0;height:420px;pointer-events:none;z-index:-1;
+  background:linear-gradient(135deg,rgba(106,77,255,.20),rgba(233,64,122,.11) 55%,rgba(255,138,61,0) 100%);
+  -webkit-mask-image:linear-gradient(#000,rgba(0,0,0,.6) 55%,transparent);mask-image:linear-gradient(#000,rgba(0,0,0,.6) 55%,transparent)}
+body:not([data-tab="day"]) .glow{display:none}
 
-/* Hero */
-.hero{padding:36px 0 28px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,4.2vw,2.9rem);line-height:1.1;letter-spacing:-.02em;margin:0;max-width:22ch}
-.hero p{margin:14px 0 0;color:var(--muted);font-size:1.05rem}
-.hero .swatch{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:var(--c);margin-right:.35em;vertical-align:.12em}
+/* ---------- Top bar ---------- */
+header.top{position:sticky;top:0;z-index:15;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));min-height:60px}
+header.top.scrolled{background:var(--glass);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);box-shadow:0 1px 0 var(--line)}
+.top-left{display:flex;align-items:center;gap:10px;min-width:0}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:17px;white-space:nowrap}
+.brand-mark{width:30px;height:30px;flex:none;display:block;filter:drop-shadow(0 3px 8px rgba(200,60,160,.3))}
+.sync-chip{border:0;background:var(--fill);color:var(--muted);font-weight:600;font-size:12px;padding:4px 10px 4px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.sync-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--dotc,var(--green))}
+.sync-chip[data-s="pending"],.sync-chip[data-s="syncing"]{--dotc:#FFCC00}
+.sync-chip[data-s="offline"]{--dotc:#8E8E93}
+.sync-chip[data-s="error"]{--dotc:var(--danger);color:var(--danger)}
+.glassbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--glass-line);background:var(--glass);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);box-shadow:var(--shadow);display:grid;place-items:center;padding:0;flex:none}
+.glassbtn .plus{width:26px;height:26px;border-radius:50%;background:var(--accent-fill);color:#fff;display:grid;place-items:center}
+.glassbtn .plus svg{width:16px;height:16px;stroke-width:3}
 
-/* Filters */
-.filters{display:flex;gap:8px;flex-wrap:wrap;padding:18px 0 4px}
-.chip{border:1px solid var(--line);background:var(--surface);padding:6px 14px;border-radius:999px;font-weight:700;font-size:.9rem;color:var(--muted)}
-.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+/* Add menu */
+.menu{position:fixed;z-index:30;top:calc(64px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));min-width:230px;padding:6px;border-radius:18px;
+  background:var(--glass);-webkit-backdrop-filter:saturate(1.8) blur(30px);backdrop-filter:saturate(1.8) blur(30px);border:1px solid var(--glass-line);box-shadow:0 18px 50px rgba(0,0,0,.22);transform-origin:top right;animation:pop .18s ease-out}
+.menu button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:16px;border:0;background:none;padding:11px 12px;border-radius:12px;font-size:17px;text-align:left}
+.menu button:hover,.menu button:focus-visible{background:var(--fill)}
+.menu button svg{color:var(--muted)}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
 
-/* Agenda */
-.group{margin-top:26px}
-.group h2{font-family:var(--display);font-weight:700;font-size:1.05rem;margin:0 0 6px;display:flex;align-items:baseline;gap:10px}
-.group h2 .count{color:var(--muted);font-family:var(--body);font-weight:400;font-size:.9rem}
-.group.overdue h2{color:var(--danger)}
-ul.items{list-style:none;margin:0;padding:0}
-.item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:12px 4px 12px 0;border-bottom:1px solid var(--line);position:relative}
-.item::before{content:"";width:6px;align-self:stretch;border-radius:3px;background:var(--c);position:absolute;left:0;top:10px;bottom:10px}
-.item .check{margin-left:18px}
-.check{appearance:none;-webkit-appearance:none;width:24px;height:24px;border:2px solid var(--muted);border-radius:7px;display:grid;place-content:center;background:var(--surface);flex:none}
-.check:checked{background:var(--ink);border-color:var(--ink)}
-.check:checked::after{content:"";width:10px;height:6px;border-left:2.5px solid var(--paper);border-bottom:2.5px solid var(--paper);transform:rotate(-45deg) translate(1px,-1px)}
-.item-main{border:0;background:none;text-align:left;padding:0;min-width:0}
-.item-title{display:block;font-weight:700;font-size:1.02rem;overflow-wrap:anywhere}
-.item-meta{display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--muted);font-size:.9rem;margin-top:2px}
-.item.done .item-title{text-decoration:line-through;color:var(--muted)}
-.when{font-weight:700;font-size:.88rem;white-space:nowrap;padding:3px 10px;border-radius:999px;background:var(--soft)}
-.when.urgent{background:var(--danger);color:#fff}
-.when.soon{background:color-mix(in srgb,var(--c) 30%,var(--surface));color:var(--ink)}
-.flag{color:var(--danger);font-weight:700}
-details.done-group{margin-top:30px}
-details.done-group summary{cursor:pointer;font-family:var(--display);font-weight:700;color:var(--muted)}
-
-/* Empty */
-.empty{padding:40px 0;max-width:520px}
-.empty h2{font-family:var(--display);font-size:1.4rem;margin:0 0 8px}
-.empty p{color:var(--muted);margin:0 0 18px}
-.row-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-/* Buttons */
-.btn{border:1px solid var(--line);background:var(--surface);padding:10px 18px;border-radius:12px;font-weight:700}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.danger{color:var(--danger)}
-.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
-.fab{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--accent);color:var(--accent-ink);border:0;border-radius:18px;padding:16px 22px;font-weight:700;font-size:1rem;box-shadow:0 6px 20px rgba(20,30,80,.25);display:flex;align-items:center;gap:8px;z-index:5}
-.fab span{font-size:1.4rem;line-height:1}
-
-/* Week */
-.week-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:26px 0 14px;flex-wrap:wrap}
-.week-head h2{font-family:var(--display);font-size:1.5rem;margin:0}
-.week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
-.day{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:180px}
-.day.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.day h3{margin:0 0 8px;font-size:.85rem;color:var(--muted);font-weight:700;display:flex;justify-content:space-between}
-.day h3 b{font-family:var(--display);font-size:1.3rem;color:var(--ink)}
-.slot{font-size:.84rem;padding:6px 8px;border-radius:8px;margin-bottom:6px;background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:4px solid var(--c);line-height:1.3;overflow-wrap:anywhere}
-.slot.task{background:transparent;border:1px dashed var(--c);border-left:4px solid var(--c);text-align:left;width:100%;display:block}
-.slot.task.is-done{opacity:.5;text-decoration:line-through}
-.slot small{display:block;color:var(--muted)}
-@media (max-width:860px){
-  .week-grid{grid-template-columns:1fr}
-  .day{min-height:0}
-  .day:not(.has) .none{display:none}
+/* ---------- Tab bar: floating glass bar at the bottom on phones, centred capsule on wide screens ---------- */
+.tabbar{position:fixed;z-index:14;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));
+  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:5px;border-radius:32px;
+  background:var(--glass);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);border:1px solid var(--glass-line);box-shadow:var(--shadow)}
+.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 5px;color:var(--ink);font-size:10px;font-weight:600;border-radius:26px;min-width:0;letter-spacing:0}
+.tabbar svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-selected="true"]{color:var(--accent);background:var(--fill)}
+.tabbar button[aria-selected="true"] svg{stroke-width:2.2}
+@media (min-width:900px){
+  .tabbar{left:50%;right:auto;bottom:auto;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:flex;gap:2px;padding:4px;border-radius:999px;z-index:16}
+  .tabbar button{flex-direction:row;font-size:15px;font-weight:600;padding:9px 16px;border-radius:999px}
+  .tabbar svg{display:none}
+  .wrap{padding-bottom:60px}
 }
 
-/* Classes + sync panels */
-.panel{padding:26px 0}
-.panel h2{font-family:var(--display);font-size:1.5rem;margin:0 0 6px}
-.panel > p{color:var(--muted);margin:0 0 18px;max-width:62ch}
-.term{display:flex;gap:14px;flex-wrap:wrap;align-items:end;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:24px}
-.term label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.9rem}
-.class-row{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
-.dot{width:18px;height:18px;border-radius:6px;background:var(--c)}
-.class-row h3{margin:0;font-size:1.05rem}
-.class-row p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
-.box{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:18px;margin-bottom:18px;max-width:680px}
-.box h3{margin:0 0 10px;font-family:var(--display);font-size:1.15rem}
-.box p{margin:0 0 12px;color:var(--muted)}
-.opt{display:flex;gap:10px;align-items:center;padding:6px 0}
-.opt input[type=checkbox],.opt input[type=radio]{flex:none;width:18px;height:18px;accent-color:var(--accent)}
-.remind{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;margin:8px 0 14px}
-ol.steps{margin:0 0 4px;padding-left:1.3em;color:var(--muted)}
-ol.steps li{margin-bottom:4px}
+/* ---------- Text ---------- */
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:6px 0 14px}
+.page-title{font-family:var(--body);font-weight:700;font-size:34px;letter-spacing:.01em;line-height:1.1;margin:0}
+.page-sub{margin:4px 0 0;color:var(--muted);font-size:15px}
+.eyebrow{margin:0 0 2px;color:var(--accent);font-weight:600;font-size:15px}
+.section-label{font-weight:700;font-size:20px;margin:24px 0 8px}
+.ghead{display:flex;justify-content:space-between;gap:10px;margin:22px 16px 7px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:0}
+.ghead.today{color:var(--accent)}
+.gfoot{margin:7px 16px 0;color:var(--muted);font-size:13px}
+.fine{font-size:13px;color:var(--muted)}
+.status{font-weight:600;color:var(--ink)!important}
+.error{color:var(--danger);font-weight:600;font-size:15px;margin:0}
+.tag{font-size:12px;font-weight:600;background:var(--fill);color:var(--muted);border-radius:999px;padding:2px 8px;margin-left:6px;white-space:nowrap}
+.emoji{font-size:20px;width:22px;text-align:center}
 
-/* Forms / dialog */
-input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
-textarea{min-height:80px;resize:vertical}
-dialog{border:0;border-radius:18px;padding:0;background:var(--surface);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 40px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
-dialog::backdrop{background:rgba(10,14,25,.45)}
-dialog form,dialog .dlg{padding:22px;display:flex;flex-direction:column;gap:14px}
-dialog{overflow:auto}
-dialog:focus,dialog:focus-visible{outline:none}
-dialog .dlg p{margin:0}
-.emoji{font-size:1.2rem;width:18px;text-align:center}
-.slot.special{background:transparent;border:1px solid var(--line);border-left:4px solid var(--muted)}
-.drop{display:block;position:relative;border:2px dashed var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;background:var(--paper)}
-.drop:hover,.drop:focus-within{border-color:var(--accent)}
-.drop b{display:block;font-family:var(--display);font-size:1.05rem}
-.drop > span{display:block;color:var(--muted);font-size:.9rem}
-.drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.thumbs{display:flex;gap:8px;flex-wrap:wrap}
-.thumbs:empty{display:none}
-.thumb{position:relative;width:68px;height:68px;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:.72rem;text-align:center;padding:4px;overflow-wrap:anywhere}
-.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.thumb button{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:.95rem;line-height:1;padding:0;z-index:1}
-.review h3{font-family:var(--display);font-size:1.02rem;margin:8px 0 0}
-.pick{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
-.pick input{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
-.pick small{display:block;color:var(--muted);font-size:.88rem}
-.tag{font-size:.75rem;font-weight:700;background:var(--soft);border-radius:999px;padding:1px 8px;margin-left:6px;white-space:nowrap}
+/* ---------- Buttons ---------- */
+.btn{border:0;background:var(--tint);color:var(--accent);padding:10px 18px;border-radius:999px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none}
+.btn.primary{background:var(--accent-fill);color:#fff}
+.btn.danger{background:color-mix(in srgb,var(--danger) 13%,transparent);color:var(--danger)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:default}
+a.btn{color:var(--accent)} a.btn.primary{color:#fff}
+.round{width:36px;height:36px;padding:0;border-radius:50%}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:600;text-decoration:none}
+.linkbtn.danger{color:var(--danger)}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.xbtn{border:0;background:none;color:var(--muted);padding:4px;border-radius:50%;display:grid;place-items:center}
+.xbtn:hover{background:var(--fill)}
+
+/* ---------- Inputs ---------- */
+input[type=text],input[type=email],input[type=date],input[type=time],input[type=number],select,textarea{border:0;background:var(--fill);border-radius:10px;padding:10px 12px;width:100%;min-width:0;font-size:17px;outline-offset:0}
+textarea{min-height:84px;resize:vertical}
+::placeholder{color:var(--muted)}
+/* Round check circles, filled with the class colour */
+.check{appearance:none;-webkit-appearance:none;width:24px;height:24px;border:2px solid color-mix(in srgb,var(--muted) 70%,transparent);border-radius:50%;display:grid;place-content:center;background:transparent;flex:none;margin:0;cursor:pointer;transition:background .15s,border-color .15s}
+.check:checked{background:var(--c,var(--accent-fill));border-color:var(--c,var(--accent-fill))}
+.check:checked::after{content:"";width:10px;height:5.5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.check.sel:checked{background:var(--accent-fill);border-color:var(--accent-fill)}
+/* Switches for on/off settings */
+.opt{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:center;gap:14px;padding:6px 0;cursor:pointer}
+.opt input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:51px;height:31px;border-radius:16px;background:var(--fill2);position:relative;margin:0;cursor:pointer;transition:background .2s}
+.opt input[type=checkbox]::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .2s}
+.opt input[type=checkbox]:checked{background:var(--accent-fill)}
+.opt input[type=checkbox]:checked::after{transform:translateX(20px)}
+.opt input[type=radio]{accent-color:var(--accent-fill);width:20px;height:20px}
+
+/* ---------- Grouped lists (like iOS Settings) ---------- */
+.glist{background:var(--cardbg);border-radius:22px;overflow:hidden}
+.grow{display:flex;align-items:center;gap:12px;padding:11px 16px;min-height:48px;position:relative;width:100%;border:0;background:none;text-align:left;color:inherit}
+.grow + .grow::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--line)}
+button.grow:hover{background:var(--fill)}
+.grow .txt{flex:1;min-width:0}
+.grow .txt b{display:block;font-weight:600;overflow-wrap:anywhere}
+.grow .txt small{display:block;color:var(--muted);font-size:13px;margin-top:1px}
+.grow.accent{color:var(--accent);font-weight:500}
+.grow .chev{color:var(--muted);opacity:.6}
+.grow input[type=date]{width:auto;flex:none}
+.grow .bar{width:5px;align-self:stretch;border-radius:3px;background:var(--c);flex:none}
+.grow.free{color:var(--muted);font-size:15px}
+.grow.is-done .txt b{text-decoration:line-through;color:var(--muted)}
+.dot{width:20px;height:20px;border-radius:6px;background:var(--c);flex:none}
+
+/* ---------- Deadline rows ---------- */
+ul.items{list-style:none;margin:0;padding:0;background:var(--cardbg);border-radius:22px;overflow:hidden}
+.item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:11px 14px 11px 28px;position:relative}
+.item + .item{box-shadow:inset 0 1px 0 var(--line)}
+.item::before{content:"";width:5px;border-radius:3px;background:var(--c);position:absolute;left:13px;top:10px;bottom:10px}
+.item-main{border:0;background:none;text-align:left;padding:0;min-width:0}
+.item-title{display:flex;align-items:center;gap:6px;font-weight:600;font-size:17px;overflow-wrap:anywhere}
+.item-title .k{color:var(--c);font-size:14px}
+.item-meta{display:flex;flex-wrap:wrap;gap:2px 10px;color:var(--muted);font-size:13px;margin-top:2px}
+.item.done .item-title{text-decoration:line-through;color:var(--muted)}
+.item.selected{background:var(--tint)}
+.flag{color:var(--danger);font-weight:800}
+.when{font-weight:700;font-size:12px;white-space:nowrap;padding:4px 9px;border-radius:999px;background:var(--fill)}
+.when.urgent{background:var(--danger);color:#fff}
+.when.soon{background:color-mix(in srgb,var(--c) 24%,transparent)}
+details.done-group{margin-top:22px;background:var(--cardbg);border-radius:22px;overflow:hidden}
+details.done-group summary{cursor:pointer;padding:13px 16px;color:var(--muted);font-weight:500;list-style:none;display:flex;justify-content:space-between}
+details.done-group summary::-webkit-details-marker{display:none}
+details.done-group summary::after{content:"›";transform:rotate(90deg);font-size:20px;line-height:1}
+details.done-group[open] summary::after{transform:rotate(-90deg)}
+details.done-group ul.items{border-radius:0;box-shadow:inset 0 1px 0 var(--line)}
+
+/* ---------- Due page ---------- */
+.hero{padding:0 0 4px}
+.hero h1{font-weight:700;font-size:22px;line-height:1.25;margin:0;max-width:30ch}
+.hero p{margin:6px 0 0;color:var(--muted);font-size:15px}
+.hero .swatch{display:inline-block;width:.6em;height:.6em;border-radius:3px;background:var(--c);margin-right:.35em;vertical-align:.05em}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:14px 2px 2px;scrollbar-width:none;margin:0 -2px}
+.filters::-webkit-scrollbar{display:none}
+.filters .spacer{flex:1 0 8px}
+.chip{flex:none;border:0;background:var(--cardbg);padding:8px 14px;border-radius:999px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--accent-fill);color:#fff}
+.chip .k{color:var(--c)}
+.chip[aria-pressed="true"] .k{color:#fff}
+.group{margin-top:4px}
+.group h2{display:flex;gap:8px;margin:22px 16px 7px;color:var(--muted);font-size:13px;font-weight:600}
+.group h2 .count{font-weight:400}
+.group.overdue h2{color:var(--danger)}
+.empty{padding:30px 4px;max-width:520px;color:var(--muted)}
+.empty h2{color:var(--ink);font-size:22px;margin:0 0 6px}
+.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:16;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 18px;border-radius:999px;width:min(520px,calc(100vw - 24px));
+  background:var(--glass);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);border:1px solid var(--glass-line);box-shadow:var(--shadow)}
+.selbar .count{flex:1;font-weight:600}
+@media (min-width:900px){ .selbar{bottom:24px} }
+
+/* ---------- Day page ---------- */
+.day-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:4px 0 16px}
+.day-title{font-family:var(--display);font-weight:800;font-size:40px;letter-spacing:-.01em;line-height:1.05;margin:0}
+.day-sub{margin:4px 0 0;color:var(--muted);font-size:17px;font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.tile{background:var(--cardbg);border:0;border-radius:20px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:3px;min-width:0;color:inherit;font:inherit}
+button.tile:hover{background:color-mix(in srgb,var(--cardbg) 85%,var(--accent))}
+.tile .l{font-size:12px;color:var(--muted);font-weight:600}
+.tile .n{font-family:var(--display);font-size:28px;font-weight:700;line-height:1.1}
+.tile small{font-size:11px;color:var(--muted);line-height:1.3;overflow-wrap:anywhere}
+.tile .bar,.loading .bar{display:block;height:4px;border-radius:2px;background:var(--fill);overflow:hidden;margin-top:6px}
+.tile .bar i{display:block;height:100%;background:var(--accent-fill);border-radius:2px}
+.quick{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.quick::-webkit-scrollbar{display:none}
+.qbtn{flex:none;border:0;background:var(--cardbg);border-radius:999px;padding:9px 14px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:7px}
+.qbtn svg{color:var(--accent)}
+.qbtn:hover{background:var(--fill2)}
+.coach{background:var(--cardbg);border-radius:20px;padding:16px;margin:0 0 10px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.coach p{margin:0}
+.coach-label{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:var(--accent)}
+.special-banner{background:var(--cardbg);border-radius:20px;padding:12px 16px;margin-bottom:10px;font-size:15px}
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--cardbg);border-radius:20px;padding:14px 16px;margin:0 0 16px}
+.banner p{margin:0;flex:1 1 260px;font-size:15px}
+ul.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tl{display:grid;grid-template-columns:70px 1fr;gap:12px}
+.tl-time{text-align:right;padding-top:11px;font-size:15px;line-height:1.25}
+.tl-time b{white-space:nowrap;font-weight:600}
+.tl-time small{display:block;color:var(--muted);font-size:12px}
+.tl-body{border-radius:14px;padding:12px 12px 12px 17px;background:color-mix(in srgb,var(--c) 18%,var(--page));border:0;box-shadow:inset 5px 0 0 var(--c);display:flex;gap:10px;align-items:center;min-width:0;width:100%;text-align:left;color:inherit}
+.tl-body .txt{flex:1;min-width:0}
+.tl-body b{display:flex;align-items:center;gap:6px;font-weight:600;overflow-wrap:anywhere}
+.tl-body b .k{color:var(--c)}
+.tl-body small{display:block;color:var(--muted);font-size:13px;margin-top:1px}
+.tl.study .tl-body,.tl.due .tl-body{background:var(--cardbg);outline:1px dashed color-mix(in srgb,var(--c) 70%,transparent);outline-offset:-1px}
+.tl.past{opacity:.5}
+.tl.now .tl-body{outline:2px solid var(--accent);outline-offset:-2px}
+.tl.now .tl-time b{color:var(--accent)}
+.tl.done .txt b{text-decoration:line-through;color:var(--muted)}
+/* Welcome */
+.welcome{padding:10px 0;max-width:560px}
+.welcome .logo-lg{width:68px;height:68px;display:block;margin:6px 0 16px;filter:drop-shadow(0 10px 22px rgba(233,64,122,.35))}
+.welcome h1{font-family:var(--display);font-weight:800;font-size:30px;line-height:1.1;margin:0 0 4px}
+.welcome > p{color:var(--muted);margin:0 0 22px}
+.welcome-steps{list-style:none;counter-reset:w;padding:0;margin:0 0 22px;display:flex;flex-direction:column;gap:20px}
+.welcome-steps li{counter-increment:w;display:grid;grid-template-columns:30px 1fr;gap:14px}
+.welcome-steps li::before{content:counter(w);width:30px;height:30px;border-radius:9px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px}
+.welcome-steps b{font-weight:600}
+.welcome-steps p{margin:3px 0 10px;color:var(--muted);font-size:15px}
+
+/* ---------- Week ---------- */
+.wslot{display:flex;align-items:center;gap:12px;padding:10px 16px;width:100%;border:0;background:none;text-align:left;color:inherit;position:relative}
+.wslot + .wslot::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--line)}
+.wslot .bar{width:5px;align-self:stretch;min-height:34px;border-radius:3px;background:var(--c);flex:none}
+.wslot.dashed .bar{background:repeating-linear-gradient(var(--c) 0 6px,transparent 6px 10px)}
+.wslot .txt{flex:1;min-width:0}
+.wslot b{display:flex;gap:6px;align-items:center;font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.wslot b .k{color:var(--c)}
+.wslot small{display:block;color:var(--muted);font-size:13px}
+.wslot.is-done b{text-decoration:line-through;color:var(--muted)}
+button.wslot:hover{background:var(--fill)}
+
+/* ---------- Month ---------- */
+.mcard{background:var(--cardbg);border-radius:22px;padding:12px 10px 10px}
+.mhead,.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.mhead{margin-bottom:4px}
+.mhead span{font-size:12px;font-weight:600;color:var(--muted);text-align:center}
+.mcell{min-height:58px;border:0;background:none;border-radius:14px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;color:inherit;cursor:pointer}
+.mcell:hover{background:var(--fill)}
+.mcell.out .mnum{color:var(--muted);opacity:.6}
+.mcell.off{background:color-mix(in srgb,var(--orange) 10%,transparent)}
+.mnum{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:17px;font-weight:500}
+.mcell.today .mnum{background:var(--accent-fill);color:#fff;font-weight:700}
+.mitems{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;min-height:8px;max-width:100%}
+.mchip{width:6px;height:6px;border-radius:50%;background:var(--c);font-size:0;overflow:hidden}
+.mchip.exam{width:8px;height:8px}
+.mchip.done{opacity:.35}
+.mstudy{color:var(--accent);display:inline-flex}
+.mstudy svg{width:9px;height:9px;stroke-width:2.6}
+.mmore,.moff{font-size:9px;color:var(--muted);font-weight:700;line-height:8px}
+@media (min-width:700px){ .mcell{min-height:72px} }
+
+/* ---------- AI ---------- */
+.ai-hero{background:var(--brand);color:#fff;border-radius:26px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 14px 34px rgba(233,64,122,.25);margin-bottom:6px}
+.ai-hero p{margin:0;color:rgba(255,255,255,.92)}
+.ai-hero .coach-label{color:rgba(255,255,255,.9)}
+.ai-title{font-family:var(--display);font-weight:800;font-size:24px;margin:0;color:#fff}
+.ai-summary{font-size:20px;font-weight:600;line-height:1.3;color:#fff!important}
+.ai-stats{display:flex;gap:22px;flex-wrap:wrap}
+.ai-stats span{display:flex;flex-direction:column;font-size:12px;color:rgba(255,255,255,.85)}
+.ai-stats b{font-family:var(--display);font-size:22px;color:#fff;order:-1}
+.ai-hero .btn,.ai-hero .btn.primary{background:#fff;color:var(--violet);padding:11px 18px;font-size:17px}
+.sess-day{margin-bottom:12px}
+.sess-date{border:0;background:none;padding:4px 0 6px;font-weight:600;color:var(--muted);font-size:15px;cursor:pointer}
+.sess{display:flex;align-items:center;gap:12px;padding:11px 12px 11px 17px;background:var(--cardbg);border-radius:14px;box-shadow:inset 5px 0 0 var(--c);margin-bottom:6px}
+.sess .txt{flex:1;min-width:0}
+.sess b{display:block;font-weight:600;overflow-wrap:anywhere}
+.sess small{display:block;color:var(--muted);font-size:13px}
+.sess.done b{text-decoration:line-through;color:var(--muted)}
+.tool{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;background:var(--cardbg);border:0;border-radius:20px;padding:16px;color:inherit;font:inherit;cursor:pointer}
+.tool:hover{background:var(--fill2)}
+.tool-ic{width:34px;height:34px;flex:none;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center}
+.tool-ic svg{width:20px;height:20px}
+.tool b{display:block;font-weight:600}
+.tool small{display:block;color:var(--muted);font-size:15px;margin-top:2px}
+.card{background:var(--cardbg);border-radius:22px;padding:18px}
+.card.flow{display:flex;flex-direction:column;gap:14px}
+.plan-row{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.plan-row small{display:block;color:var(--muted);font-size:13px}
+.pdot{width:12px;height:12px;border-radius:4px;margin-top:5px;background:var(--c)}
 .loading{padding:26px 0;text-align:center}
-.loading .bar{height:6px;border-radius:3px;background:var(--soft);overflow:hidden;margin:18px auto 0;max-width:240px}
-.loading .bar i{display:block;height:100%;width:40%;background:var(--accent);border-radius:3px;animation:slide 1.2s ease-in-out infinite}
+.loading .bar{max-width:240px;margin:18px auto 0;height:6px}
+.loading .bar i{display:block;height:100%;width:40%;background:var(--accent-fill);border-radius:3px;animation:slide 1.2s ease-in-out infinite}
 @keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
-.ai-note{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:.9rem}
-dialog h2{margin:0;font-family:var(--display);font-size:1.35rem}
-.field{display:flex;flex-direction:column;gap:5px}
-.field > span{font-weight:700;font-size:.9rem}
-.field .hint{font-weight:400;color:var(--muted);font-size:.85rem}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ai-note{background:var(--fill);border-radius:12px;padding:10px 12px;font-size:15px}
+
+/* ---------- Settings ---------- */
+.panel{padding:0}
+.panel > h2{margin:24px 16px 7px;color:var(--muted);font-size:13px;font-weight:600}
+.panel > p{color:var(--muted);margin:0 16px 12px;font-size:15px}
+.box{background:var(--cardbg);border-radius:22px;padding:16px;margin-bottom:14px}
+.box h3{margin:0 0 6px;font-size:17px;font-weight:600}
+.box p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.box p:last-child{margin-bottom:0}
+.box a{color:var(--accent);text-decoration:none;font-weight:500}
+.box .opt + .opt{border-top:1px solid var(--line)}
+.remind{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;margin:10px 0 14px;font-size:15px}
+.remind select{width:auto}
+.seg{display:inline-flex;gap:2px;background:var(--fill);padding:2px;border-radius:10px;flex-wrap:wrap}
+.seg-btn{border:0;background:transparent;padding:7px 16px;border-radius:8px;font-weight:500;font-size:15px}
+.seg-btn[aria-checked="true"]{background:var(--sheetcell);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+ol.order{list-style:none;margin:6px 0 10px;padding:0;border-radius:14px;overflow:hidden;background:var(--fill)}
+ol.order li{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px}
+ol.order li + li{box-shadow:inset 0 1px 0 var(--line)}
+ol.order li span:not(.tag){flex:1;font-weight:500}
+ol.order svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--accent)}
+.obtn{border:0;background:var(--cardbg);width:36px;height:36px;border-radius:50%;font-size:16px;font-weight:700;color:var(--accent)}
+.obtn:disabled{opacity:.3;cursor:default}
+.key-row{display:flex;gap:10px;margin:12px 0 8px;flex-wrap:wrap}
+.key-row input{flex:1 1 220px}
+.social{display:grid;gap:10px;max-width:380px;margin:14px 0 4px}
+.social-btn{width:100%;font-size:17px;padding:13px 18px;background:var(--sheetcell);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.social-btn.apple{background:#000;color:#fff;box-shadow:none}
+:root[data-theme="dark"] .social-btn.apple{background:#fff;color:#000}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .social-btn.apple{background:#fff;color:#000}}
+.social .or{text-align:center;margin:4px 0 0}
+
+/* ---------- Sheets (dialogs) ---------- */
+dialog{border:0;padding:0;background:var(--sheet);color:var(--ink);width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 48px);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:auto;overscroll-behavior:contain}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog[open]{animation:sheetIn .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes sheetIn{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+@media (max-width:640px){
+  dialog{margin:auto 0 0;width:100vw;max-width:100vw;border-radius:22px 22px 0 0;max-height:94dvh;padding-bottom:env(safe-area-inset-bottom,0px)}
+  dialog[open]{animation:sheetUp .32s cubic-bezier(.2,.8,.2,1)}
+  @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+  .sheet-head::before{content:"";position:absolute;top:6px;left:50%;width:36px;height:5px;margin-left:-18px;border-radius:3px;background:var(--fill2)}
+}
+dialog:focus,dialog:focus-visible{outline:none}
+.sheet-head{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:16px 16px 12px;background:var(--glass);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px)}
+.sheet-head h2{margin:0;font-size:17px;font-weight:600;text-align:center;font-family:var(--body)}
+.sheet-head .l{justify-self:start}
+.sheet-head .r{justify-self:end}
+.tbtn{border:0;background:none;color:var(--accent);font-size:17px;padding:6px 2px}
+.tbtn.strong{font-weight:600}
+.sheet-body{padding:6px 16px 22px;display:flex;flex-direction:column;gap:18px}
+dialog .dlg p{margin:0}
+.fgroup{background:var(--sheetcell);border-radius:14px;overflow:hidden}
+.fgroup > *{padding:10px 16px}
+.fgroup > * + *{box-shadow:inset 0 1px 0 var(--line)}
+.fgroup > .opt{padding:8px 16px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field > span{font-size:13px;color:var(--muted);font-weight:500}
+.field .hint{font-weight:400}
+.fgroup input[type=text],.fgroup input[type=date],.fgroup input[type=time],.fgroup input[type=number],.fgroup select,.fgroup textarea{background:transparent;padding:4px 0;border-radius:0}
+.fgroup textarea{min-height:70px}
+.fgroup input:focus,.fgroup select:focus,.fgroup textarea:focus{outline:none}
+.fgroup:focus-within{box-shadow:0 0 0 2px var(--tint)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .kinds{display:flex;gap:6px;flex-wrap:wrap}
 .kinds label{position:relative}
 .kinds input{position:absolute;opacity:0;inset:0}
-.kinds span{display:block;border:1px solid var(--line);padding:7px 12px;border-radius:999px;font-weight:700;font-size:.9rem;cursor:pointer}
-.kinds input:checked + span{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.kinds span{display:inline-flex;align-items:center;gap:6px;background:var(--sheetcell);padding:8px 13px;border-radius:999px;font-weight:600;font-size:15px;cursor:pointer}
+.kinds span svg{color:var(--accent)}
+.kinds input:checked + span{background:var(--accent-fill);color:#fff}
+.kinds input:checked + span svg{color:#fff}
 .kinds input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}
-.colors{display:flex;gap:8px;flex-wrap:wrap}
+.colors{display:flex;gap:10px;flex-wrap:wrap;padding-top:4px}
 .colors label{position:relative}
 .colors input{position:absolute;opacity:0;inset:0}
-.colors span{display:block;width:32px;height:32px;border-radius:10px;background:var(--c);border:3px solid transparent;cursor:pointer}
-.colors input:checked + span{border-color:var(--ink)}
-.colors input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}
+.colors span{display:block;width:32px;height:32px;border-radius:50%;background:var(--c);cursor:pointer}
+.colors input:checked + span{box-shadow:0 0 0 3px var(--sheetcell),0 0 0 5px var(--c)}
+.colors input:focus-visible + span{outline:3px solid var(--accent);outline-offset:4px}
 .session{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr auto;gap:8px;align-items:center}
-.session button{border:0;background:none;color:var(--muted);font-size:1.3rem;padding:4px 8px}
-.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:6px}
+.session select,.session input{background:var(--fill)!important;padding:8px 10px!important;border-radius:10px!important}
+.session button{border:0;background:none;color:var(--danger);font-size:22px;padding:2px 8px}
+.del-row{width:100%;border:0;background:var(--sheetcell);color:var(--danger);font-size:17px;padding:13px;border-radius:14px}
+.drop{display:block;position:relative;border:2px dashed var(--line);border-radius:16px;padding:14px 16px;cursor:pointer;background:var(--sheetcell)}
+.drop:hover,.drop:focus-within{border-color:var(--accent)}
+.drop b{display:block;font-weight:600}
+.drop > span{display:block;color:var(--muted);font-size:15px}
+.drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs:empty{display:none}
+.thumb{position:relative;width:68px;height:68px;border-radius:12px;overflow:hidden;background:var(--sheetcell);display:grid;place-items:center;font-size:12px;text-align:center;padding:4px;overflow-wrap:anywhere}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:15px;line-height:1;padding:0;z-index:1}
+.review h3{font-size:17px;font-weight:600;margin:8px 0 0}
+.pick{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.pick input{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:50%;border:2px solid color-mix(in srgb,var(--muted) 70%,transparent);margin-top:1px;display:grid;place-content:center}
+.pick input:checked{background:var(--accent-fill);border-color:var(--accent-fill)}
+.pick input:checked::after{content:"";width:9px;height:5px;border-left:2.5px solid #fff;border-bottom:2.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.pick small{display:block;color:var(--muted);font-size:13px}
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px}
 .foot .right{display:flex;gap:10px;margin-left:auto}
-.error{color:var(--danger);font-weight:700;font-size:.9rem;margin:0}
 @media (max-width:520px){
   .two{grid-template-columns:1fr}
-  .session{grid-template-columns:1fr 1fr;}
-  .session .room{grid-column:1 / 2}
+  .session{grid-template-columns:1fr 1fr}
+  .tiles{gap:8px}
+  .tile{padding:10px}
+  .tile .n{font-size:24px}
+  .day-title{font-size:36px}
+  .tl{grid-template-columns:58px 1fr;gap:10px}
 }
 
-
-.top-left{display:flex;align-items:center;gap:12px}
-.sync-chip{border:0;background:var(--soft);color:var(--muted);font-weight:700;font-size:.8rem;padding:4px 10px 4px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
-.sync-chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--dotc,#39C27A)}
-.sync-chip[data-s="pending"],.sync-chip[data-s="syncing"]{--dotc:#F5C518}
-.sync-chip[data-s="offline"]{--dotc:#9AA3B5}
-.sync-chip[data-s="error"]{--dotc:var(--danger);color:var(--danger)}
-.banner{display:flex;gap:14px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:12px;padding:12px 14px;margin-top:16px}
-.banner p{margin:0}
-.key-row{display:flex;gap:10px;margin:12px 0 8px}
-.key-row input{flex:1}
-.fine{font-size:.9rem;color:var(--muted)}
-.status{font-weight:700;color:var(--ink)!important}
-.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline}
-a.btn{text-decoration:none;display:inline-block;color:inherit}
-a.btn.primary{color:var(--accent-ink)}
-.box a{color:var(--accent)}
-/* Day view */
-.day-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:28px 0 16px}
-.day-title{font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,7vw,3.2rem);letter-spacing:-.025em;line-height:1;margin:0}
-.day-sub{margin:6px 0 0;color:var(--muted);font-size:1.05rem}
-.day-head .btn{min-width:44px}
-.coach{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 16px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
-.coach p{margin:0}
-.coach-label{font-weight:700;font-size:.78rem;color:var(--accent);text-transform:uppercase;letter-spacing:.05em}
-.special-banner{background:var(--soft);border-radius:12px;padding:10px 14px;margin-bottom:10px}
-.section-label{font-family:var(--display);font-weight:700;font-size:1.05rem;margin:22px 0 6px}
-ul.timeline{list-style:none;margin:0;padding:0}
-.tl{display:grid;grid-template-columns:74px 1fr;gap:10px;padding:5px 0}
-.tl-time b{white-space:nowrap}
-.tl-time{text-align:right;padding-top:10px;font-size:.88rem;line-height:1.25}
-.tl-time small{display:block;color:var(--muted)}
-.tl-body{border-radius:12px;padding:10px 12px;background:color-mix(in srgb,var(--c) 20%,var(--surface));border:0;border-left:5px solid var(--c);display:flex;gap:10px;align-items:center;min-width:0;width:100%;text-align:left}
-.tl-body .txt{flex:1;min-width:0}
-.tl-body b{display:block;overflow-wrap:anywhere}
-.tl-body small{display:block;color:var(--muted);font-size:.86rem}
-.tl.study .tl-body{background:var(--surface);border:1px dashed var(--c);border-left:5px solid var(--c)}
-.tl.due .tl-body,.tl.exam .tl-body{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c)}
-.tl.past{opacity:.55}
-.tl.now .tl-body{box-shadow:0 0 0 2px var(--accent)}
-.tl.now .tl-time b{color:var(--accent)}
-.tl.done .txt b{text-decoration:line-through;color:var(--muted)}
-.xbtn{border:0;background:none;color:var(--muted);font-size:1.3rem;line-height:1;padding:2px 6px}
-.day-link{border:0;background:none;padding:0;width:100%;display:flex;justify-content:space-between;align-items:baseline;color:var(--muted);font-weight:700;font-size:.85rem;cursor:pointer}
-.day-link b{font-family:var(--display);font-size:1.3rem;color:var(--ink)}
-.slot.study.is-done{opacity:.5;text-decoration:line-through}
-.slot.study{background:transparent;border:1px dashed var(--c);border-left:4px solid var(--c);text-align:left;width:100%;display:block}
-.plan-row{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
-.plan-row small{display:block;color:var(--muted);font-size:.88rem}
-.pdot{width:12px;height:12px;border-radius:4px;margin-top:6px;background:var(--c)}
-/* Welcome */
-.welcome{padding:30px 0;max-width:620px}
-.welcome h1{font-family:var(--display);font-size:clamp(1.9rem,6vw,2.7rem);letter-spacing:-.02em;line-height:1.05;margin:0 0 6px}
-.welcome > p{color:var(--muted);margin:0 0 22px;font-size:1.05rem}
-.welcome-steps{list-style:none;counter-reset:w;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:18px}
-.welcome-steps li{counter-increment:w;display:grid;grid-template-columns:34px 1fr;gap:12px}
-.welcome-steps li::before{content:counter(w);width:30px;height:30px;border-radius:9px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:800;font-family:var(--display)}
-.welcome-steps b{font-family:var(--display);font-size:1.1rem}
-.welcome-steps p{margin:2px 0 10px;color:var(--muted)}
-/* Tab bar: bottom on phones, sidebar on wide screens */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:saturate(1.8) blur(18px);backdrop-filter:saturate(1.8) blur(18px);border-top:1px solid var(--line);padding:6px max(4px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(4px,env(safe-area-inset-left,0px))}
-.tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0 3px;color:var(--muted);font-size:.66rem;font-weight:700;border-radius:12px;min-width:0}
-.tabbar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tabbar button[aria-selected="true"]{color:var(--accent)}
-.tabbar button[aria-selected="true"] svg{stroke-width:2.3}
-.tabbar button[data-tab="ai"] svg{color:inherit}
-@media (min-width:900px){
-  .tabbar{top:0;bottom:0;right:auto;width:210px;grid-template-columns:1fr;grid-auto-rows:min-content;align-content:start;gap:4px;padding:84px 14px 20px;border-top:0;border-right:1px solid var(--line)}
-  .tabbar button{flex-direction:row;gap:12px;font-size:.98rem;padding:10px 14px;justify-content:flex-start}
-  .tabbar button[aria-selected="true"]{background:var(--soft);color:var(--ink)}
-  .tabbar button[aria-selected="true"] svg{color:var(--accent)}
-  .wrap{margin-left:210px;padding-left:36px;padding-right:36px}
-  .fab{bottom:calc(24px + env(safe-area-inset-bottom,0px))}
-  .toast{bottom:90px}
-}
-/* Page heads */
-.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:26px 0 16px}
-.page-title{font-family:var(--display);font-weight:800;font-size:clamp(1.9rem,6vw,2.8rem);letter-spacing:-.025em;line-height:1.05;margin:0}
-.page-sub{margin:6px 0 0;color:var(--muted)}
-.eyebrow{margin:0 0 4px;color:var(--accent);font-weight:700;font-size:.9rem}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
-.card.flow{display:flex;flex-direction:column;gap:14px;max-width:640px}
-/* Dashboard */
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:2px 0 12px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;min-width:0;color:inherit;font:inherit}
-button.tile{cursor:pointer}
-button.tile:hover{border-color:var(--accent)}
-.tile .l{font-size:.76rem;color:var(--muted);font-weight:700}
-.tile .n{font-family:var(--display);font-size:1.9rem;font-weight:800;line-height:1}
-.tile small{font-size:.78rem;color:var(--muted);line-height:1.25;overflow-wrap:anywhere}
-.tile .bar{display:block;height:6px;border-radius:3px;background:var(--soft);overflow:hidden;margin-top:4px}
-.tile .bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
-.quick{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none}
-.quick::-webkit-scrollbar{display:none}
-.qbtn{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;font-size:.9rem}
-.qbtn:hover{border-color:var(--accent)}
-/* Month */
-.mhead{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px}
-.mhead span{font-size:.75rem;font-weight:700;color:var(--muted);text-align:center}
-.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
-.mcell{min-height:104px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;text-align:left;display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden;color:inherit;font:inherit;cursor:pointer}
-.mcell:hover{border-color:var(--accent)}
-.mcell.out{opacity:.38}
-.mcell.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.mcell.today .mnum{background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:0 6px}
-.mcell.off{background:var(--soft)}
-.mnum{font-family:var(--display);font-weight:800;font-size:.95rem;align-self:flex-start}
-.mitems{display:flex;flex-direction:column;gap:3px;min-width:0}
-.mchip{font-size:.72rem;line-height:1.25;padding:2px 5px;border-radius:5px;background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:3px solid var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mchip.exam{font-weight:700}
-.mchip.done{opacity:.5;text-decoration:line-through}
-.mmore,.mstudy,.moff{font-size:.72rem;color:var(--muted);font-weight:700}
-@media (max-width:640px){
-  .mgrid,.mhead{gap:3px}
-  .mcell{min-height:62px;padding:4px;border-radius:9px}
-  .mnum{font-size:.85rem}
-  .mitems{flex-direction:row;flex-wrap:wrap;gap:3px}
-  .mchip{font-size:0;width:8px;height:8px;padding:0;border:0;border-radius:50%;background:var(--c)}
-  .mchip.exam{width:10px;height:10px;box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 35%,transparent)}
-  .mstudy,.mmore,.moff{font-size:.62rem}
-}
-/* AI page */
-.ai-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface) 70%);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;max-width:720px}
-.ai-hero p{margin:0}
-.ai-title{font-family:var(--display);font-size:1.5rem;margin:0;letter-spacing:-.01em}
-.ai-summary{font-size:1.12rem;line-height:1.45}
-.ai-stats{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:.9rem}
-.ai-stats b{color:var(--ink);font-family:var(--display);font-size:1.05rem}
-.sess-day{margin-bottom:10px;max-width:720px}
-.sess-date{border:0;background:none;padding:6px 0;font-weight:700;color:var(--muted);font-size:.9rem;cursor:pointer}
-.sess{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:12px;margin-bottom:6px}
-.sess .txt{flex:1;min-width:0}
-.sess b{display:block;overflow-wrap:anywhere}
-.sess small{display:block;color:var(--muted);font-size:.86rem}
-.sess.done b{text-decoration:line-through;color:var(--muted)}
-.tool{display:flex;gap:14px;align-items:flex-start;width:100%;max-width:720px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;color:inherit;font:inherit;cursor:pointer}
-.tool:hover{border-color:var(--accent)}
-.tool-ic{font-size:1.5rem;line-height:1}
-.tool b{display:block;font-family:var(--display);font-size:1.05rem}
-.tool small{display:block;color:var(--muted);font-size:.9rem;margin-top:2px}
-/* Selecting items to share */
-.filters .spacer{flex:1}
-.item.selected{background:color-mix(in srgb,var(--accent) 8%,transparent)}
-.check.sel{border-radius:50%}
-.check.sel:checked{background:var(--accent);border-color:var(--accent)}
-.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:12;display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);border-radius:16px;padding:8px 8px 8px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);width:min(560px,calc(100vw - 24px))}
-.selbar .count{flex:1;font-weight:700}
-.selbar .btn{padding:8px 14px}
-.selbar .btn.ghost{color:var(--paper);opacity:.8}
-@media (min-width:900px){ .selbar{left:calc(50% + 105px);bottom:24px} }
-/* Settings: theme and page order */
-.seg{display:inline-flex;gap:4px;background:var(--soft);padding:4px;border-radius:12px;flex-wrap:wrap}
-.seg-btn{border:0;background:transparent;padding:8px 14px;border-radius:9px;font-weight:700;color:var(--muted)}
-.seg-btn[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
-ol.order{list-style:none;margin:0 0 10px;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-ol.order li{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
-ol.order li:last-child{border-bottom:0}
-ol.order li span:not(.tag){flex:1;font-weight:700}
-ol.order svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--accent)}
-.obtn{border:1px solid var(--line);background:var(--paper);width:38px;height:38px;border-radius:10px;font-size:1.1rem;font-weight:700}
-.obtn:disabled{opacity:.3;cursor:default}
-.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:20}
-.toast.show{opacity:1}
+/* ---------- Toast ---------- */
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translate(-50%,8px);padding:12px 20px;border-radius:24px;font-weight:600;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;width:max-content;max-width:min(90vw,520px);text-align:center;z-index:40;
+  background:var(--glass);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);border:1px solid var(--glass-line);box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:900px){ .toast{bottom:28px} }
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="bmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A4DFF"/><stop offset=".55" stop-color="#E9407A"/><stop offset="1" stop-color="#FF8A3D"/></linearGradient>
+  <linearGradient id="bmi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A4DFF"/><stop offset="1" stop-color="#F0437A"/></linearGradient>
+  <symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="url(#bmg)"/><rect x="15" y="17.5" width="34" height="31" rx="7.5" fill="#fff"/><rect x="21.5" y="13" width="4.5" height="9" rx="2.25" fill="#fff"/><rect x="38" y="13" width="4.5" height="9" rx="2.25" fill="#fff"/><path d="M24.5 34.5l5 5 10.5-11" fill="none" stroke="url(#bmi)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M51 6c.7 3.6 2 4.9 5.6 5.6C53 12.3 51.7 13.6 51 17.2c-.7-3.6-2-4.9-5.6-5.6C49 10.9 50.3 9.6 51 6z" fill="#fff"/></symbol>
+</defs></svg>
+<div class="glow" aria-hidden="true"></div>
+<header class="top">
+  <div class="top-left"><div class="brand"><svg class="brand-mark" aria-hidden="true"><use href="#logo"/></svg><span>Calendar Planner</span></div><button type="button" class="sync-chip" id="syncChip" hidden>Synced</button></div>
+  <button class="glassbtn" id="fab" type="button" aria-label="Add" aria-haspopup="menu" aria-expanded="false"><span class="plus"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span></button>
+</header>
 <div class="wrap">
-  <header class="top">
-    <div class="top-left"><div class="brand"><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="bmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A4DFF"/><stop offset=".55" stop-color="#E9407A"/><stop offset="1" stop-color="#FF8A3D"/></linearGradient><linearGradient id="bmi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A4DFF"/><stop offset="1" stop-color="#F0437A"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#bmg)"/><rect x="15" y="17.5" width="34" height="31" rx="7.5" fill="#fff"/><rect x="21.5" y="13" width="4.5" height="9" rx="2.25" fill="#fff"/><rect x="38" y="13" width="4.5" height="9" rx="2.25" fill="#fff"/><path d="M24.5 34.5l5 5 10.5-11" fill="none" stroke="url(#bmi)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M51 6c.7 3.6 2 4.9 5.6 5.6C53 12.3 51.7 13.6 51 17.2c-.7-3.6-2-4.9-5.6-5.6C49 10.9 50.3 9.6 51 6z" fill="#fff"/></svg>Study Planner</div><button type="button" class="sync-chip" id="syncChip" hidden>Synced</button></div>
-  </header>
   <main id="view"></main>
 </div>
-  <nav class="tabbar" role="tablist" aria-label="Sections"></nav>
-
-<button class="fab" id="fab" type="button"><span aria-hidden="true">+</span> Add</button>
+<nav class="tabbar" role="tablist" aria-label="Sections"></nav>
+<div class="menu" id="addMenu" role="menu" aria-label="Add" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="restoreInput" accept=".json,application/json" class="sr" tabindex="-1">
 
 <!-- Item dialog -->
-<dialog id="itemDlg">
+<dialog id="itemDlg" aria-labelledby="itemDlgTitle">
   <form id="itemForm" method="dialog" novalidate>
-    <h2 id="itemDlgTitle">Add homework</h2>
-    <div class="kinds" role="radiogroup" aria-label="Type" id="kindPick"></div>
-    <label class="field"><span>Title</span><input type="text" name="title" placeholder="e.g. Problem set 4" autocomplete="off"></label>
-    <label class="field"><span>Class</span><select name="classId" id="classSelect"></select></label>
-    <div class="two">
-      <label class="field"><span id="dateLabel">Due date</span><input type="date" name="due"></label>
-      <label class="field"><span>Time <span class="hint">(optional)</span></span><input type="time" name="time"></label>
-    </div>
-    <div class="two exam-only">
-      <label class="field"><span>Length (minutes)</span><input type="number" name="duration" min="15" step="15" value="120"></label>
-      <label class="field"><span>Room</span><input type="text" name="room" autocomplete="off"></label>
-    </div>
-    <label class="opt"><input type="checkbox" name="high"> Mark as important</label>
-    <label class="field"><span>Notes</span><textarea name="notes" placeholder="Pages, instructions, links…"></textarea></label>
-    <p class="error" id="itemError" hidden></p>
-    <div class="foot">
-      <button type="button" class="btn danger" id="itemDelete" hidden>Delete</button>
-      <div class="right">
-        <button type="button" class="btn ghost" data-close>Cancel</button>
-        <button type="submit" class="btn primary" id="itemSave">Save</button>
+    <div class="sheet-head"><button type="button" class="tbtn l" data-close>Cancel</button><h2 id="itemDlgTitle">Add homework</h2><button type="submit" class="tbtn strong r" id="itemSave">Save</button></div>
+    <div class="sheet-body">
+      <div class="kinds" role="radiogroup" aria-label="Type" id="kindPick"></div>
+      <div class="fgroup">
+        <label class="field"><span>Title</span><input type="text" name="title" placeholder="e.g. Problem set 4" autocomplete="off"></label>
+        <label class="field"><span>Class</span><select name="classId" id="classSelect"></select></label>
       </div>
+      <div class="fgroup">
+        <div class="two">
+          <label class="field"><span id="dateLabel">Due date</span><input type="date" name="due"></label>
+          <label class="field"><span>Time <span class="hint">(optional)</span></span><input type="time" name="time"></label>
+        </div>
+        <div class="two exam-only">
+          <label class="field"><span>Length (minutes)</span><input type="number" name="duration" min="15" step="15" value="120"></label>
+          <label class="field"><span>Room or place</span><input type="text" name="room" autocomplete="off"></label>
+        </div>
+      </div>
+      <div class="fgroup">
+        <label class="opt"><input type="checkbox" name="high"> Important</label>
+        <label class="field"><span>Notes</span><textarea name="notes" placeholder="Pages, instructions, links…"></textarea></label>
+      </div>
+      <p class="error" id="itemError" hidden></p>
+      <button type="button" class="del-row" id="itemDelete" hidden>Delete</button>
     </div>
   </form>
 </dialog>
@@ -413,89 +511,110 @@ ol.order svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1
 <!-- Import dialog -->
 <dialog id="importDlg" aria-labelledby="importTitle">
   <div class="dlg">
-    <h2 id="importTitle">Import from a photo</h2>
-    <div id="importBody" style="display:flex;flex-direction:column;gap:14px"></div>
+    <div class="sheet-head"><span></span><h2 id="importTitle">Import from a photo</h2><button type="button" class="tbtn strong r" data-close>Close</button></div>
+    <div id="importBody" class="sheet-body"></div>
   </div>
 </dialog>
 
 <!-- From a friend dialog -->
 <dialog id="sharedDlg" aria-labelledby="sharedTitle">
   <div class="dlg">
-    <h2 id="sharedTitle">From a friend</h2>
-    <div id="sharedBody" style="display:flex;flex-direction:column;gap:14px"></div>
+    <div class="sheet-head"><span></span><h2 id="sharedTitle">From a friend</h2><button type="button" class="tbtn strong r" data-close>Close</button></div>
+    <div id="sharedBody" class="sheet-body"></div>
   </div>
 </dialog>
 
 <!-- Day off dialog -->
-<dialog id="specialDlg">
+<dialog id="specialDlg" aria-labelledby="specialDlgTitle">
   <form id="specialForm" method="dialog" novalidate>
-    <h2 id="specialDlgTitle">Add a day off</h2>
-    <label class="field"><span>Name</span><input type="text" name="label" placeholder="e.g. Thanksgiving, study week" autocomplete="off"></label>
-    <label class="field"><span>What happens that day</span>
-      <select name="follows">
-        <option value="0">No classes</option>
-        <option value="1">Follows Monday's schedule</option>
-        <option value="2">Follows Tuesday's schedule</option>
-        <option value="3">Follows Wednesday's schedule</option>
-        <option value="4">Follows Thursday's schedule</option>
-        <option value="5">Follows Friday's schedule</option>
-      </select></label>
-    <div class="two">
-      <label class="field"><span id="specialStartLabel">From</span><input type="date" name="start"></label>
-      <label class="field" id="specialEndWrap"><span>To <span class="hint">(optional)</span></span><input type="date" name="end"></label>
-    </div>
-    <p class="error" id="specialError" hidden></p>
-    <div class="foot">
-      <button type="button" class="btn danger" id="specialDelete" hidden>Delete</button>
-      <div class="right">
-        <button type="button" class="btn ghost" data-close>Cancel</button>
-        <button type="submit" class="btn primary">Save</button>
+    <div class="sheet-head"><button type="button" class="tbtn l" data-close>Cancel</button><h2 id="specialDlgTitle">Add a day off</h2><button type="submit" class="tbtn strong r">Save</button></div>
+    <div class="sheet-body">
+      <div class="fgroup">
+        <label class="field"><span>Name</span><input type="text" name="label" placeholder="e.g. Thanksgiving, study week" autocomplete="off"></label>
+        <label class="field"><span>What happens that day</span>
+          <select name="follows">
+            <option value="0">No classes</option>
+            <option value="1">Follows Monday's schedule</option>
+            <option value="2">Follows Tuesday's schedule</option>
+            <option value="3">Follows Wednesday's schedule</option>
+            <option value="4">Follows Thursday's schedule</option>
+            <option value="5">Follows Friday's schedule</option>
+          </select></label>
       </div>
+      <div class="fgroup">
+        <div class="two">
+          <label class="field"><span id="specialStartLabel">From</span><input type="date" name="start"></label>
+          <label class="field" id="specialEndWrap"><span>To <span class="hint">(optional)</span></span><input type="date" name="end"></label>
+        </div>
+      </div>
+      <p class="error" id="specialError" hidden></p>
+      <button type="button" class="del-row" id="specialDelete" hidden>Delete</button>
     </div>
   </form>
 </dialog>
 
 <!-- Class dialog -->
-<dialog id="classDlg">
+<dialog id="classDlg" aria-labelledby="classDlgTitle">
   <form id="classForm" method="dialog" novalidate>
-    <h2 id="classDlgTitle">Add a class</h2>
-    <label class="field"><span>Class name</span><input type="text" name="name" placeholder="e.g. Calculus I" autocomplete="off"></label>
-    <label class="field"><span>Teacher <span class="hint">(optional)</span></span><input type="text" name="teacher" autocomplete="off"></label>
-    <div class="field"><span>Color</span><div class="colors" id="colorPick"></div></div>
-    <div class="field">
-      <span>When it meets</span>
-      <div id="sessions" style="display:flex;flex-direction:column;gap:8px"></div>
-      <div><button type="button" class="btn" id="addSession">Add a time</button></div>
-    </div>
-    <p class="error" id="classError" hidden></p>
-    <div class="foot">
-      <button type="button" class="btn danger" id="classDelete" hidden>Delete class</button>
-      <div class="right">
-        <button type="button" class="btn ghost" data-close>Cancel</button>
-        <button type="submit" class="btn primary">Save class</button>
+    <div class="sheet-head"><button type="button" class="tbtn l" data-close>Cancel</button><h2 id="classDlgTitle">Add a class</h2><button type="submit" class="tbtn strong r">Save</button></div>
+    <div class="sheet-body">
+      <div class="fgroup">
+        <label class="field"><span>Class name</span><input type="text" name="name" placeholder="e.g. Calculus I" autocomplete="off"></label>
+        <label class="field"><span>Teacher <span class="hint">(optional)</span></span><input type="text" name="teacher" autocomplete="off"></label>
+        <div class="field"><span>Color</span><div class="colors" id="colorPick"></div></div>
       </div>
+      <div class="fgroup">
+        <div class="field">
+          <span>When it meets</span>
+          <div id="sessions" style="display:flex;flex-direction:column;gap:8px;margin-top:6px"></div>
+          <div style="margin-top:8px"><button type="button" class="btn" id="addSession">Add a time</button></div>
+        </div>
+      </div>
+      <p class="error" id="classError" hidden></p>
+      <button type="button" class="del-row" id="classDelete" hidden>Delete class</button>
     </div>
   </form>
 </dialog>
 
+<script src="config.js"></script>
 <script>
 (function(){
 "use strict";
-const KEY = "studyplanner:v1";
-const SYNC_KEY = "studyplanner:sync";
-const BANNER_KEY = "studyplanner:installHint";
-const API = "https://api.github.com";
-const GIST_DESC = "Study Planner sync";
-const DATA_FILE = "study-planner.json";
-const ICS_FILE = "school.ics";
+const KEY = "calendarplanner:v1";
+const OLD_KEY = "studyplanner:v1";   // data from the earlier Study Planner web app
+const BANNER_KEY = "calendarplanner:installHint";
 const COLORS = ["#F5C518","#FF6FA3","#39C27A","#3FA7F5","#FF8A3D","#9B7BFF","#1FBFB8","#E5484D"];
 const KINDS = {
   homework:{label:"Homework",icon:"📝"},
   assignment:{label:"Assignment",icon:"📄"},
   project:{label:"Project",icon:"🧩"},
   reading:{label:"Reading",icon:"📖"},
-  exam:{label:"Exam",icon:"🧪"}
+  exam:{label:"Exam",icon:"🧪"},
+  event:{label:"Event",icon:"⭐"}
 };
+/** Small line icons, in the same style as the iPhone app. */
+const IC = {
+  homework:'<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14 8l3 3M13 20h7"/>',
+  assignment:'<path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
+  project:'<path d="M9.5 4.5a2.5 2.5 0 0 1 5 0V6H18v3.5h-1.5a2.5 2.5 0 0 0 0 5H18V18H6v-3.5h1.5a2.5 2.5 0 0 0 0-5H6V6h3.5z"/>',
+  reading:'<path d="M12 6.5C10 5 7 4.5 4 5v13.5c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5zM12 6.5V20"/>',
+  exam:'<path d="M2.5 9L12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v5c3 2.4 8 2.4 11 0v-5M21.5 9v5.5"/>',
+  event:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  sparkles:'<path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
+  camera:'<path d="M4 8.5h3.2l1.8-2.5h6l1.8 2.5H20v10.5H4z"/><circle cx="12" cy="13.5" r="3.5"/>',
+  calendar:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/>',
+  books:'<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7.5h6"/>',
+  left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>',
+  x:'<path d="M7 7l10 10M17 7L7 17"/>',
+  share:'<path d="M12 3.5v11M8 7.5l4-4 4 4"/><path d="M6 11v8.5h12V11"/>',
+  people:'<circle cx="9" cy="8" r="3.3"/><path d="M3 20c0-3.4 2.7-5.8 6-5.8s6 2.4 6 5.8"/><path d="M16 4.8a3.3 3.3 0 0 1 0 6.4M21 20c0-2.8-1.6-5-4-5.6"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>'
+};
+const ic = name=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${IC[name]||""}</svg>`;
+const kic = kind=>`<span class="k">${ic(KINDS[kind] ? kind : "homework")}</span>`;
+/** Exams and events take up a block of time; everything else is a deadline. */
+const isBlockKind = k=>k==="exam"||k==="event";
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const DAYS_LONG = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 const NOCLASS = "#9AA3B5";
@@ -545,7 +664,7 @@ let state = load();
 
 /* ---------- helpers ---------- */
 const $ = (s,r=document)=>r.querySelector(s);
-const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const uid = ()=>(window.crypto && crypto.randomUUID) ? crypto.randomUUID().toUpperCase() : (Date.now().toString(36)+Math.random().toString(36).slice(2,10));
 const esc = s=>String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pad = n=>String(n).padStart(2,"0");
 const ymd = d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -579,97 +698,324 @@ function toast(msg){
 }
 
 /* =========================================================
-   LIVE SYNC
-   Two secret GitHub gists:
-   - the calendar gist holds school.ics, the link Apple Calendar subscribes to;
-   - the data gist holds study-planner.json and settings.json (your Gemini key),
-     so your iPhone, iPad and Mac share everything. Its link is never shared.
+   ACCOUNT SYNC
+   One Calendar Planner account keeps the Windows app, the iPhone app
+   and any browser in step. Each class, deadline, day off, study session
+   and the semester settings is saved as its own record, so two devices
+   editing different things never overwrite each other. If both edit the
+   same thing, the newest edit wins. Deleted things leave a small marker
+   so the deletion reaches the other devices too.
    ========================================================= */
-function loadSync(){ try{ return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; }catch(e){ return {}; } }
-function saveSync(){ try{ localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); }catch(e){} }
-let sync = loadSync();              // {token, login, gistId, lastSync, dirty, dirtyAt, needsKey}
-let syncUi = {s: connected() ? "ok" : "off", msg:""};
-function connected(){ return !!(sync && sync.token && sync.gistId); }
-function feedUrl(){ return `https://gist.githubusercontent.com/${sync.login}/${sync.gistId}/raw/${ICS_FILE}`; }
+// Your settings live in config.js (next to this file), so updating the app never erases them.
+const ACCOUNT = Object.assign({
+  url: "",           // your Supabase Project URL, e.g. "https://abcdefghijklm.supabase.co"
+  key: "",           // the publishable key (sb_publishable_...)
+  reviewEmail: "",   // the store-review test account, if any
+  google: false,     // Sign in with Google
+  apple: false       // Sign in with Apple (needs a secret renewed every 6 months)
+}, window.CALENDAR_PLANNER_CONFIG || {});
+const LINKS = {privacy: "privacy.html", support: "support.html"};
+const isReviewEmail = e=>!!ACCOUNT.reviewEmail && String(e||"").trim().toLowerCase() === ACCOUNT.reviewEmail.trim().toLowerCase();
+const ACC_KEY = "calendarplanner:account";
+const PREFS_ID = "prefs";
+function loadAcc(){ try{ return JSON.parse(localStorage.getItem(ACC_KEY)) || {}; }catch(e){ return {}; } }
+function saveAcc(){ try{ localStorage.setItem(ACC_KEY, JSON.stringify(acc)); }catch(e){} }
+let acc = loadAcc();   // {email, userId, access, refresh, expiresAt, cursor, cache, lastSync, pendingEmail}
+let syncUi = {s:"ok", msg:""};
+const accountReady = ()=>!!(ACCOUNT.url && ACCOUNT.key);
+function connected(){ return !!(accountReady() && acc.userId && acc.refresh); }
+const accErr = (msg, code)=>{ const e = new Error(msg); e.userMsg = msg; e.code = code; return e; };
 
-async function gh(path, opts={}){
+async function sbFetch(path, opts={}, retry=true){
+  const {method="GET", body, auth=true, prefer} = opts;
+  if(!accountReady()) throw accErr("Accounts aren't set up in this copy of the app yet.", "config");
+  const headers = {"apikey": ACCOUNT.key, "Content-Type":"application/json"};
+  if(auth){
+    if(!acc.access || (acc.expiresAt||0) < Date.now() + 60000) await refreshSession();
+    headers.Authorization = "Bearer " + acc.access;
+  }
+  if(prefer) headers.Prefer = prefer;
   let res;
   try{
-    res = await fetch(API+path, Object.assign({}, opts, {cache:"no-store", headers:Object.assign({
-      "Accept":"application/vnd.github+json",
-      "Authorization":"Bearer "+sync.token,
-      "X-GitHub-Api-Version":"2022-11-28"
-    }, opts.body ? {"Content-Type":"application/json"} : {})}));
-  }catch(e){ const err = new Error("offline"); err.code = "offline"; throw err; }
-  if(res.status===401){ const e=new Error("auth"); e.code="auth"; throw e; }
-  if(res.status===404){ const e=new Error("missing"); e.code="missing"; throw e; }
-  if(!res.ok){ const e=new Error("http "+res.status); e.code="http"; e.status=res.status; throw e; }
-  return res.status===204 ? null : res.json();
-}
-const DATA_DESC = "Study Planner data (private)";
-const SETTINGS_FILE = "settings.json";
-const tagGist = (p, which)=>p.catch(e=>{ e.which = which; throw e; });
-async function listGists(){
-  const all = [];
-  for(let page=1; page<=5; page++){
-    const list = await gh(`/gists?per_page=100&page=${page}`);
-    all.push(...list);
-    if(list.length < 100) break;
+    res = await fetch(ACCOUNT.url.replace(/\/+$/,"") + path, {method, headers, cache:"no-store",
+      body: body===undefined ? undefined : JSON.stringify(body)});
+  }catch(e){ throw accErr("You're offline.", "offline"); }
+  const text = await res.text();
+  let data = null; try{ data = text ? JSON.parse(text) : null; }catch(e){}
+  if(res.status===401 && auth && retry){ acc.expiresAt = 0; return sbFetch(path, opts, false); }
+  if(!res.ok){
+    const detail = String((data && (data.msg || data.message || data.error_description || data.error)) || "");
+    const e = accErr(detail, res.status===401||res.status===403 ? "auth" : res.status===429 ? "rate" : "http");
+    e.status = res.status; throw e;
   }
-  return all;
+  return data;
 }
-async function readGistFile(g, name){
-  const f = g.files && g.files[name];
-  if(!f) return null;
-  if(f.truncated){ const r = await fetch(f.raw_url,{cache:"no-store"}); return r.text(); }
-  return f.content;
-}
-function settingsPayload(){ return {geminiKey: ai.key || "", keyUpdatedAt: ai.updatedAt || 0}; }
-function applyRemoteSettings(st){
-  if(st && st.geminiKey && (+st.keyUpdatedAt||0) > (ai.updatedAt||0)){
-    ai = {key: st.geminiKey, updatedAt: +st.keyUpdatedAt||Date.now()}; saveAi();
+let refreshing = null;
+function refreshSession(){
+  if(!refreshing){
+    refreshing = (async ()=>{
+      if(!acc.refresh) throw accErr("Signed out.", "auth");
+      try{
+        setSession(await sbFetch("/auth/v1/token?grant_type=refresh_token", {method:"POST", auth:false, body:{refresh_token:acc.refresh}}));
+      }catch(e){
+        if(e.status===400 || e.status===401 || e.status===403) throw accErr("Signed out.", "auth");
+        throw e;
+      }
+    })().finally(()=>{ refreshing = null; });
   }
+  return refreshing;
 }
-/**
- * Private data lives in its own gist, separate from the calendar gist whose link
- * is shared with Apple Calendar. Older versions kept both in one gist; this moves
- * the data out. Returns "found", "legacy" or "new".
- */
-async function ensureDataGist(list){
-  if(sync.dataGistId) return "found";
-  list = list || await listGists();
-  const found = list.find(g=>g.description===DATA_DESC && g.files && g.files[DATA_FILE]);
-  if(found){ sync.dataGistId = found.id; saveSync(); return "found"; }
-  let legacy = null;
-  if(sync.gistId){
-    try{ legacy = await readGistFile(await gh(`/gists/${sync.gistId}`), DATA_FILE); }
-    catch(e){ if(e.code!=="missing") throw e; }
-  }
-  const g = await gh("/gists", {method:"POST", body:JSON.stringify({description:DATA_DESC, public:false, files:{
-    [DATA_FILE]:{content: legacy || JSON.stringify(state)},
-    [SETTINGS_FILE]:{content: JSON.stringify(settingsPayload())}}})});
-  sync.dataGistId = g.id; saveSync();
-  if(legacy){ try{ await gh(`/gists/${sync.gistId}`, {method:"PATCH", body:JSON.stringify({files:{[DATA_FILE]:null}})}); }catch(e){} }
-  return legacy ? "legacy" : "new";
+function setSession(d){
+  acc.access = d.access_token; acc.refresh = d.refresh_token;
+  acc.expiresAt = Date.now() + (+d.expires_in || 3600)*1000;
+  if(d.user){ acc.userId = d.user.id; acc.email = d.user.email || acc.email; }
+  saveAcc();
 }
-async function fetchRemote(){
-  const g = await tagGist(gh(`/gists/${sync.dataGistId}`), "data");
-  let data = null, settings = null;
-  try{ const t = await readGistFile(g, DATA_FILE); if(t) data = normalize(JSON.parse(t)); }catch(e){}
-  try{ const t = await readGistFile(g, SETTINGS_FILE); if(t) settings = JSON.parse(t); }catch(e){}
-  return {data, settings};
+async function sendCode(email){
+  email = String(email||"").trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw accErr("Type a valid email address.", "input");
+  if(!isReviewEmail(email)) await sbFetch("/auth/v1/otp", {method:"POST", auth:false, body:{email, create_user:true}});
+  acc.pendingEmail = email; saveAcc();
 }
-const hasData = d=>d && (d.items.length || d.classes.length);
+async function verifyCode(code){
+  code = String(code||"").replace(/\s/g,"");
+  if(!/^\d{6,10}$/.test(code)) throw accErr("Type the code from the email.", "input");
+  const d = isReviewEmail(acc.pendingEmail)
+    ? await sbFetch("/auth/v1/token?grant_type=password", {method:"POST", auth:false, body:{email:acc.pendingEmail, password:code}})
+    : await sbFetch("/auth/v1/verify", {method:"POST", auth:false, body:{type:"email", email:acc.pendingEmail, token:code}});
+  adoptSession(d, acc.pendingEmail);
+}
+/** A new sign-in: keep this device's sync record only if it's the same account as last time. */
+function adoptSession(d, email){
+  const sameUser = d.user && d.user.id === acc.lastUserId;
+  const keep = sameUser ? {cursor:acc.cursor, cache:acc.cache} : {};
+  acc = Object.assign({email: email || (d.user && d.user.email) || ""}, keep);
+  setSession(d);
+  acc.lastUserId = acc.userId; saveAcc();
+}
 
+/* ----- Sign in with Google or Apple (OAuth with PKCE, through Supabase) ----- */
+const PKCE_KEY = "calendarplanner:pkce";
+const b64url = buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+async function startOAuth(provider){
+  if(!accountReady()) throw accErr("Accounts aren't set up in this copy of the app yet.", "config");
+  const verifier = b64url(crypto.getRandomValues(new Uint8Array(32)));
+  const challenge = b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)));
+  try{ localStorage.setItem(PKCE_KEY, JSON.stringify({verifier, provider, t:Date.now()})); }catch(e){}
+  const back = appAddress();
+  location.href = ACCOUNT.url.replace(/\/+$/,"") + "/auth/v1/authorize?provider=" + encodeURIComponent(provider)
+    + "&redirect_to=" + encodeURIComponent(back)
+    + "&code_challenge=" + encodeURIComponent(challenge) + "&code_challenge_method=s256";
+}
+/** Back from Google or Apple: trade the one-time code for a session. */
+async function finishOAuth(){
+  const q = new URLSearchParams(location.search);
+  const code = q.get("code"), err = q.get("error_description") || q.get("error");
+  if(!code && !err) return;
+  history.replaceState(null, "", location.pathname + location.hash);
+  ui.tab = "sync";
+  let saved = null; try{ saved = JSON.parse(localStorage.getItem(PKCE_KEY)); localStorage.removeItem(PKCE_KEY); }catch(e){}
+  if(err || !saved || !saved.verifier){
+    ui.accError = err ? "Sign-in was cancelled or didn't work. Try again." : "Sign-in took too long. Try again.";
+    render(); return;
+  }
+  ui.accBusy = true; render();
+  try{
+    const d = await sbFetch("/auth/v1/token?grant_type=pkce", {method:"POST", auth:false, body:{auth_code:code, code_verifier:saved.verifier}});
+    adoptSession(d);
+    ui.accBusy = false; render();
+    await runSync(); toast("Signed in. Your planner is synced.");
+  }catch(e){
+    ui.accError = e.code==="offline" ? "You're offline. Try again once you're connected." : "Sign-in didn't work. Try again.";
+  }
+  ui.accBusy = false; render();
+}
+function wipeDevice(){
+  state = blank(); saveLocal();
+  const last = acc.userId || acc.lastUserId, email = acc.email;
+  acc = {email, lastUserId:last}; saveAcc();
+  ui.tab = state.settings.tabOrder[0]; ui.day = today();
+}
+async function signOut(){
+  try{ if(acc.access) await sbFetch("/auth/v1/logout", {method:"POST"}, false); }catch(e){}
+  wipeDevice(); acc.lastUserId = null; acc.cache = null; acc.cursor = null; saveAcc();
+  setStatus("ok"); render();
+}
+
+/* ----- records: the format shared with the iPhone app ----- */
+const KIND_LIST = ["homework","assignment","project","reading","exam","event"];
+const S = (x,n)=>String(x ?? "").slice(0,n);
+const HM = x=>/^\d{2}:\d{2}$/.test(String(x||"")) ? String(x) : "";
+const YMD = x=>/^\d{4}-\d{2}-\d{2}$/.test(String(x||"")) ? String(x) : "";
+const INT = (x,lo,hi,def)=>{ const n = parseInt(x,10); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : def; };
+/** The cleaned-up form of a record. Both apps produce exactly this, so equal data compares equal. */
+function canon(type, d){
+  d = d && typeof d==="object" ? d : {};
+  if(type==="course") return {name:S(d.name,80), teacher:S(d.teacher,80),
+    color: /^#[0-9A-Fa-f]{6}$/.test(String(d.color||"")) ? String(d.color).toUpperCase() : COLORS[0],
+    sessions:(Array.isArray(d.sessions)?d.sessions:[]).slice(0,40).map(x=>({id:S(x&&x.id,60), day:INT(x&&x.day,1,7,1), start:HM(x&&x.start), end:HM(x&&x.end), room:S(x&&x.room,40)}))
+      .filter(x=>x.start && x.end)
+      .sort((p,q)=>(p.day-q.day) || (p.start<q.start?-1:p.start>q.start?1:0) || (p.id<q.id?-1:p.id>q.id?1:0))};
+  if(type==="item"){
+    const kind = KIND_LIST.includes(d.kind) ? d.kind : "homework", blk = isBlockKind(kind);
+    return {kind, title:S(d.title,200), course:S(d.course,60), date:YMD(d.date), time:HM(d.time),
+      duration: blk ? INT(d.duration,15,1440,120) : 0, location: blk ? S(d.location,80) : "",
+      notes:S(d.notes,2000), important:!!d.important, done:!!d.done};
+  }
+  if(type==="special") return {label:S(d.label,80), start:YMD(d.start), end:YMD(d.end)||YMD(d.start), follows:INT(d.follows,0,7,0)};
+  if(type==="block") return {item:S(d.item,60), title:S(d.title,200), date:YMD(d.date), start:HM(d.start), end:HM(d.end), focus:S(d.focus,120), done:!!d.done};
+  if(type==="prefs") return {termStart:YMD(d.termStart), termEnd:YMD(d.termEnd), planSummary:S(d.planSummary,800),
+    wdFrom:HM(d.wdFrom)||"16:00", wdTo:HM(d.wdTo)||"22:00", weFrom:HM(d.weFrom)||"10:00", weTo:HM(d.weTo)||"18:00",
+    maxMin:INT(d.maxMin,15,720,180), session:INT(d.session,15,240,45), horizon:INT(d.horizon,1,30,7), notes:S(d.notes,600)};
+  return null;
+}
+function validRecord(type, d){
+  if(!d) return false;
+  if(type==="item") return !!(d.date && d.title);
+  if(type==="special") return !!d.start;
+  if(type==="block") return !!(d.date && d.start && d.end);
+  if(type==="course") return !!d.name;
+  return true;
+}
+function localRecords(){
+  const out = {};
+  const put = (id, type, obj, raw)=>{
+    if(!id) return;
+    const data = canon(type, raw);
+    out[id] = {type, data, h:JSON.stringify(data), u:+obj.updatedAt||0, obj};
+  };
+  state.classes.forEach(c=>put(c.id, "course", c, {name:c.name, teacher:c.teacher, color:c.color, sessions:c.sessions}));
+  state.items.forEach(i=>put(i.id, "item", i, {kind:i.kind, title:i.title, course:i.classId, date:i.due, time:i.time,
+    duration:i.duration, location:i.room, notes:i.notes, important:i.priority==="high", done:i.done}));
+  state.specialDays.forEach(x=>put(x.id, "special", x, x));
+  state.plan.blocks.forEach(b=>put(b.id, "block", b, {item:b.itemId, title:b.title, date:b.date, start:b.start, end:b.end, focus:b.focus, done:b.done}));
+  const st = state.settings;
+  put(PREFS_ID, "prefs", st, Object.assign({termStart:st.termStart, termEnd:st.termEnd, planSummary:state.plan.summary}, st.planner));
+  return out;
+}
+function applyRemote(id, type, d, u){
+  const upsert = (list, obj)=>{ const i = list.findIndex(x=>x.id===id); if(i>=0) list[i] = obj; else list.push(obj); return i>=0 ? list[i] : obj; };
+  if(type==="course"){
+    const old = state.classes.find(c=>c.id===id);
+    upsert(state.classes, {id, name:d.name, teacher:d.teacher, color:d.color, updatedAt:u, rev:((old&&old.rev)||0)+1,
+      sessions:d.sessions.map(x=>({id:x.id||uid(), day:x.day, start:x.start, end:x.end, room:x.room}))});
+  } else if(type==="item"){
+    const old = state.items.find(i=>i.id===id), blk = isBlockKind(d.kind);
+    upsert(state.items, {id, kind:d.kind, title:d.title, classId:d.course, due:d.date, time:d.time,
+      duration: blk ? d.duration : undefined, room: blk ? d.location : "", priority: d.important ? "high" : "normal",
+      notes:d.notes, done:d.done, updatedAt:u, rev:((old&&old.rev)||0)+1});
+  } else if(type==="special"){
+    upsert(state.specialDays, {id, label:d.label, start:d.start, end:d.end, follows:d.follows, updatedAt:u});
+    state.settings.termRev = (state.settings.termRev||0)+1;
+  } else if(type==="block"){
+    upsert(state.plan.blocks, {id, itemId:d.item, title:d.title, date:d.date, start:d.start, end:d.end, focus:d.focus, done:d.done, updatedAt:u});
+  } else if(type==="prefs"){
+    const st = state.settings;
+    st.termStart = d.termStart; st.termEnd = d.termEnd; st.termRev = (st.termRev||0)+1;
+    state.plan.summary = d.planSummary;
+    Object.assign(st.planner, {wdFrom:d.wdFrom, wdTo:d.wdTo, weFrom:d.weFrom, weTo:d.weTo, maxMin:d.maxMin, session:d.session, horizon:d.horizon, notes:d.notes});
+    st.updatedAt = u;
+  }
+}
+function removeLocal(id, type){
+  if(type==="course") state.classes = state.classes.filter(x=>x.id!==id);
+  else if(type==="item") state.items = state.items.filter(x=>x.id!==id);
+  else if(type==="special"){ state.specialDays = state.specialDays.filter(x=>x.id!==id); state.settings.termRev = (state.settings.termRev||0)+1; }
+  else if(type==="block") state.plan.blocks = state.plan.blocks.filter(x=>x.id!==id);
+}
+
+/* ----- the sync itself: pull what changed elsewhere, then push what changed here ----- */
+let syncBusy = false, syncAgain = false, syncTimer = null, retryTimer = null;
+function schedulePush(){ scheduleSync(1500); }
+function scheduleSync(ms){
+  if(!connected()) return;
+  if(syncUi.s!=="syncing") setStatus("pending");
+  clearTimeout(syncTimer); syncTimer = setTimeout(runSync, ms ?? 1500);
+}
+async function runSync(){
+  if(!connected()) return;
+  if(syncBusy){ syncAgain = true; return; }
+  syncBusy = true; clearTimeout(retryTimer); setStatus("syncing");
+  try{
+    const cache = acc.cache || (acc.cache = {});
+    let local = localRecords(), changed = false;
+    for(let page=0; page<100; page++){
+      // Ask a few seconds back, so nothing saved at the same moment slips through.
+      const since = acc.cursor ? new Date(Date.parse(acc.cursor) - 5000).toISOString() : "1970-01-01T00:00:00.000Z";
+      const rows = await sbFetch(`/rest/v1/records?select=id,type,data,deleted,updated_at&updated_at=gt.${encodeURIComponent(since)}&order=updated_at.asc,id.asc&limit=500`) || [];
+      for(const r of rows){
+        const loc = local[r.id], c = cache[r.id];
+        const locChanged = !!loc && (!c || c.h !== loc.h);
+        if(r.deleted){
+          if(loc && !locChanged){ removeLocal(r.id, loc.type); delete local[r.id]; changed = true; }
+          if(!loc || !locChanged) delete cache[r.id];
+          continue;
+        }
+        const d = canon(r.type, r.data);
+        if(!validRecord(r.type, d)) continue;
+        const h = JSON.stringify(d), ru = +(r.data && r.data.u) || 0;
+        if(loc && loc.h === h){ cache[r.id] = {h, u:Math.max(ru, c ? c.u : 0), t:r.type}; continue; }
+        if(!loc && c && c.h === h) continue;              // deleted here after this version: the deletion stands
+        if(locChanged && loc.u >= ru) continue;          // this device's newer edit wins and goes up below
+        applyRemote(r.id, r.type, d, ru);
+        cache[r.id] = {h, u:ru, t:r.type};
+        local[r.id] = {type:r.type, data:d, h, u:ru, obj:{}};
+        changed = true;
+      }
+      if(rows.length) acc.cursor = rows[rows.length-1].updated_at;
+      if(rows.length < 500) break;
+    }
+    saveAcc();
+    if(changed){ saveLocal(); if(!document.querySelector("dialog[open]")) render(); }
+
+    local = localRecords();
+    const now = Date.now(), ups = [];
+    for(const [id, rec] of Object.entries(local)){
+      const c = cache[id];
+      if((c && c.h === rec.h) || !validRecord(rec.type, rec.data)) continue;
+      let u = rec.u;
+      if(!(u > (c ? c.u : 0))){ u = now; rec.obj.updatedAt = now; }
+      ups.push({row:{user_id:acc.userId, id, type:rec.type, data:Object.assign({}, rec.data, {u}), deleted:false}, h:rec.h, u, t:rec.type});
+    }
+    for(const [id, c] of Object.entries(cache)){
+      if(!local[id]) ups.push({row:{user_id:acc.userId, id, type:c.t, data:{}, deleted:true}, del:true});
+    }
+    for(let i=0; i<ups.length; i+=200){
+      const chunk = ups.slice(i, i+200);
+      await sbFetch("/rest/v1/records?on_conflict=user_id,id", {method:"POST", prefer:"resolution=merge-duplicates,return=minimal", body:chunk.map(x=>x.row)});
+      for(const x of chunk){ if(x.del) delete cache[x.row.id]; else cache[x.row.id] = {h:x.h, u:x.u, t:x.t}; }
+      saveAcc();
+    }
+    if(ups.length) saveLocal();
+    acc.lastSync = Date.now(); saveAcc();
+    setStatus("ok");
+  }catch(e){ handleSyncError(e); }
+  finally{
+    syncBusy = false;
+    if(syncAgain){ syncAgain = false; scheduleSync(300); }
+  }
+}
+function handleSyncError(e){
+  clearTimeout(retryTimer);
+  if(e.code==="offline"){ setStatus("offline"); return; }
+  if(e.code==="config"){ setStatus("ok"); return; }
+  if(e.code==="auth"){
+    acc.access = ""; acc.refresh = ""; acc.lastUserId = acc.userId; acc.userId = null; saveAcc();
+    setStatus("error", "You were signed out. Sign in again in Settings to keep syncing.");
+    render(); return;
+  }
+  setStatus("error", "Couldn't reach your account. Trying again soon.");
+  retryTimer = setTimeout(()=>scheduleSync(0), 30000);
+}
 function statusLine(){
   switch(syncUi.s){
-    case "pending": case "syncing": return "Saving your changes…";
+    case "pending": case "syncing": return "Syncing your changes…";
     case "offline": return "You're offline. Changes will sync when you're back online.";
-    case "error": return syncUi.msg || "Couldn't reach GitHub. Trying again soon.";
+    case "error": return syncUi.msg || "Couldn't reach your account. Trying again soon.";
     default: {
-      if(!sync.lastSync) return "Connected.";
-      const mins = Math.round((Date.now()-sync.lastSync)/6e4);
-      return "Synced " + (mins<1 ? "just now" : mins<60 ? `${mins} min ago` : new Date(sync.lastSync).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"})) + ".";
+      if(!acc.lastSync) return "Signed in.";
+      const mins = Math.round((Date.now()-acc.lastSync)/6e4);
+      return "Synced " + (mins<1 ? "just now" : mins<60 ? `${mins} min ago` : new Date(acc.lastSync).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"})) + ".";
     }
   }
 }
@@ -677,128 +1023,50 @@ function setStatus(s, msg){
   syncUi = {s, msg:msg||""};
   const chip = $("#syncChip");
   if(chip){
-    chip.hidden = !connected();
+    chip.hidden = !connected() && s!=="error";
     chip.dataset.s = s;
     chip.textContent = {pending:"Saving…",syncing:"Syncing…",offline:"Offline",error:"Sync problem"}[s] || "Synced";
   }
   const line = $("#syncStatus"); if(line) line.textContent = statusLine();
 }
 
-let pushTimer = null, pushing = false, retryTimer = null;
-function schedulePush(){
-  if(!connected()) return;
-  sync.dirty = true; sync.dirtyAt = Date.now(); saveSync();
-  setStatus("pending");
-  clearTimeout(pushTimer); pushTimer = setTimeout(push, 1500);
-}
-async function push(){
-  if(!connected()) return;
-  if(pushing){ clearTimeout(pushTimer); pushTimer = setTimeout(push, 1500); return; }
-  pushing = true; setStatus("syncing");
-  const started = Date.now();
-  try{
-    await ensureDataGist();
-    const files = {[DATA_FILE]:{content:JSON.stringify(state)}};
-    if(sync.settingsDirty) files[SETTINGS_FILE] = {content:JSON.stringify(settingsPayload())};
-    await tagGist(gh(`/gists/${sync.dataGistId}`, {method:"PATCH", body:JSON.stringify({files})}), "data");
-    await tagGist(gh(`/gists/${sync.gistId}`, {method:"PATCH", body:JSON.stringify({files:{[ICS_FILE]:{content:buildFeed()}}})}), "cal");
-    if((sync.dirtyAt||0) <= started) sync.dirty = false;
-    if(files[SETTINGS_FILE] && (ai.updatedAt||0) <= started) sync.settingsDirty = false;
-    sync.lastSync = Date.now(); sync.needsKey = false; saveSync();
-    setStatus(sync.dirty ? "pending" : "ok");
-  }catch(e){ handleSyncError(e); }
-  finally{ pushing = false; }
-}
-async function pull(){
-  if(!connected() || pushing) return;
-  try{
-    setStatus("syncing");
-    await ensureDataGist();
-    const remote = await fetchRemote();
-    applyRemoteSettings(remote.settings);
-    const r = remote.data ? (remote.data.meta.updatedAt||0) : 0, l = state.meta.updatedAt||0;
-    if(remote.data && r > l && !sync.dirty){
-      state = remote.data; saveLocal(); render();
-    } else if(sync.dirty || sync.settingsDirty || l > r){
-      await push(); return;
-    }
-    sync.lastSync = Date.now(); saveSync(); setStatus("ok");
-  }catch(e){ handleSyncError(e); }
-}
-function handleSyncError(e){
-  clearTimeout(retryTimer);
-  if(e.code==="offline"){ setStatus("offline"); return; }
-  if(e.code==="auth"){
-    sync.needsKey = true; saveSync();
-    setStatus("error","Your GitHub key expired or was removed. Paste a new one in Settings.");
-    if(ui.tab==="sync") render();
-    return;
-  }
-  if(e.code==="missing" && e.which==="data"){
-    // The private data file was deleted: make a new one from this device and carry on.
-    sync.dataGistId = null; sync.dirty = true; saveSync();
-    retryTimer = setTimeout(push, 1000); return;
-  }
-  if(e.code==="missing"){
-    sync.gistId = null; saveSync();
-    setStatus("error","The calendar file on GitHub was deleted. Connect again to make a new one, then subscribe again in Apple Calendar.");
-    render(); return;
-  }
-  setStatus("error","Couldn't reach GitHub. Trying again soon.");
-  retryTimer = setTimeout(()=>{ sync.dirty ? push() : pull(); }, 30000);
-}
+/* ----- installing on Windows (Edge and Chrome) ----- */
+let installEvt = null;
+window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt = e; if(!document.querySelector("dialog[open]")) render(); });
+window.addEventListener("appinstalled", ()=>{ installEvt = null; render(); });
 
-async function connect(token, keepGist){
-  token = (token||"").trim();
-  if(!token){ setStatus("error","Paste your GitHub key first."); render(); return; }
-  const prev = sync;
-  sync = keepGist ? Object.assign({}, prev, {token}) : {token};
-  setStatus("syncing"); render();
-  try{
-    const me = await gh("/user");
-    sync.login = me.login;
-    if(keepGist && sync.gistId){ sync.needsKey = false; saveSync(); await pull(); toast("Key updated"); render(); return; }
-    const list = await listGists();
-    const cal = list.find(g=>g.description===GIST_DESC && g.files && g.files[ICS_FILE]);
-    if(cal) sync.gistId = cal.id;
-    else {
-      const g = await gh("/gists", {method:"POST", body:JSON.stringify({description:GIST_DESC, public:false, files:{[ICS_FILE]:{content:buildFeed()}}})});
-      sync.gistId = g.id;
-      if(g.owner && g.owner.login) sync.login = g.owner.login;
-    }
-    saveSync();
-    const how = await ensureDataGist(list);
-    if(how !== "new"){
-      const remote = await fetchRemote();
-      applyRemoteSettings(remote.settings);
-      if(hasData(remote.data)){
-        const useRemote = !hasData(state) || confirm(`Found your planner on GitHub (${remote.data.items.length} deadlines, ${remote.data.classes.length} classes). Load it on this device?\n\nCancel keeps what's on this device and replaces the GitHub copy.`);
-        if(useRemote){ state = remote.data; saveLocal(); }
+/* ----- planner without AI, for people without a Gemini key ----- */
+function simplePlan(ctx){
+  const est = {homework:60, reading:60, assignment:180, project:300, exam:240};
+  const busyBy = {}; ctx.busy.forEach(b=>(busyBy[b.date] = busyBy[b.date] || []).push(b));
+  const used = {}, out = [];
+  const tasks = ctx.tasks.filter(t=>t.type!=="event").sort((a,b)=>
+    (a.due+(a.dueTime||"23:59")).localeCompare(b.due+(b.dueTime||"23:59")) || (b.important - a.important));
+  for(const t of tasks){
+    let left = Math.round((est[t.type]||60) * (t.important ? 4/3 : 1)), part = 1;
+    for(const d of ctx.days){
+      if(left<=0 || d.date > t.due) break;
+      let m = toMin(d.from);
+      if(d.date===ctx.today) m = Math.max(m, toMin(ctx.now) + 15);
+      m = Math.ceil(m/15)*15;
+      const end = toMin(d.to);
+      while(left>0 && m+25<=end){
+        const cap = ctx.maxMinutesPerDay - (used[d.date]||0); if(cap<25) break;
+        const len = Math.min(ctx.sessionMinutes, left, cap, end-m); if(len<25) break;
+        const b = {date:d.date, start:fromMin(m), end:fromMin(m+len)};
+        const clash = (busyBy[d.date]||[]).some(x=>b.start<x.end && x.start<b.end) || out.some(x=>x.date===b.date && toMin(b.start) < toMin(x.end)+15 && toMin(x.start) < toMin(b.end)+15);
+        if(clash || `${b.date} ${b.end}` > `${t.due} ${t.dueTime||"23:59"}`){ m += 15; continue; }
+        out.push(Object.assign(b, {taskId:t.id, focus:`Part ${part++}`}));
+        used[d.date] = (used[d.date]||0) + len; left -= len; m += len + 15;
       }
     }
-    if(ai.key && how==="new") sync.settingsDirty = true;
-    sync.dirty = true; sync.dirtyAt = Date.now(); saveSync();
-    await push();
-    render();
-    toast(hasData(state) ? "Connected. Your planner is synced." : "Connected. Now subscribe in Apple Calendar.");
-    return;
-  }catch(e){
-    const msg = e.code==="auth" ? "GitHub didn't accept that key. Check you copied all of it and that the gist box was ticked."
-      : e.code==="offline" ? "You're offline. Connect once you're back online."
-      : "Couldn't connect to GitHub. Try again in a minute.";
-    sync = keepGist ? Object.assign(prev,{needsKey:true}) : {};
-    saveSync(); setStatus("error", msg);
   }
-  render();
-}
-function disconnect(){
-  if(!confirm("Stop syncing on this device?\n\nYour Apple Calendar subscription keeps showing the last synced version, and your data stays on GitHub.")) return;
-  sync = {}; saveSync(); setStatus("off"); render(); toast("Sync turned off on this device");
+  return {summary: tasks.length ? `Start with ${tasks[0].title}. Your sessions are spread out so nothing piles up the night before.` : "", blocks:out};
 }
 
 /* ---------- tabs, theme ---------- */
 const TAB_META = {
-  day:{label:"Day", icon:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><circle cx="12" cy="15" r="2.2" fill="currentColor" stroke="none"/>'},
+  day:{label:"Day", icon:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>'},
   agenda:{label:"Due", icon:'<path d="M10 6.5h10M10 12h10M10 17.5h10"/><path d="M3.5 6.5l1.5 1.5 2.5-3M3.5 12l1.5 1.5 2.5-3M3.5 17.5l1.5 1.5 2.5-3"/>'},
   week:{label:"Week", icon:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M9 9.5V21M15 9.5V21"/>'},
   month:{label:"Month", icon:'<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M3 15.2h18M9 9.5V21M15 9.5V21"/>'},
@@ -816,7 +1084,7 @@ function renderTabbar(){
   }
   nav.querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.tab===ui.tab)));
 }
-const PREFS_KEY = "studyplanner:prefs";
+const PREFS_KEY = "calendarplanner:prefs";
 let prefs = (()=>{ try{ return Object.assign({theme:"auto"}, JSON.parse(localStorage.getItem(PREFS_KEY))||{}); }catch(e){ return {theme:"auto"}; } })();
 function applyTheme(){
   const root = document.documentElement, t = prefs.theme;
@@ -824,7 +1092,7 @@ function applyTheme(){
   const metas = document.querySelectorAll('meta[name="theme-color"]');
   metas.forEach(m=>{
     const isDark = (m.getAttribute("media")||"").includes("dark");
-    m.setAttribute("content", t==="dark" ? "#12161F" : t==="light" ? "#F6F7F9" : (isDark ? "#12161F" : "#F6F7F9"));
+    m.setAttribute("content", t==="dark" ? "#000000" : t==="light" ? "#FFFFFF" : (isDark ? "#000000" : "#FFFFFF"));
   });
 }
 function setTheme(t){ prefs.theme = t; try{ localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); }catch(e){} applyTheme(); render(); }
@@ -838,7 +1106,7 @@ function appearanceBox(){
   const o = state.settings.tabOrder;
   return `<div class="box"><h3>Appearance</h3>
     <div class="seg" role="radiogroup" aria-label="Theme">${[["auto","Automatic"],["light","Light"],["dark","Dark"]].map(([v,l])=>`<button type="button" class="seg-btn" role="radio" aria-checked="${prefs.theme===v}" data-theme-set="${v}">${l}</button>`).join("")}</div>
-    <p class="fine" style="margin-top:8px">Automatic follows your device, so the app goes dark when your iPhone does.</p>
+    <p class="fine" style="margin-top:8px">Automatic follows your device, so the app goes dark when your device does.</p>
     <h3 style="margin-top:20px">Page order</h3>
     <p>Move pages up or down. The app opens on the first one.</p>
     <ol class="order">${o.map((k,i)=>`<li><svg viewBox="0 0 24 24" aria-hidden="true">${TAB_META[k].icon}</svg><span>${TAB_META[k].label}</span>${i===0?'<span class="tag">opens first</span>':""}
@@ -863,15 +1131,19 @@ function render(){
   else if(ui.tab==="ai") v.innerHTML = renderAI();
   else if(ui.tab==="classes") v.innerHTML = renderClasses();
   else v.innerHTML = renderSync();
-  $("#fab").innerHTML = ui.tab==="classes" ? '<span aria-hidden="true">+</span> Add class' : '<span aria-hidden="true">+</span> Add';
+  document.body.dataset.tab = ui.tab;
+  $("#fab").setAttribute("aria-label", ui.tab==="classes" ? "Add a class" : "Add");
   $("#fab").hidden = ui.tab==="ai" || ui.tab==="sync" || ui.selecting;
+  closeAddMenu();
   setStatus(syncUi.s, syncUi.msg);
 }
 
 function installBanner(){
   let dismissed = false;
   try{ dismissed = localStorage.getItem(BANNER_KEY)==="1"; }catch(e){}
-  if(!isIOS || isStandalone || dismissed) return "";
+  if(isStandalone || dismissed) return "";
+  if(installEvt) return `<div class="banner"><p><b>Install Calendar Planner on this device.</b> It opens in its own window, from the Start menu or your home screen, like any app.</p><button class="btn primary" data-action="install">Install</button><button class="btn" data-action="hide-banner">Not now</button></div>`;
+  if(!isIOS) return "";
   return `<div class="banner"><p><b>Put it on your Home Screen:</b> tap the Share button, then Add to Home Screen. Do it before you add your classes, since the Home Screen app keeps its own copy of your data.</p><button class="btn" data-action="hide-banner">Got it</button></div>`;
 }
 
@@ -890,7 +1162,7 @@ function heroSentence(open){
   } else {
     const n = open[0], c = classById(n.classId), w = relWhen(n);
     const whenTxt = w.text.startsWith("in ") ? w.text : w.text.toLowerCase().replace(/^today /,"today at ");
-    const verb = n.kind==="exam" ? "is" : "is due";
+    const verb = isBlockKind(n.kind) ? "is" : "is due";
     h1 = `${esc(n.title)} ${verb} ${esc(whenTxt)}.`;
     sub = c ? `<span class="swatch" style="--c:${c.color}"></span>${esc(c.name)}` : "";
   }
@@ -908,7 +1180,7 @@ function itemRow(it){
     ${sel ? `<input type="checkbox" class="check sel" data-select="${it.id}" ${on?"checked":""} aria-label="Select ${esc(it.title)}">`
           : `<input type="checkbox" class="check" data-done="${it.id}" ${it.done?"checked":""} aria-label="Mark ${esc(it.title)} as done">`}
     <button type="button" class="item-main" ${sel?`data-selecttoggle="${it.id}"`:`data-edit="${it.id}"`}>
-      <span class="item-title">${k.icon} ${esc(it.title)}${it.priority==="high"?' <span class="flag" title="Important">!</span>':""}</span>
+      <span class="item-title">${kic(it.kind)}${esc(it.title)}${it.priority==="high"?' <span class="flag" title="Important">!</span>':""}</span>
       <span class="item-meta"><span>${c?esc(c.name):"No class"}</span><span>${k.label}</span><span>${fmtDate(due)}${it.time?", "+fmtTime(it.time):""}</span></span>
     </button>
     ${when}
@@ -933,7 +1205,7 @@ function dashboard(){
       <button type="button" class="tile" data-goto="agenda"><span class="l">Due this week</span><span class="n">${weekDue.length}</span><small>${dueNote}</small></button>
       <button type="button" class="tile" data-goto="ai"><span class="l">Study today</span><span class="n">${blocks.length ? `${done}/${blocks.length}` : "—"}</span>${blocks.length ? `<span class="bar"><i style="width:${Math.round(done/blocks.length*100)}%"></i></span>` : `<small>Plan it with AI</small>`}</button>
     </div>
-    <div class="quick"><button class="qbtn" data-action="add-item">＋ Deadline</button><button class="qbtn" data-action="plan">✨ Plan my days</button><button class="qbtn" data-action="import">📷 Import timetable</button><button class="qbtn" data-goto="month">🗓️ This month</button></div>`;
+    <div class="quick"><button class="qbtn" data-action="add-item">${ic("plus")}Deadline</button><button class="qbtn" data-action="plan">${ic("sparkles")}Plan my days</button><button class="qbtn" data-action="import">${ic("camera")}Import timetable</button><button class="qbtn" data-goto="month">${ic("calendar")}This month</button></div>`;
 }
 const toMin = t=>{ const [h,m] = String(t).split(":").map(Number); return h*60+m; };
 const fromMin = n=>`${pad(Math.floor(n/60)%24)}:${pad(n%60)}`;
@@ -943,13 +1215,14 @@ function blockVisible(b){
   return b.date < ymd(today()) || (it && !it.done);
 }
 function welcomeHtml(){
-  return `<section class="welcome"><h1>Welcome to Study Planner</h1><p>Three steps and you're set.</p>
+  return `<section class="welcome"><svg class="logo-lg" aria-hidden="true"><use href="#logo"/></svg><h1>Welcome to Calendar Planner</h1><p>Three steps and you're set.</p>
     <ol class="welcome-steps">
       <li><div><b>Import your timetable</b><p>Snap a photo or a screenshot. The AI fills in your classes, semester dates and days off.</p>
-        <div class="row-actions"><button class="btn primary" data-action="import">✨ Import from a photo</button><button class="btn" data-action="add-class">Add classes myself</button></div></div></li>
-      <li><div><b>Add your deadlines</b><p>Tap Add for each homework, assignment or exam. Then let the AI plan when to work on them.</p></div></li>
-      <li><div><b>Connect Apple Calendar</b><p>Your classes, deadlines and study sessions show up next to the rest of your life.</p>
-        <button class="btn" data-action="goto-sync">Set up sync</button></div></li>
+        <div class="row-actions"><button class="btn primary" data-action="import">${ic("camera")}Import from a photo</button><button class="btn" data-action="add-class">Add classes myself</button></div></div></li>
+      <li><div><b>Add your deadlines</b><p>Homework, readings, assignments, exams and events. Then let the planner spread the work into study sessions.</p>
+        <button class="btn" data-action="add-item">${ic("plus")}Add a deadline</button></div></li>
+      <li><div><b>Sync your devices</b><p>Sign in once to see the same planner on this computer, your phone and anywhere else.</p>
+        <button class="btn" data-action="goto-sync">Sign in</button></div></li>
     </ol>
     <button class="linkbtn" data-action="sample">Or look around with example data first</button></section>`;
 }
@@ -962,12 +1235,12 @@ function renderDay(){
   const hr = new Date().getHours();
   const greet = diff===0 ? `<p class="eyebrow">${hr<12?"Good morning":hr<18?"Good afternoon":"Good evening"}</p>` : "";
   h += `<div class="day-head"><div>${greet}<h1 class="day-title">${title}</h1><p class="day-sub">${esc(sub)}</p></div>
-    <div class="row-actions"><button class="btn" data-dayjump="-1" aria-label="Previous day">‹</button><button class="btn" data-dayjump="0">Today</button><button class="btn" data-dayjump="1" aria-label="Next day">›</button></div></div>`;
+    <div class="row-actions"><button class="btn round" data-dayjump="-1" aria-label="Previous day">${ic("left")}</button>${diff!==0?`<button class="btn" data-dayjump="0">Today</button>`:""}<button class="btn round" data-dayjump="1" aria-label="Next day">${ic("right")}</button></div></div>`;
 
   if(diff===0) h += dashboard();
   const futureBlocks = state.plan.blocks.some(b=>b.date>=ymd(t) && !b.done && blockVisible(b));
   if(diff===0 && state.plan.summary && futureBlocks){
-    h += `<div class="coach"><span class="coach-label">✨ Your plan</span><p>${esc(state.plan.summary)}</p><button class="linkbtn" data-action="plan">Redo my plan</button></div>`;
+    h += `<div class="coach"><span class="coach-label">${ic("sparkles")}Your plan</span><p>${esc(state.plan.summary)}</p><button class="linkbtn" data-action="plan">Open AI coach</button></div>`;
   }
 
   const sp = specialFor(d);
@@ -979,17 +1252,17 @@ function renderDay(){
   for(const {c,s} of sessionsOn(d)) entries.push({start:s.start, end:s.end, kind:"class", color:c.color,
     body:`<div class="tl-body"><div class="txt"><b>${esc(c.name)}</b><small>Class${s.room?", "+esc(s.room):""}</small></div></div>`});
   for(const it of items.filter(i=>i.time)){
-    const k = KINDS[it.kind]||KINDS.homework, c = classById(it.classId), exam = it.kind==="exam";
+    const k = KINDS[it.kind]||KINDS.homework, c = classById(it.classId), exam = isBlockKind(it.kind);
     const end = exam ? fromMin(toMin(it.time)+(+it.duration||120)) : "";
     entries.push({start:it.time, end, kind: exam?"exam":"due", color:colorOf(it), done:it.done,
-      body:`<button type="button" class="tl-body" data-edit="${it.id}"><div class="txt"><b>${k.icon} ${exam?"":"Due: "}${esc(it.title)}</b><small>${c?esc(c.name):"No class"}${exam&&it.room?", "+esc(it.room):""}</small></div></button>`});
+      body:`<button type="button" class="tl-body" data-edit="${it.id}"><div class="txt"><b>${kic(it.kind)}${exam?"":"Due: "}${esc(it.title)}</b><small>${c?esc(c.name):"No class"}${exam&&it.room?", "+esc(it.room):""}</small></div></button>`});
   }
   for(const b of state.plan.blocks.filter(b=>b.date===key && blockVisible(b))){
     const it = state.items.find(i=>i.id===b.itemId), c = it && classById(it.classId);
     entries.push({start:b.start, end:b.end, kind:"study", color: it ? colorOf(it) : NOCLASS, done:b.done,
       body:`<div class="tl-body"><input type="checkbox" class="check" data-blockdone="${b.id}" ${b.done?"checked":""} aria-label="Mark this study session done">
-        <div class="txt"><b>📚 ${esc(b.title)}</b><small>${esc(b.focus || "Study session")}${c?" · "+esc(c.name):""}</small></div>
-        <button type="button" class="xbtn" data-blockdel="${b.id}" aria-label="Remove this study session">×</button></div>`});
+        <div class="txt"><b>${kic("reading")}${esc(b.title)}</b><small>${esc(b.focus || "Study session")}${c?" · "+esc(c.name):""}</small></div>
+        <button type="button" class="xbtn" data-blockdel="${b.id}" aria-label="Remove this study session">${ic("x")}</button></div>`});
   }
   entries.sort((a,b)=>a.start.localeCompare(b.start));
 
@@ -1025,16 +1298,16 @@ function renderAgenda(){
   const banner = installBanner();
   if(!state.items.length && !state.classes.length) return banner + welcomeHtml();
   const f = ui.filter;
-  const match = i => f==="all" || (f==="exam" ? i.kind==="exam" : i.kind!=="exam");
+  const match = i => f==="all" || i.kind===f;
   const open = state.items.filter(i=>!i.done && match(i)).sort((a,b)=>dueAt(a)-dueAt(b));
   const done = state.items.filter(i=>i.done && match(i)).sort((a,b)=>dueAt(b)-dueAt(a));
   const t = today();
   const groups = [["Late","overdue",d=>d<0],["Today","",d=>d===0],["Tomorrow","",d=>d===1],["This week","",d=>d>=2&&d<=7],["Later","",d=>d>7]];
-  let html = banner + heroSentence(open);
+  let html = banner + `<div class="page-head"><h1 class="page-title">Due</h1></div>` + heroSentence(open);
   html += `<div class="filters" role="group" aria-label="Show">
-    ${[["all","Everything"],["tasks","Homework & assignments"],["exam","Exams"]].map(([k,l])=>`<button class="chip" data-filter="${k}" aria-pressed="${f===k}">${l}</button>`).join("")}
+    ${[["all","All"],["homework","Homework"],["assignment","Assignments"],["project","Projects"],["reading","Readings"],["exam","Exams"],["event","Events"]].map(([k,l])=>`<button class="chip" data-filter="${k}" aria-pressed="${f===k}" style="--c:var(--accent)">${k==="all"?"":kic(k)}${l}</button>`).join("")}
     <span class="spacer"></span>
-    ${ui.selecting ? "" : `<button class="chip" data-action="sel-start">↗ Share with a friend</button><button class="chip" data-action="from-friend">↙ Add from a friend</button>`}
+    ${ui.selecting ? "" : `<button class="chip" data-action="sel-start" style="--c:var(--accent)"><span class="k">${ic("share")}</span>Share with a friend</button><button class="chip" data-action="from-friend" style="--c:var(--accent)"><span class="k">${ic("people")}</span>Add from a friend</button>`}
   </div>`;
   if(ui.selecting) html += `<div class="selbar" role="region" aria-label="Sharing"><span class="count">${ui.selected.size ? ui.selected.size+" selected" : "Tap items to share"}</span>
     <button class="btn ghost" data-action="sel-cancel">Cancel</button><button class="btn primary" data-action="sel-share" ${ui.selected.size?"":"disabled"}>Share</button></div>`;
@@ -1081,33 +1354,34 @@ const normName = n=>String(n||"").toLowerCase().normalize("NFD").replace(/[\u030
 function renderWeek(){
   const start = ui.weekStart, end = addDays(start,6), t = today();
   const title = `${start.toLocaleDateString(undefined,{month:"short",day:"numeric"})} – ${end.toLocaleDateString(undefined,{month:"short",day:"numeric"})}`;
-  let html = `<div class="week-head"><h2>${title}</h2><div class="row-actions">
-    <button class="btn" data-week="-1" aria-label="Previous week">‹ Prev</button>
+  let html = `<div class="page-head"><div><h1 class="page-title">Week</h1><p class="page-sub">${esc(title)}</p></div><div class="row-actions">
+    <button class="btn round" data-week="-1" aria-label="Previous week">${ic("left")}</button>
     <button class="btn" data-week="0">This week</button>
-    <button class="btn" data-week="1" aria-label="Next week">Next ›</button></div></div><div class="week-grid">`;
+    <button class="btn round" data-week="1" aria-label="Next week">${ic("right")}</button></div></div>`;
   for(let i=0;i<7;i++){
     const d = addDays(start,i), key = ymd(d);
     const sp = specialFor(d);
     const classes = sessionsOn(d);
     const items = state.items.filter(it=>it.due===key).sort((a,b)=>dueAt(a)-dueAt(b));
-    const has = classes.length || items.length || sp || state.plan.blocks.some(b=>b.date===key && blockVisible(b));
-    html += `<div class="day${dayDiff(d,t)===0?" today":""}${has?" has":""}"><h3><button type="button" class="day-link" data-goday="${key}" aria-label="Open ${DAYS_LONG[i]}"><span>${DAYS[i]}</span><b>${d.getDate()}</b></button></h3>`;
-    if(sp) html += `<div class="slot special">${+sp.follows ? `🔁 ${esc(sp.label||"Schedule change")}<small>${DAYS_LONG[sp.follows-1]} schedule</small>` : `🏖️ ${esc(sp.label||"Day off")}<small>No classes</small>`}</div>`;
+    const blocks = state.plan.blocks.filter(b=>b.date===key && blockVisible(b)).sort((x,y)=>x.start.localeCompare(y.start));
+    const isToday = dayDiff(d,t)===0;
+    html += `<h2 class="ghead${isToday?" today":""}"><span>${esc(d.toLocaleDateString(undefined,{weekday:"long"}))}</span><span>${esc(d.toLocaleDateString(undefined,{month:"short",day:"numeric"}))}</span></h2><div class="glist">`;
+    let rows = "";
+    if(sp) rows += `<div class="wslot"><span class="emoji" aria-hidden="true">${+sp.follows?"🔁":"🏖️"}</span><div class="txt"><b>${esc(sp.label||(+sp.follows?"Schedule change":"Day off"))}</b><small>${+sp.follows?`Follows the ${DAYS_LONG[sp.follows-1]} schedule`:"No classes"}</small></div></div>`;
     for(const {c,s} of classes){
-      html += `<div class="slot" style="--c:${c.color}"><strong>${esc(c.name)}</strong><small>${fmtTime(s.start)}–${fmtTime(s.end)}${s.room?", "+esc(s.room):""}</small></div>`;
+      rows += `<button type="button" class="wslot" style="--c:${c.color}" data-goday="${key}"><span class="bar"></span><div class="txt"><b>${esc(c.name)}</b><small>${fmtTime(s.start)} – ${fmtTime(s.end)}${s.room?" · "+esc(s.room):""}</small></div></button>`;
     }
-    for(const b of state.plan.blocks.filter(b=>b.date===key && blockVisible(b)).sort((x,y)=>x.start.localeCompare(y.start))){
+    for(const b of blocks){
       const it = state.items.find(i=>i.id===b.itemId);
-      html += `<button type="button" class="slot study${b.done?" is-done":""}" style="--c:${it?colorOf(it):NOCLASS}" data-goday="${key}">📚 ${esc(b.title)}<small>${fmtTime(b.start)}–${fmtTime(b.end)}</small></button>`;
+      rows += `<button type="button" class="wslot dashed${b.done?" is-done":""}" style="--c:${it?colorOf(it):NOCLASS}" data-goday="${key}"><span class="bar"></span><div class="txt"><b>${kic("reading")}${esc(b.title)}</b><small>${fmtTime(b.start)} – ${fmtTime(b.end)}${b.focus?" · "+esc(b.focus):""}</small></div></button>`;
     }
     for(const it of items){
-      const k = KINDS[it.kind]||KINDS.homework;
-      html += `<button type="button" class="slot task${it.done?" is-done":""}" style="--c:${colorOf(it)}" data-edit="${it.id}">${k.icon} ${esc(it.title)}<small>${it.kind==="exam"?"Exam":"Due"}${it.time?" "+fmtTime(it.time):""}</small></button>`;
+      const c = classById(it.classId);
+      rows += `<button type="button" class="wslot${isBlockKind(it.kind)?"":" dashed"}${it.done?" is-done":""}" style="--c:${colorOf(it)}" data-edit="${it.id}"><span class="bar"></span><div class="txt"><b>${kic(it.kind)}${esc(it.title)}</b><small>${it.kind==="exam"?"Exam":it.kind==="event"?"Event":"Due"}${it.time?" "+fmtTime(it.time):""}${c?" · "+esc(c.name):""}</small></div></button>`;
     }
-    if(!has) html += `<small class="none" style="color:var(--muted)">Free</small>`;
-    html += `</div>`;
+    html += (rows || `<div class="grow free">Free</div>`) + `</div>`;
   }
-  return html + `</div>`;
+  return html;
 }
 
 function sessionSummary(c){
@@ -1118,28 +1392,25 @@ function sessionSummary(c){
 
 function renderClasses(){
   const s = state.settings;
-  let html = `<section class="panel"><h2>Your classes</h2><p>Classes repeat every week between the semester dates below. Their colors carry through your deadlines and your calendar.</p>
-    <div class="row-actions" style="margin-bottom:18px"><button class="btn primary" data-action="import">✨ Import from a photo</button></div>
-    <div class="term">
-      <label>Semester starts<input type="date" id="termStart" value="${esc(s.termStart)}"></label>
-      <label>Semester ends<input type="date" id="termEnd" value="${esc(s.termEnd)}"></label>
-    </div>`;
-  if(!state.classes.length){
-    html += `<div class="empty" style="padding-top:0"><p>No classes yet.</p><button class="btn primary" data-action="add-class">Add a class</button></div>`;
-  } else {
-    html += state.classes.map(c=>`<div class="class-row" style="--c:${c.color}"><span class="dot"></span>
-      <div><h3>${esc(c.name)}</h3><p>${c.teacher?esc(c.teacher)+" — ":""}${sessionSummary(c)}</p></div>
-      <button class="btn" data-editclass="${c.id}">Edit</button></div>`).join("");
-  }
+  let html = `<div class="page-head"><h1 class="page-title">Classes</h1></div>
+    <div class="glist"><button type="button" class="grow accent" data-action="import">${ic("sparkles")}<span class="txt">Import from a photo</span></button></div>
+    <h2 class="ghead">Semester</h2>
+    <div class="glist">
+      <label class="grow"><span class="txt">Starts</span><input type="date" id="termStart" value="${esc(s.termStart)}"></label>
+      <label class="grow"><span class="txt">Ends</span><input type="date" id="termEnd" value="${esc(s.termEnd)}"></label>
+    </div>
+    <p class="gfoot">Classes repeat every week between these dates.</p>
+    <h2 class="ghead">Classes</h2><div class="glist">`;
+  html += state.classes.map(c=>`<button type="button" class="grow" style="--c:${c.color}" data-editclass="${c.id}"><span class="dot"></span>
+      <span class="txt"><b>${esc(c.name)}</b><small>${c.teacher?esc(c.teacher)+" · ":""}${sessionSummary(c)}</small></span><span class="chev">${ic("right")}</span></button>`).join("");
+  html += `<button type="button" class="grow accent" data-action="add-class">${ic("plus")}<span class="txt">Add a class</span></button></div>`;
   const specials = state.specialDays.slice().sort((a,b)=>a.start.localeCompare(b.start));
-  html += `<h2 style="margin-top:36px">Days off and schedule changes</h2>
-    <p>Holidays, study weeks, and days that follow another day's schedule. Classes skip these days, in the planner and in Apple Calendar.</p>`;
-  html += specials.length ? specials.map(x=>`<div class="class-row"><span class="emoji" aria-hidden="true">${+x.follows?"🔁":"🏖️"}</span>
-      <div><h3>${esc(x.label || (+x.follows?"Schedule change":"Day off"))}</h3><p>${+x.follows ? `${fmtDate(parseYmd(x.start))}: follows the ${DAYS_LONG[x.follows-1]} schedule` : fmtRange(x.start,x.end)}</p></div>
-      <button class="btn" data-editspecial="${x.id}">Edit</button></div>`).join("")
-    : `<p class="fine">None yet. Import your school calendar, or add them yourself.</p>`;
-  html += `<div class="row-actions" style="margin-top:14px"><button class="btn" data-action="add-special">Add a day off</button></div>`;
-  return html + `</section>`;
+  html += `<h2 class="ghead">Days off and schedule changes</h2><div class="glist">`;
+  html += specials.map(x=>`<button type="button" class="grow" data-editspecial="${x.id}"><span class="emoji" aria-hidden="true">${+x.follows?"🔁":"🏖️"}</span>
+      <span class="txt"><b>${esc(x.label || (+x.follows?"Schedule change":"Day off"))}</b><small>${+x.follows ? `${fmtDate(parseYmd(x.start))}: follows the ${DAYS_LONG[x.follows-1]} schedule` : fmtRange(x.start,x.end)}</small></span><span class="chev">${ic("right")}</span></button>`).join("");
+  html += `<button type="button" class="grow accent" data-action="add-special">${ic("plus")}<span class="txt">Add a day off</span></button></div>
+    <p class="gfoot">Classes skip these days, in the planner and in your calendar.</p>`;
+  return html;
 }
 
 function remindSelect(id,val){
@@ -1147,86 +1418,78 @@ function remindSelect(id,val){
   return `<select id="${id}">${opts.map(([v,l])=>`<option value="${v}" ${+val===v?"selected":""}>${l}</option>`).join("")}</select>`;
 }
 
+function accountBox(){
+  if(!accountReady()) return `<div class="box"><h3>Sync isn't set up yet</h3>
+    <p>This copy of Calendar Planner has no account server yet, so your planner stays on this device. Save a backup now and then.</p>
+    <p class="fine">Setting up the app yourself? Add your Supabase address and key where it says ACCOUNT near the top of the app's code. The setup guide explains it.</p></div>`;
+  if(connected()) return `<div class="box"><h3>Your account</h3>
+    <p>Signed in as <b>${esc(acc.email||"")}</b>.</p>
+    <p id="syncStatus" class="status">${esc(statusLine())}</p>
+    <div class="row-actions"><button class="btn primary" data-action="acc-sync">Sync now</button><button class="btn" data-action="acc-signout">Sign out</button></div>
+    <p class="fine" style="margin-top:12px">Sign in with the same email in Calendar Planner on your iPhone, iPad, Mac or another computer, and everything stays in sync.</p>
+    <p class="fine"><button class="linkbtn danger" data-action="acc-delete">Delete my account</button></p></div>`;
+  const codeStage = ui.accStage==="code" && acc.pendingEmail;
+  const social = (ACCOUNT.google || ACCOUNT.apple) && !codeStage ? `<div class="social">
+      ${ACCOUNT.apple ? `<button class="btn social-btn apple" data-action="acc-apple">Continue with Apple</button>` : ""}
+      ${ACCOUNT.google ? `<button class="btn social-btn" data-action="acc-google">Continue with Google</button>` : ""}
+      <p class="fine or">or get a code by email</p></div>` : "";
+  return `<div class="box"><h3>Sync with your other devices</h3>
+    <p>Sign in to keep this planner in sync on your computers, Android phone, iPhone and iPad. New here? Your account is created automatically.${ACCOUNT.google || ACCOUNT.apple ? "" : " No password: you get a code by email."}</p>
+    ${social}
+    ${syncUi.s==="error" && syncUi.msg ? `<p class="error">${esc(syncUi.msg)}</p>` : ""}
+    ${codeStage ? `<p>We sent a code to <b>${esc(acc.pendingEmail)}</b>. It can take a minute, so check your junk folder too.</p>
+      <div class="key-row"><input type="text" id="codeInput" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" aria-label="Code from the email"><button class="btn primary" data-action="acc-verify">Sign in</button></div>
+      <p class="fine"><button class="linkbtn" data-action="acc-back">Use a different email</button> · <button class="linkbtn" data-action="acc-resend">Send a new code</button></p>`
+    : `<div class="key-row"><input type="email" id="emailInput" autocomplete="email" placeholder="you@example.com" aria-label="Email" value="${esc(acc.pendingEmail||acc.email||"")}"><button class="btn primary" data-action="acc-send">Email me a code</button></div>`}
+    ${ui.accError ? `<p class="error">${esc(ui.accError)}</p>` : ""}
+    ${ui.accBusy ? `<p class="status">One moment…</p>` : ""}
+    <p class="fine" style="margin-top:12px">Already have things in the planner on this device? They're added to your account when you sign in.</p>
+    ${ACCOUNT.google || ACCOUNT.apple ? `<p class="fine">To see the same planner everywhere, sign in with the same email on every device. Google, Apple and email codes all lead to the same account when the email matches. With Apple, choose Share My Email.</p>` : ""}
+    <p class="fine">By signing in, you agree to the <a href="${LINKS.privacy}" target="_blank" rel="noopener">privacy policy</a>. You need to be 14 or older, or have a parent's permission.</p></div>`;
+}
 function renderSync(){
   const s = state.settings;
-  let top;
-  if(!connected()){
-    top = `<div class="box"><h3>Turn on live sync</h3>
-      <p>Your planner keeps a private calendar link up to date. Apple Calendar subscribes to it once, then picks up every change by itself: new deadlines, moved dates, things you check off. The link is kept in a free GitHub account.</p>
-      <ol class="steps">
-        <li>Make a free account at <a href="https://github.com/signup" target="_blank" rel="noopener">github.com</a>, or sign in to yours.</li>
-        <li><a href="https://github.com/settings/tokens/new?scopes=gist&description=Study%20Planner" target="_blank" rel="noopener">Create an access key</a>. Only the gist box needs a tick. Pick an expiration, tap Generate token at the bottom, and copy the key.</li>
-        <li>Paste it here.</li>
-      </ol>
-      <div class="key-row"><input type="password" id="tokenInput" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="GitHub access key"><button class="btn primary" data-action="connect">Connect</button></div>
-      ${syncUi.s==="error" ? `<p class="error">${esc(syncUi.msg)}</p>` : ""}
-      ${syncUi.s==="syncing" ? `<p class="status">Connecting…</p>` : ""}
-      <p class="fine">The key stays on this device and can only read and write your gists. Using the planner on another device too? Connect there with a key from the same GitHub account and your planner loads automatically.</p>
-    </div>`;
-  } else {
-    const webcal = feedUrl().replace(/^https:/,"webcal:");
-    top = `<div class="box"><h3>Live sync is on</h3>
-      <p id="syncStatus" class="status">${esc(statusLine())}</p>
-      ${sync.needsKey ? `<p class="error">GitHub stopped accepting your key. Make a <a href="https://github.com/settings/tokens/new?scopes=gist&description=Study%20Planner" target="_blank" rel="noopener">new one</a> and paste it here.</p>
-        <div class="key-row"><input type="password" id="tokenInput" placeholder="ghp_…" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="New GitHub access key"><button class="btn primary" data-action="update-key">Update key</button></div>` : ""}
-      <div class="row-actions">
-        <a class="btn primary" href="${esc(webcal)}">Subscribe in Apple Calendar</a>
-        <button class="btn" data-action="copy-feed">Copy calendar link</button>
-        <button class="btn" data-action="sync-now">Sync now</button>
-      </div>
-      <ol class="steps" style="margin-top:14px">
-        <li>Tap Subscribe, then confirm. If you want the reminders to ring, leave Remove Alerts off.</li>
-        <li>If nothing opens, copy the link, then go to Settings, Calendar (under Apps on newer iPhones), Calendar Accounts, Add Account, Other, Add Subscribed Calendar, and paste it.</li>
-        <li>You only subscribe once. Apple Calendar rechecks the link on its own schedule, so a change can take a little while to appear.</li>
-      </ol>
-      <p class="fine">Changes flow one way, from this planner into Apple Calendar. Connected as @${esc(sync.login)}. <button class="linkbtn" data-action="disconnect">Turn off sync on this device</button></p>
-    </div>
-    <div class="box"><h3>Use it on your iPad and Mac</h3>
-      <p>Everything stays in sync between your devices: classes, deadlines, days off, even your Gemini key.</p>
-      <ol class="steps">
-        <li><b>iPad:</b> open the planner's address in Safari, tap Share, then Add to Home Screen.</li>
-        <li><b>Mac:</b> open the address in Safari, then choose File, Add to Dock.</li>
-        <li>Open the new app, go to Settings, and paste your GitHub key. Your planner loads by itself.</li>
-      </ol>
-      <div class="row-actions" style="margin-top:12px">
-        <button class="btn" data-action="copy-address">Copy the planner's address</button>
-        <button class="btn" data-action="copy-token">Copy my GitHub key</button>
-      </div>
-      <p class="fine" style="margin-top:10px">With Handoff on, something you copy on your iPhone can be pasted right away on your iPad or Mac.</p>
-    </div>`;
-  }
+  let old = false; try{ old = !!localStorage.getItem(OLD_KEY); }catch(e){}
   return `<div class="page-head"><div><h1 class="page-title">Settings</h1></div></div>
-    <section class="panel" style="padding-top:0"><h2>Apple Calendar</h2>
-    <p>See your deadlines, exams and classes in Apple Calendar next to the rest of your life.</p>
-    ${top}
+    <section class="panel" style="padding-top:0"><h2>Account and sync</h2>
+    ${accountBox()}
+    <h2 style="margin-top:30px">Calendar apps</h2>
     <div class="box">
-      <h3>What goes on the calendar</h3>
+      <h3>Outlook, Google Calendar or Apple Calendar</h3>
+      <p>Download a calendar file and open it with the calendar app you use: Apple Calendar, Google Calendar or Outlook. It's a snapshot, so download a new one after big changes.</p>
       <label class="opt"><input type="checkbox" id="incTasks" ${s.incTasks?"checked":""}> Homework, assignments, projects and readings</label>
-      <label class="opt"><input type="checkbox" id="incExams" ${s.incExams?"checked":""}> Exams</label>
+      <label class="opt"><input type="checkbox" id="incExams" ${s.incExams?"checked":""}> Exams and events</label>
       <label class="opt"><input type="checkbox" id="incClasses" ${s.incClasses?"checked":""}> Weekly class schedule</label>
-      <label class="opt"><input type="checkbox" id="incStudy" ${s.incStudy?"checked":""}> Study sessions from the AI planner</label>
+      <label class="opt"><input type="checkbox" id="incStudy" ${s.incStudy?"checked":""}> Study sessions</label>
       <div class="remind">
         <span>Deadline reminder</span>${remindSelect("remindTask",s.remindTask)}
-        <span>Exam reminder</span>${remindSelect("remindExam",s.remindExam)}
+        <span>Exam and event reminder</span>${remindSelect("remindExam",s.remindExam)}
         <span>Class reminder</span>${remindSelect("remindClass",s.remindClass)}
         <span>Study session reminder</span>${remindSelect("remindStudy",s.remindStudy)}
       </div>
-      <p class="fine">Things you check off disappear from the calendar at the next sync.</p>
+      <div class="row-actions" style="margin-top:12px"><button class="btn primary" data-action="export">Download calendar file</button></div>
     </div>
     ${appearanceBox()}
     <div class="box">
       <h3>Share with friends</h3>
-      <p>Friends can use the planner too. Each person gets their own private planner: they can't see yours, and you can't see theirs.</p>
-      <p>They set it up the way you did, with their own free Gemini key for the AI and, if they want Apple Calendar, their own GitHub account. Don't give them your keys: those open your planner.</p>
-      <button class="btn primary" data-action="share">Share the planner</button>
+      <p>Friends can use Calendar Planner too: on Windows, on iPhone, or in any browser. Each person has their own private planner and account. They can't see yours, and you can't see theirs.</p>
+      <button class="btn primary" data-action="share">Share Calendar Planner</button>
+    </div>
+    <div class="box">
+      <h3>Privacy and help</h3>
+      <p>Calendar Planner has no ads and no tracking. Your planner stays on this device unless you sign in to sync.</p>
+      <div class="row-actions">
+        <a class="btn" href="${LINKS.privacy}" target="_blank" rel="noopener">Privacy policy</a>
+        <a class="btn" href="${LINKS.support}" target="_blank" rel="noopener">Help and contact</a>
+      </div>
     </div>
     <div class="box">
       <h3>Backup</h3>
-      <p>With sync on, GitHub already keeps a copy. You can also save one yourself.</p>
+      <p>${connected() ? "Your account already keeps a copy. You can also save one yourself." : "Save a copy of your planner now and then."}</p>
       <div class="row-actions">
         <button class="btn" data-action="backup">Save backup</button>
         <button class="btn" data-action="restore">Restore backup</button>
-        <button class="btn" data-action="export">Download calendar file</button>
+        ${old ? `<button class="btn" data-action="import-old">Bring over my Study Planner data</button>` : ""}
         <button class="btn danger" data-action="erase">Erase everything</button>
       </div>
     </div></section>`;
@@ -1240,15 +1503,15 @@ function fillClassSelect(sel, val){
 }
 function setKind(kind){
   $("#itemForm").querySelectorAll('input[name=kind]').forEach(r=>r.checked = r.value===kind);
-  const exam = kind==="exam";
+  const exam = isBlockKind(kind);
   $("#itemForm").querySelectorAll(".exam-only").forEach(el=>el.hidden=!exam);
   $("#dateLabel").textContent = exam ? "Date" : "Due date";
 }
-function openItem(id){
+function openItem(id, kind){
   const f = $("#itemForm");
   const it = id ? state.items.find(i=>i.id===id) : null;
   editingItem = it;
-  $("#kindPick").innerHTML = Object.entries(KINDS).map(([k,v])=>`<label><input type="radio" name="kind" value="${k}"><span>${v.icon} ${v.label}</span></label>`).join("");
+  $("#kindPick").innerHTML = Object.entries(KINDS).map(([k,v])=>`<label><input type="radio" name="kind" value="${k}"><span>${ic(k)}${v.label}</span></label>`).join("");
   fillClassSelect($("#classSelect"), it ? it.classId : "");
   f.title.value = it ? it.title : "";
   f.due.value = it ? it.due : ymd(ui.tab==="day" && dayDiff(ui.day,today())>0 ? ui.day : addDays(today(),1));
@@ -1257,8 +1520,8 @@ function openItem(id){
   f.room.value = it ? (it.room||"") : "";
   f.high.checked = it ? it.priority==="high" : false;
   f.notes.value = it ? (it.notes||"") : "";
-  setKind(it ? it.kind : "homework");
-  $("#itemDlgTitle").textContent = it ? "Edit" : "Add to your planner";
+  setKind(it ? it.kind : (KINDS[kind] ? kind : "homework"));
+  $("#itemDlgTitle").textContent = it ? "Edit" : "New";
   $("#itemDelete").hidden = !it;
   $("#itemError").hidden = true;
   $("#itemDlg").showModal();
@@ -1273,8 +1536,8 @@ $("#itemForm").addEventListener("submit",e=>{
     const er=$("#itemError"); er.textContent = !title ? "Give it a title." : "Pick a date."; er.hidden=false; return;
   }
   const data = {kind,title,classId:f.classId.value,due:f.due.value,time:f.time.value,
-    duration: kind==="exam" ? Math.max(15,+f.duration.value||120) : undefined,
-    room: kind==="exam" ? f.room.value.trim() : "",
+    duration: isBlockKind(kind) ? Math.max(15,+f.duration.value||120) : undefined,
+    room: isBlockKind(kind) ? f.room.value.trim() : "",
     priority: f.high.checked ? "high" : "normal", notes: f.notes.value.trim(), updatedAt: Date.now()};
   if(editingItem){ Object.assign(editingItem,data); editingItem.rev=(editingItem.rev||0)+1; toast("Saved"); }
   else { state.items.push(Object.assign({id:uid(),done:false,rev:0},data)); toast("Added"); }
@@ -1367,7 +1630,7 @@ $("#specialForm").addEventListener("submit",e=>{
   const er = $("#specialError");
   if(!start){ er.textContent = "Pick a date."; er.hidden = false; return; }
   if(end < start){ er.textContent = "The end date is before the start date."; er.hidden = false; return; }
-  const data = {label:f.label.value.trim(), start, end, follows};
+  const data = {label:f.label.value.trim(), start, end, follows, updatedAt:Date.now()};
   if(editingSpecial) Object.assign(editingSpecial, data);
   else state.specialDays.push(Object.assign({id:uid()}, data));
   state.settings.termRev = (state.settings.termRev||0)+1;
@@ -1384,10 +1647,10 @@ $("#specialDelete").addEventListener("click",()=>{
    AI IMPORT
    Sends photos of the timetable and school calendar to Google Gemini
    (free tier) and turns the answer into classes, semester dates,
-   days off and schedule swaps. The Gemini key syncs to your other
-   devices through the private data gist, never through the calendar link.
+   days off and schedule swaps. The Gemini key stays on the device
+   where it was entered.
    ========================================================= */
-const AI_KEY = "studyplanner:ai";
+const AI_KEY = "calendarplanner:ai";
 const GEMINI_MODELS = ["gemini-flash-latest","gemini-3.1-flash-lite","gemini-2.5-flash"];
 function loadAi(){
   try{
@@ -1421,7 +1684,7 @@ function renderImport(){
     h = `<p>The AI reads your photos and fills in your classes for you. It uses Google Gemini, which is free. It needs a key once.</p>
       <ol class="steps"><li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with a Google account.</li><li>Tap Create API key and copy it. No credit card needed.</li><li>Paste it below.</li></ol>
       <label class="field"><span>Gemini key</span><input type="password" id="aiKey" value="${esc(ai.key)}" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
-      <p class="fine">${connected() ? "Your iPad and Mac get this key automatically through sync." : "Turn on sync and your other devices get this key automatically."} On the free tier, Google may use what you send to improve its products. Your photos go to Google only when you tap Read.</p>
+      <p class="fine">The key stays on this device. On the free tier, Google may use what you send to improve its products. Your photos go to Google only when you tap Read.</p>
       ${imp.error?`<p class="error">${esc(imp.error)}</p>`:""}
       <div class="foot"><div class="right"><button type="button" class="btn ghost" data-imp="close">Cancel</button><button type="button" class="btn primary" data-imp="save-key">Save key</button></div></div>`;
   } else if(imp.stage==="pick"){
@@ -1481,7 +1744,6 @@ $("#importBody").addEventListener("click",e=>{
     const key = ($("#aiKey").value||"").trim();
     if(!key){ imp.error = "Paste your key first."; renderImport(); return; }
     ai = {key, updatedAt: Date.now()}; saveAi();
-    if(connected()){ sync.settingsDirty = true; saveSync(); clearTimeout(pushTimer); pushTimer = setTimeout(push, 300); }
     imp.stage = "pick"; imp.error = ""; renderImport();
   }
   else if(a==="remove"){
@@ -1677,14 +1939,14 @@ function plannerHtml(){
   const hrs = m=> m<60 ? `${m} min` : (m%60 ? `${Math.floor(m/60)} h ${m%60}` : `${m/60} h`);
   let h = "";
   if(pl.stage==="key"){
-    h = `<p>The planner uses Google Gemini, which is free. It needs a key once.</p>
+    h = `<p>For smarter plans, the planner can use Google Gemini, which is free with your own key. When you make a plan, your deadlines, class times and notes are sent to Google; on the free tier, Google may use them to improve its products. Without a key, the built-in planner works on this device only.</p>
       <ol class="steps"><li>Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with a Google account.</li><li>Tap Create API key and copy it. No credit card needed.</li><li>Paste it below.</li></ol>
       <label class="field"><span>Gemini key</span><input type="password" id="planKey" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
       ${pl.error?`<p class="error">${esc(pl.error)}</p>`:""}
       <div class="foot"><div class="right"><button type="button" class="btn ghost" data-pl="close">Cancel</button><button type="button" class="btn primary" data-pl="save-key">Save key</button></div></div>`;
   } else if(pl.stage==="prefs"){
     const open = state.items.filter(i=>!i.done).length;
-    h = `<p>The AI looks at your deadlines, exams and classes, then spreads the work into study sessions around your schedule.</p>
+    h = `<p>${ai.key ? "The AI looks at your deadlines, exams and classes, then spreads the work into study sessions around your schedule." : "The built-in planner spreads your deadlines and exam prep into study sessions around your classes. Add a free Gemini key on the AI page for smarter plans."}</p>
       <div class="field"><span>Weekdays, I can study from</span><div class="two"><input type="time" id="pWdFrom" value="${esc(P.wdFrom)}" aria-label="Weekday start"><input type="time" id="pWdTo" value="${esc(P.wdTo)}" aria-label="Weekday end"></div></div>
       <div class="field"><span>Weekends and days off, from</span><div class="two"><input type="time" id="pWeFrom" value="${esc(P.weFrom)}" aria-label="Weekend start"><input type="time" id="pWeTo" value="${esc(P.weTo)}" aria-label="Weekend end"></div></div>
       <div class="two">
@@ -1697,12 +1959,12 @@ function plannerHtml(){
       ${pl.error?`<p class="error">${esc(pl.error)}</p>`:""}
       <div class="foot"><div class="right"><button type="button" class="btn ghost" data-pl="close">Cancel</button><button type="button" class="btn primary" data-pl="make" ${open?"":"disabled"}>Make my plan</button></div></div>`;
   } else if(pl.stage==="loading"){
-    h = `<div class="loading"><p><b>Making your plan…</b></p><p class="fine">This usually takes 10 to 30 seconds.</p><div class="bar"><i></i></div></div>
+    h = `<div class="loading"><p><b>Making your plan…</b></p><p class="fine">${ai.key ? "This usually takes 10 to 30 seconds." : "Just a moment."}</p><div class="bar"><i></i></div></div>
       <div class="foot"><div class="right"><button type="button" class="btn ghost" data-pl="close">Cancel</button></div></div>`;
   } else {
     const r = pl.result;
     if(!r.blocks.length){
-      h = `<p>The AI couldn't fit any study sessions. Try longer study hours, a higher daily maximum, or more days.</p>
+      h = `<p>No study sessions fit. Try longer study hours, a higher daily maximum, or more days.</p>
         ${r.summary?`<div class="coach"><p>${esc(r.summary)}</p></div>`:""}
         <div class="foot"><div class="right"><button type="button" class="btn primary" data-pl="back">Change my hours</button></div></div>`;
     } else {
@@ -1726,13 +1988,12 @@ $("#view").addEventListener("click",e=>{
   const b = e.target.closest("[data-pl]"); if(!b) return;
   const a = b.dataset.pl;
   if(a==="close"){ pl.stage = "overview"; pl.error = ""; if(pl.abort){ pl.abort.abort(); pl.abort = null; } render(); }
-  else if(a==="new"){ pl.stage = ai.key ? "prefs" : "key"; pl.error = ""; render(); }
+  else if(a==="new"){ pl.stage = "prefs"; pl.error = ""; render(); }
   else if(a==="key"){ pl.stage = "key"; pl.error = ""; render(); }
   else if(a==="save-key"){
     const key = ($("#planKey").value||"").trim();
     if(!key){ pl.error = "Paste your key first."; renderPlanner(); return; }
     ai = {key, updatedAt: Date.now()}; saveAi();
-    if(connected()){ sync.settingsDirty = true; saveSync(); clearTimeout(pushTimer); pushTimer = setTimeout(push, 300); }
     pl.stage = "prefs"; pl.error = ""; renderPlanner(); toast("Gemini key saved");
   }
   else if(a==="make") makePlan();
@@ -1747,7 +2008,7 @@ function readPlannerPrefs(){
   if(!next.wdFrom || !next.wdTo || next.wdTo <= next.wdFrom || !next.weFrom || !next.weTo || next.weTo <= next.weFrom){
     pl.error = "Each study window needs an end time after its start time."; renderPlanner(); return false;
   }
-  Object.assign(P, next); saveLocal();
+  if(JSON.stringify(Object.assign({}, P, next)) !== JSON.stringify(P)){ Object.assign(P, next); state.settings.updatedAt = Date.now(); commit(); }
   return true;
 }
 function planContext(){
@@ -1760,12 +2021,12 @@ function planContext(){
     if(sp) day.note = +sp.follows ? `Follows the ${DAYS_LONG[sp.follows-1]} schedule` : `Day off: ${sp.label||"no classes"}`;
     days.push(day);
     for(const {c,s} of sessionsOn(d)) busy.push({date:key, start:s.start, end:s.end, what:"Class: "+c.name});
-    for(const it of state.items) if(it.kind==="exam" && it.due===key && it.time) busy.push({date:key, start:it.time, end:fromMin(Math.min(toMin(it.time)+(+it.duration||120), 1439)), what:"Exam: "+it.title});
+    for(const it of state.items) if(isBlockKind(it.kind) && !it.done && it.due===key && it.time) busy.push({date:key, start:it.time, end:fromMin(Math.min(toMin(it.time)+(+it.duration||120), 1439)), what:(it.kind==="exam"?"Exam: ":"Event: ")+it.title});
     // Keep sessions the student already finished on these days.
     for(const b of state.plan.blocks) if(b.date===key && b.done) busy.push({date:key, start:b.start, end:b.end, what:"Study session already done"});
   }
   const horizonEnd = addDays(t, P.horizon + 21);
-  const tasks = state.items.filter(i=>!i.done && parseYmd(i.due) <= horizonEnd).sort((a,b)=>dueAt(a)-dueAt(b)).slice(0,60).map(i=>{
+  const tasks = state.items.filter(i=>!i.done && i.kind!=="event" && parseYmd(i.due) <= horizonEnd).sort((a,b)=>dueAt(a)-dueAt(b)).slice(0,60).map(i=>{
     const c = classById(i.classId);
     return {id:i.id, type:i.kind, title:i.title, class:c?c.name:"", due:i.due, dueTime:i.time||"", important:i.priority==="high", notes:(i.notes||"").slice(0,200)};
   });
@@ -1825,8 +2086,13 @@ async function makePlan(){
   const ctrl = new AbortController(); pl.abort = ctrl;
   try{
     const ctx = planContext();
-    const text = await callGemini([{text: plannerPrompt(ctx)}], ctrl.signal, 0.4);
-    pl.result = cleanPlan(parseJson(text), ctx); pl.ctx = ctx; pl.stage = "review";
+    if(ai.key){
+      const text = await callGemini([{text: plannerPrompt(ctx)}], ctrl.signal, 0.4);
+      pl.result = cleanPlan(parseJson(text), ctx);
+    } else {
+      pl.result = cleanPlan(simplePlan(ctx), ctx);
+    }
+    pl.ctx = ctx; pl.stage = "review";
   }catch(e){
     if(e.name==="AbortError" || ctrl.signal.aborted) return;
     pl.stage = e.code==="key" ? "key" : "prefs";
@@ -1840,11 +2106,12 @@ function savePlan(){
   const r = pl.result, tk = ymd(today()), oldest = ymd(addDays(today(),-30));
   // Keep the past and finished sessions; replace everything still ahead.
   const keep = state.plan.blocks.filter(b=>b.date >= oldest && (b.date < tk || b.done));
-  const fresh = r.blocks.map(b=>{ const it = state.items.find(i=>i.id===b.taskId); return {id:uid(), date:b.date, start:b.start, end:b.end, itemId:b.taskId, title: it?it.title:"Study", focus:b.focus, done:false}; });
+  const fresh = r.blocks.map(b=>{ const it = state.items.find(i=>i.id===b.taskId); return {id:uid(), date:b.date, start:b.start, end:b.end, itemId:b.taskId, title: it?it.title:"Study", focus:b.focus, done:false, updatedAt:Date.now()}; });
   state.plan = {createdAt: Date.now(), summary: r.summary, blocks: keep.concat(fresh)};
+  state.settings.updatedAt = Date.now();
   commit(); pl.stage = "overview"; pl.result = null;
   ui.tab = "ai"; render(); window.scrollTo({top:0});
-  toast("Plan saved" + (connected() && state.settings.incStudy ? ". It's on its way to Apple Calendar too." : "."));
+  toast("Plan saved" + (connected() ? ". It's syncing to your other devices." : "."));
 }
 
 /* ---------- month view ---------- */
@@ -1854,23 +2121,23 @@ function renderMonth(){
   const last = new Date(m.getFullYear(), m.getMonth()+1, 0);
   const start = mondayOf(m), end = addDays(mondayOf(last), 6);
   let h = `<div class="page-head"><div><h1 class="page-title">${esc(title.charAt(0).toUpperCase()+title.slice(1))}</h1></div>
-    <div class="row-actions"><button class="btn" data-month="-1" aria-label="Previous month">‹</button><button class="btn" data-month="0">This month</button><button class="btn" data-month="1" aria-label="Next month">›</button></div></div>
-    <div class="mhead">${DAYS.map(d=>`<span>${d}</span>`).join("")}</div><div class="mgrid">`;
+    <div class="row-actions"><button class="btn round" data-month="-1" aria-label="Previous month">${ic("left")}</button><button class="btn" data-month="0">Today</button><button class="btn round" data-month="1" aria-label="Next month">${ic("right")}</button></div></div>
+    <div class="mcard"><div class="mhead">${DAYS.map(d=>`<span>${d}</span>`).join("")}</div><div class="mgrid">`;
   for(let d = new Date(start); d <= end; d = addDays(d,1)){
     const key = ymd(d), sp = specialFor(d);
-    const items = state.items.filter(i=>i.due===key).sort((a,b)=>(b.kind==="exam")-(a.kind==="exam") || dueAt(a)-dueAt(b));
+    const items = state.items.filter(i=>i.due===key).sort((a,b)=>isBlockKind(b.kind)-isBlockKind(a.kind) || dueAt(a)-dueAt(b));
     const study = state.plan.blocks.filter(b=>b.date===key && blockVisible(b) && !b.done).length;
     const cls = ["mcell"];
     if(d.getMonth()!==m.getMonth()) cls.push("out");
     if(dayDiff(d,t)===0) cls.push("today");
     if(sp && !+sp.follows) cls.push("off");
-    const chips = items.slice(0,3).map(i=>`<span class="mchip${i.kind==="exam"?" exam":""}${i.done?" done":""}" style="--c:${colorOf(i)}">${(KINDS[i.kind]||KINDS.homework).icon} ${esc(i.title)}</span>`).join("");
+    const chips = items.slice(0,3).map(i=>`<span class="mchip${i.kind==="exam"?" exam":""}${i.done?" done":""}" style="--c:${colorOf(i)}"></span>`).join("");
     const more = items.length>3 ? `<span class="mmore">+${items.length-3}</span>` : "";
     const label = `${fmtDate(d)}: ${items.length} due${study?`, ${study} study session${study>1?"s":""}`:""}${sp?", "+(sp.label||"day off"):""}`;
     h += `<button type="button" class="${cls.join(" ")}" data-goday="${key}" aria-label="${esc(label)}"><span class="mnum">${d.getDate()}</span>
-      <span class="mitems">${chips}${more}${study?`<span class="mstudy">📚${study>1?" "+study:""}</span>`:""}${sp&&!+sp.follows?`<span class="moff">🏖️</span>`:""}</span></button>`;
+      <span class="mitems">${chips}${more}${study?`<span class="mstudy">${ic("reading")}</span>`:""}</span></button>`;
   }
-  h += `</div>`;
+  h += `</div></div>`;
   const inMonth = state.items.filter(i=>{ const d = parseYmd(i.due); return d.getMonth()===m.getMonth() && d.getFullYear()===m.getFullYear() && !i.done; }).sort((a,b)=>dueAt(a)-dueAt(b));
   const exams = inMonth.filter(i=>i.kind==="exam"), big = inMonth.filter(i=>i.kind==="assignment"||i.kind==="project");
   if(exams.length) h += `<h2 class="section-label">Exams this month</h2><ul class="items">${exams.map(itemRow).join("")}</ul>`;
@@ -1880,7 +2147,7 @@ function renderMonth(){
 
 /* ---------- AI page ---------- */
 function renderAI(){
-  let h = `<div class="page-head"><div><h1 class="page-title">AI coach</h1><p class="page-sub">Plans your study time and reads your timetable. Powered by Google Gemini, free.</p></div></div>`;
+  let h = `<div class="page-head"><div><h1 class="page-title">AI coach</h1><p class="page-sub">Plans your study time and reads your timetable.</p></div></div>`;
   if(pl.stage !== "overview") return h + `<section class="card flow">${plannerHtml()}</section>`;
   const tk = ymd(today());
   const ahead = state.plan.blocks.filter(b=>b.date>=tk && blockVisible(b)).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
@@ -1889,13 +2156,13 @@ function renderAI(){
   const doneCount = ahead.filter(b=>b.done).length;
   const hrs = m=> m<60 ? `${m} min` : (m%60 ? `${Math.floor(m/60)} h ${m%60}` : `${m/60} h`);
   if(left.length && state.plan.summary){
-    h += `<section class="ai-hero"><span class="coach-label">✨ Your plan</span><p class="ai-summary">${esc(state.plan.summary)}</p>
+    h += `<section class="ai-hero"><span class="coach-label">${ic("sparkles")}Your plan</span><p class="ai-summary">${esc(state.plan.summary)}</p>
       <div class="ai-stats"><span><b>${left.length}</b> sessions to go</span><span><b>${hrs(mins)}</b> planned</span><span><b>${doneCount}</b> done</span></div>
       <div class="row-actions"><button class="btn primary" data-pl="new">Make a new plan</button></div></section>`;
   } else {
-    h += `<section class="ai-hero"><span class="coach-label">✨ Study planner</span><h2 class="ai-title">Let the AI plan your week</h2>
+    h += `<section class="ai-hero"><span class="coach-label">${ic("sparkles")}Study planner</span><h2 class="ai-title">Let the AI plan your week</h2>
       <p>It spreads homework, assignments and exam prep into study sessions that fit around your classes, and tells you what to do first.</p>
-      <div class="row-actions"><button class="btn primary" data-pl="new">✨ Plan my days</button></div></section>`;
+      <div class="row-actions"><button class="btn primary" data-pl="new">${ic("sparkles")}Plan my days</button></div></section>`;
   }
   if(ahead.length){
     const by = {}; ahead.forEach(b=>(by[b.date] = by[b.date] || []).push(b));
@@ -1906,13 +2173,13 @@ function renderAI(){
         const it = state.items.find(i=>i.id===b.itemId);
         return `<div class="sess${b.done?" done":""}" style="--c:${it?colorOf(it):NOCLASS}"><input type="checkbox" class="check" data-blockdone="${b.id}" ${b.done?"checked":""} aria-label="Mark this study session done">
           <div class="txt"><b>${esc(b.title)}</b><small>${fmtTime(b.start)}–${fmtTime(b.end)}${b.focus?" · "+esc(b.focus):""}</small></div>
-          <button type="button" class="xbtn" data-blockdel="${b.id}" aria-label="Remove this study session">×</button></div>`;
+          <button type="button" class="xbtn" data-blockdel="${b.id}" aria-label="Remove this study session">${ic("x")}</button></div>`;
       }).join("") + `</div>`;
     }).join("");
   }
   h += `<h2 class="section-label">More AI tools</h2>
-    <button type="button" class="tool" data-action="import"><span class="tool-ic" aria-hidden="true">📷</span><span><b>Import from a photo</b><small>The AI reads your timetable and school calendar, then fills in your classes, semester dates and days off.</small></span></button>
-    <p class="fine" style="margin-top:14px">${ai.key ? `Gemini key saved${connected()?", and synced to your other devices":""}. <button class="linkbtn" data-pl="key">Change key</button>` : `No Gemini key yet. <button class="linkbtn" data-pl="key">Add your free key</button>`}</p>`;
+    <button type="button" class="tool" data-action="import"><span class="tool-ic" aria-hidden="true">${ic("camera")}</span><span><b>Import from a photo</b><small>The AI reads your timetable and school calendar, then fills in your classes, semester dates and days off.</small></span></button>
+    <p class="fine" style="margin-top:14px">${ai.key ? `Gemini key saved on this device. <button class="linkbtn" data-pl="key">Change key</button>` : `No Gemini key yet, so plans come from the built-in planner. For smarter plans and photo import, <button class="linkbtn" data-pl="key">add your free key</button>.`}</p>`;
   return h;
 }
 
@@ -1948,16 +2215,16 @@ async function shareSelected(){
     const c = classById(i.classId); let ci = -1;
     if(c){ if(!(c.id in idx)){ idx[c.id] = classes.length; classes.push({n:c.name, c:c.color}); } ci = idx[c.id]; }
     const o = {k:i.kind, t:i.title, d:i.due};
-    if(i.time) o.tm = i.time; if(i.kind==="exam"){ o.du = +i.duration||120; if(i.room) o.r = i.room; }
+    if(i.time) o.tm = i.time; if(isBlockKind(i.kind)){ o.du = +i.duration||120; if(i.room) o.r = i.room; }
     if(i.notes) o.n = i.notes; if(i.priority==="high") o.p = 1; if(ci>=0) o.c = ci;
     return o;
   })};
   payload.classes = classes;
   const url = appAddress() + "#share=" + await packShare(payload);
   const what = items.length===1 ? `“${items[0].title}”` : `${items.length} deadlines and exams`;
-  const text = `${what} from my Study Planner. Open the link, or copy it and paste it in the app (Due tab, Add from a friend).`;
+  const text = `${what} from my Calendar Planner. Open the link, or copy it and paste it in the app (Due tab, Add from a friend).`;
   if(navigator.share){
-    try{ await navigator.share({title:"Study Planner", text, url}); }catch(e){ if(e && e.name==="AbortError") return; }
+    try{ await navigator.share({title:"Calendar Planner", text, url}); }catch(e){ if(e && e.name==="AbortError") return; }
   } else {
     try{ await navigator.clipboard.writeText(url); toast("Link copied. Send it to your friend."); }
     catch(e){ prompt("Send this link to your friend:", url); }
@@ -2004,12 +2271,12 @@ function renderShared(){
   } else {
     const r = sh.result;
     const dup = i=>state.items.some(x=>normName(x.title)===normName(i.title) && x.due===i.due && x.kind===i.kind);
-    h = (sh.fromLink && isIOS && !isStandalone ? `<p class="ai-note">Using Study Planner from your Home Screen? It keeps its own copy of your planner, so add these there: copy this link, open the app, then tap Due, Add from a friend. <button type="button" class="linkbtn" data-sh="copy-link">Copy link</button></p>` : "")
+    h = (sh.fromLink && isIOS && !isStandalone ? `<p class="ai-note">Using Calendar Planner from your Home Screen? It keeps its own copy of your planner, so add these there: copy this link, open the app, then tap Due, Add from a friend. <button type="button" class="linkbtn" data-sh="copy-link">Copy link</button></p>` : "")
       + `<p>Your friend shared ${r.items.length===1?"this":"these"} with you. Untick anything you don't want.</p><div class="review">`
       + r.items.map((i,n)=>{
         const isDup = dup(i), k = KINDS[i.kind];
         const newCls = i.cls && !state.classes.some(c=>normName(c.name)===normName(i.cls.name));
-        return `<label class="pick"><input type="checkbox" data-shpick="${n}" ${isDup?"":"checked"}><span><b>${k.icon} ${esc(i.title)}</b>${isDup?'<span class="tag">already in your planner</span>':""}${newCls?`<span class="tag">new class</span>`:""}
+        return `<label class="pick"><input type="checkbox" data-shpick="${n}" ${isDup?"":"checked"}><span><b>${kic(i.kind)} ${esc(i.title)}</b>${isDup?'<span class="tag">already in your planner</span>':""}${newCls?`<span class="tag">new class</span>`:""}
           <small>${i.cls?esc(i.cls.name)+" — ":""}${k.label}, ${fmtDate(parseYmd(i.due))}${i.time?", "+fmtTime(i.time):""}</small></span></label>`;
       }).join("") + `</div>
       <div class="foot"><div class="right"><button type="button" class="btn ghost" data-sh="close">Cancel</button><button type="button" class="btn primary" data-sh="add">Add to my planner</button></div></div>`;
@@ -2023,7 +2290,7 @@ $("#sharedBody").addEventListener("click", async e=>{
   else if(a==="read"){
     const v = ($("#sharedPaste").value||"").trim();
     const m = v.match(/#share=([A-Za-z0-9_-]+)/) || v.match(/^([zj][A-Za-z0-9_-]{8,})$/);
-    if(!m){ sh.error = "That doesn't look like a Study Planner link."; renderShared(); return; }
+    if(!m){ sh.error = "That doesn't look like a Calendar Planner link."; renderShared(); return; }
     loadShared(m[1]);
   }
   else if(a==="copy-link"){ try{ await navigator.clipboard.writeText(sh.link); toast("Link copied"); }catch(err){ prompt("Copy this link:", sh.link); } }
@@ -2043,7 +2310,7 @@ $("#sharedBody").addEventListener("click", async e=>{
         classId = c.id;
       }
       state.items.push({id:uid(), kind:i.kind, title:i.title, classId, due:i.due, time:i.time,
-        duration: i.kind==="exam" ? i.duration : undefined, room: i.kind==="exam" ? i.room : "",
+        duration: isBlockKind(i.kind) ? i.duration : undefined, room: isBlockKind(i.kind) ? i.room : "",
         priority:i.priority, notes:i.notes, done:false, rev:0, updatedAt:Date.now()});
     }
     commit(); $("#sharedDlg").close(); ui.tab = "agenda"; render(); window.scrollTo({top:0});
@@ -2073,9 +2340,9 @@ function alarm(summary, trigger){ return ["BEGIN:VALARM","ACTION:DISPLAY","DESCR
 
 function itemEvent(it, stamp){
   const s = state.settings, c = classById(it.classId), k = KINDS[it.kind]||KINDS.homework;
-  const isExam = it.kind==="exam";
+  const isExam = isBlockKind(it.kind);
   const summary = `${k.icon} ${isExam?"":"Due: "}${it.title}${c?" ("+c.name+")":""}`;
-  const L = ["BEGIN:VEVENT",`UID:${it.id}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${it.rev||0}`];
+  const L = ["BEGIN:VEVENT",`UID:${it.id}@calendar-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${it.rev||0}`];
   const d = parseYmd(it.due);
   const rem = +(isExam ? s.remindExam : s.remindTask) || 0;
   let trigger = null;
@@ -2109,7 +2376,7 @@ function classEvents(c, stamp, term){
     let first = new Date(term.start);
     while(isoDay(first)!==+se.day) first = addDays(first,1);
     if(first > term.end) continue;
-    const L = ["BEGIN:VEVENT",`UID:${c.id}-${se.id}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${(c.rev||0)+(s.termRev||0)}`,
+    const L = ["BEGIN:VEVENT",`UID:${c.id}-${se.id}@calendar-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${(c.rev||0)+(s.termRev||0)}`,
       "DTSTART:"+localStamp(withTime(first,se.start)), "DTEND:"+localStamp(withTime(first,se.end)),
       `RRULE:FREQ=WEEKLY;UNTIL=${compact(term.end)}T235959`, "SUMMARY:"+icsEsc(c.name)];
     const skip = [];
@@ -2131,7 +2398,7 @@ function swapEvents(stamp, term){
     const d = parseYmd(sp.start);
     if(d < term.start || d > term.end) continue;
     for(const c of state.classes) for(const se of (c.sessions||[])) if(+se.day===+sp.follows){
-      const L = ["BEGIN:VEVENT",`UID:${c.id}-${se.id}-${compact(d)}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${(c.rev||0)+(s.termRev||0)}`,
+      const L = ["BEGIN:VEVENT",`UID:${c.id}-${se.id}-${compact(d)}@calendar-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${(c.rev||0)+(s.termRev||0)}`,
         "DTSTART:"+localStamp(withTime(d,se.start)), "DTEND:"+localStamp(withTime(d,se.end)), "SUMMARY:"+icsEsc(c.name),
         "DESCRIPTION:"+icsEsc(`${sp.label||"Schedule change"}: ${DAYS_LONG[sp.follows-1]} schedule`)];
       if(se.room) L.push("LOCATION:"+icsEsc(se.room));
@@ -2146,7 +2413,7 @@ function specialEvents(stamp){
   return state.specialDays.map(sp=>{
     const d = parseYmd(sp.start), e = parseYmd(sp.end||sp.start);
     const sum = +sp.follows ? `🔁 ${sp.label||"Schedule change"} (${DAYS_LONG[sp.follows-1]} schedule)` : `🏖️ ${sp.label||"Day off"}`;
-    return ["BEGIN:VEVENT",`UID:${sp.id}@study-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${state.settings.termRev||0}`,
+    return ["BEGIN:VEVENT",`UID:${sp.id}@calendar-planner`,`DTSTAMP:${stamp}`,`SEQUENCE:${state.settings.termRev||0}`,
       "DTSTART;VALUE=DATE:"+compact(d), "DTEND;VALUE=DATE:"+compact(addDays(e,1)), "TRANSP:TRANSPARENT", "SUMMARY:"+icsEsc(sum), "END:VEVENT"];
   });
 }
@@ -2156,7 +2423,7 @@ function studyEvents(stamp){
   return state.plan.blocks.filter(blockVisible).map(b=>{
     const it = state.items.find(i=>i.id===b.itemId), c = it && classById(it.classId), d = parseYmd(b.date);
     const sum = `📚 ${b.title}${c?" ("+c.name+")":""}`;
-    const L = ["BEGIN:VEVENT",`UID:${b.id}@study-planner`,`DTSTAMP:${stamp}`,
+    const L = ["BEGIN:VEVENT",`UID:${b.id}@calendar-planner`,`DTSTAMP:${stamp}`,
       "DTSTART:"+localStamp(withTime(d,b.start)), "DTEND:"+localStamp(withTime(d,b.end)),
       "SUMMARY:"+icsEsc(sum), "DESCRIPTION:"+icsEsc(b.focus || "Study session")];
     if(+s.remindStudy && !b.done && b.date >= tk) L.push(...alarm(sum, `-PT${+s.remindStudy}M`));
@@ -2167,12 +2434,12 @@ function studyEvents(stamp){
 /** The whole calendar as it should look right now. */
 function buildFeed(){
   const s = state.settings, stamp = utcStamp(new Date());
-  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Study Planner//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",
-    "X-WR-CALNAME:School","X-WR-CALDESC:Deadlines\\, exams and classes from Study Planner",
+  const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Calendar Planner//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",
+    "X-WR-CALNAME:School","X-WR-CALDESC:Deadlines\\, exams and classes from Calendar Planner",
     "REFRESH-INTERVAL;VALUE=DURATION:PT15M","X-PUBLISHED-TTL:PT15M"];
   for(const it of state.items){
     if(it.done) continue;
-    if(it.kind==="exam" ? !s.incExams : !s.incTasks) continue;
+    if(isBlockKind(it.kind) ? !s.incExams : !s.incTasks) continue;
     lines.push(...itemEvent(it, stamp));
   }
   if(s.incClasses){
@@ -2225,7 +2492,25 @@ document.querySelector("nav.tabbar").addEventListener("click",e=>{
   const b = e.target.closest("[data-tab]"); if(!b) return; ui.tab = b.dataset.tab; render(); window.scrollTo({top:0});
 });
 $("#syncChip").addEventListener("click",()=>{ ui.tab="sync"; render(); window.scrollTo({top:0}); });
-$("#fab").addEventListener("click",()=>{ if(ui.tab==="classes") openClass(); else openItem(); });
+/* The round + button: adds a class on the Classes page, otherwise opens a menu of types. */
+function closeAddMenu(){ const m = $("#addMenu"); if(m && !m.hidden){ m.hidden = true; $("#fab").setAttribute("aria-expanded","false"); } }
+$("#fab").addEventListener("click",e=>{
+  e.stopPropagation();
+  if(ui.tab==="classes"){ openClass(); return; }
+  const m = $("#addMenu");
+  if(!m.hidden){ closeAddMenu(); return; }
+  m.innerHTML = Object.entries(KINDS).map(([k,v])=>`<button type="button" role="menuitem" data-addkind="${k}"><span>${v.label}</span>${ic(k)}</button>`).join("");
+  m.hidden = false; $("#fab").setAttribute("aria-expanded","true");
+  m.querySelector("button").focus();
+});
+$("#addMenu").addEventListener("click",e=>{
+  const b = e.target.closest("[data-addkind]"); if(!b) return;
+  closeAddMenu(); openItem(null, b.dataset.addkind);
+});
+document.addEventListener("click",e=>{ if(!e.target.closest("#addMenu")) closeAddMenu(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeAddMenu(); });
+/* The top bar turns to frosted glass once the page scrolls under it. */
+window.addEventListener("scroll",()=>{ document.querySelector("header.top").classList.toggle("scrolled", window.scrollY > 4); closeAddMenu(); },{passive:true});
 
 $("#view").addEventListener("click",async e=>{
   const t = e.target;
@@ -2260,7 +2545,7 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="from-friend") openShared(null, false);
   else if(a==="share"){
     const url = location.origin + location.pathname.replace(/index\.html$/,"");
-    const data = {title:"Study Planner", text:"A free planner for homework, exams and classes. It syncs with Apple Calendar, and its AI reads your timetable and plans your study time.", url};
+    const data = {title:"Calendar Planner", text:"A free planner for homework, readings, exams and classes. Get it on Windows, iPhone or in any browser, and sync it across all your devices.", url};
     if(navigator.share){ try{ await navigator.share(data); }catch(err){} }
     else { try{ await navigator.clipboard.writeText(url); toast("Link copied. Send it to your friends."); }catch(err){ prompt("Send this link to your friends:", url); } }
   }
@@ -2268,33 +2553,75 @@ $("#view").addEventListener("click",async e=>{
   else if(a==="sample") loadSample();
   else if(a==="goto-sync"){ ui.tab="sync"; render(); window.scrollTo({top:0}); }
   else if(a==="hide-banner"){ try{ localStorage.setItem(BANNER_KEY,"1"); }catch(err){} render(); }
-  else if(a==="connect") connect($("#tokenInput").value, false);
-  else if(a==="update-key") connect($("#tokenInput").value, true);
-  else if(a==="disconnect") disconnect();
-  else if(a==="sync-now"){ sync.dirty = true; sync.dirtyAt = Date.now(); saveSync(); await push(); if(syncUi.s==="ok") toast("Synced"); }
-  else if(a==="copy-address"){
-    const addr = location.origin + location.pathname.replace(/index\.html$/,"");
-    try{ await navigator.clipboard.writeText(addr); toast("Address copied"); }catch(err){ prompt("The planner's address:", addr); }
+  else if(a==="install"){
+    if(installEvt){ installEvt.prompt(); try{ await installEvt.userChoice; }catch(err){} installEvt = null; render(); }
   }
-  else if(a==="copy-token"){
-    try{ await navigator.clipboard.writeText(sync.token); toast("GitHub key copied. Paste it in Settings on your other device."); }
-    catch(err){ prompt("Your GitHub key (keep it private):", sync.token); }
+  else if(a==="acc-send" || a==="acc-resend"){
+    const email = a==="acc-send" ? ($("#emailInput").value||"") : acc.pendingEmail;
+    ui.accBusy = true; ui.accError = ""; render();
+    try{ await sendCode(email); ui.accStage = "code"; toast("Code sent. Check your email."); }
+    catch(err){ ui.accError = err.code==="rate" ? "Too many codes asked for. Wait a minute, then try again." : err.code==="input" || err.code==="config" ? err.userMsg : err.code==="offline" ? "You're offline. Try again once you're connected." : "Couldn't send the code. Try again in a minute."; }
+    ui.accBusy = false; render();
+    const inp = $("#codeInput"); if(inp && !isIOS) inp.focus();
   }
-  else if(a==="copy-feed"){
-    try{ await navigator.clipboard.writeText(feedUrl().replace(/^https:/,"webcal:")); toast("Calendar link copied"); }
-    catch(err){ prompt("Copy this calendar link:", feedUrl().replace(/^https:/,"webcal:")); }
+  else if(a==="acc-verify"){
+    const code = $("#codeInput") ? $("#codeInput").value : "";
+    ui.accBusy = true; ui.accError = ""; render();
+    try{ await verifyCode(code); ui.accStage = ""; setStatus("syncing"); render(); await runSync(); toast("Signed in. Your planner is synced."); }
+    catch(err){ ui.accError = err.code==="input" ? err.userMsg : err.code==="offline" ? "You're offline. Try again once you're connected." : "That code didn't work. Check it, or send a new one."; }
+    ui.accBusy = false; render();
+  }
+  else if(a==="acc-back"){ ui.accStage = ""; ui.accError = ""; render(); }
+  else if(a==="acc-google" || a==="acc-apple"){
+    ui.accError = "";
+    try{ await startOAuth(a==="acc-google" ? "google" : "apple"); }
+    catch(err){ ui.accError = err.userMsg || "Couldn't start sign-in. Try again."; render(); }
+  }
+  else if(a==="acc-sync"){ await runSync(); if(syncUi.s==="ok") toast("Synced"); render(); }
+  else if(a==="acc-signout"){
+    if(confirm("Sign out on this device?\n\nYour planner stays in your account, and this device's copy is removed. Sign in again anytime to get it back.")){
+      if(syncUi.s==="pending"){ clearTimeout(syncTimer); await runSync(); }
+      await signOut(); toast("Signed out");
+    }
+  }
+  else if(a==="acc-delete"){
+    if(!confirm("Delete your Calendar Planner account?\n\nYour classes, deadlines and plans are erased from every device signed in to it. This can't be undone.")) return;
+    if(prompt('To confirm, type DELETE') !== "DELETE") return;
+    try{ await sbFetch("/rest/v1/rpc/delete_my_account", {method:"POST", body:{}}); }
+    catch(err){ alert("Couldn't delete the account right now. Check your connection and try again."); return; }
+    acc.lastUserId = null; acc.cache = null; acc.cursor = null;
+    wipeDevice(); acc = {}; saveAcc(); setStatus("ok"); render(); toast("Account deleted");
+  }
+  else if(a==="import-old"){
+    try{
+      const d = JSON.parse(localStorage.getItem(OLD_KEY));
+      if(!d || !Array.isArray(d.items)) throw new Error("none");
+      const n = normalize(d);
+      if((state.items.length || state.classes.length) && !confirm("Add your Study Planner classes and deadlines to this planner?")) return;
+      const have = new Set([...state.classes, ...state.items, ...state.specialDays, ...state.plan.blocks].map(x=>x.id));
+      n.classes.forEach(x=>{ if(!have.has(x.id)) state.classes.push(x); });
+      n.items.forEach(x=>{ if(!have.has(x.id)) state.items.push(x); });
+      n.specialDays.forEach(x=>{ if(!have.has(x.id)) state.specialDays.push(x); });
+      n.plan.blocks.forEach(x=>{ if(!have.has(x.id)) state.plan.blocks.push(x); });
+      if(!state.settings.termStart) state.settings.termStart = n.settings.termStart;
+      if(!state.settings.termEnd) state.settings.termEnd = n.settings.termEnd;
+      if(!state.plan.summary) state.plan.summary = n.plan.summary;
+      state.settings.updatedAt = Date.now();
+      commit(); render(); toast("Your Study Planner data is here now");
+    }catch(err){ toast("Couldn't find Study Planner data on this device."); }
   }
   else if(a==="export") download(`school-calendar-${ymd(new Date())}.ics`, buildFeed(), "text/calendar;charset=utf-8");
-  else if(a==="backup"){ download(`study-planner-backup-${ymd(new Date())}.json`, JSON.stringify(state,null,2), "application/json"); toast("Backup saved"); }
+  else if(a==="backup"){ download(`calendar-planner-backup-${ymd(new Date())}.json`, JSON.stringify(state,null,2), "application/json"); toast("Backup saved"); }
   else if(a==="restore") $("#restoreInput").click();
   else if(a==="erase"){
-    if(confirm("Erase all classes, deadlines and settings?" + (connected()?" Your synced calendar will empty too.":"") + " This can't be undone.")){
+    if(confirm("Erase all classes, deadlines and settings?" + (connected()?" They're erased from your account and your other devices too.":"") + " This can't be undone.")){
       state = blank(); commit(); ui.tab="day"; ui.day = today(); render(); toast("Everything erased");
     }
   }
 });
 $("#view").addEventListener("keydown",e=>{
-  if(e.key==="Enter" && e.target.id==="tokenInput"){ e.preventDefault(); connect(e.target.value, !!sync.needsKey && !!sync.gistId); }
+  if(e.key==="Enter" && e.target.id==="emailInput"){ e.preventDefault(); $('[data-action="acc-send"]').click(); }
+  if(e.key==="Enter" && e.target.id==="codeInput"){ e.preventDefault(); $('[data-action="acc-verify"]').click(); }
 });
 $("#view").addEventListener("change",e=>{
   const t = e.target, s = state.settings;
@@ -2303,7 +2630,7 @@ $("#view").addEventListener("change",e=>{
     if(it){ it.done = t.checked; it.updatedAt = Date.now(); commit(); render(); toast(it.done ? "Nice. Checked off." : "Moved back to your list"); }
     return;
   }
-  if(t.id==="termStart"||t.id==="termEnd"){ s[t.id] = t.value; s.termRev = (s.termRev||0)+1; commit(); toast("Semester dates saved"); return; }
+  if(t.id==="termStart"||t.id==="termEnd"){ s[t.id] = t.value; s.termRev = (s.termRev||0)+1; s.updatedAt = Date.now(); commit(); toast("Semester dates saved"); return; }
   if(["incTasks","incExams","incClasses","incStudy"].includes(t.id)){ s[t.id] = t.checked; commit(); return; }
   if(["remindTask","remindExam","remindClass","remindStudy"].includes(t.id)){ s[t.id] = +t.value; commit(); return; }
   if(t.matches("[data-select]")){
@@ -2311,7 +2638,7 @@ $("#view").addEventListener("change",e=>{
   }
   if(t.matches("[data-blockdone]")){
     const b = state.plan.blocks.find(x=>x.id===t.dataset.blockdone);
-    if(b){ b.done = t.checked; commit(); render(); if(b.done) toast("Nice work."); }
+    if(b){ b.done = t.checked; b.updatedAt = Date.now(); commit(); render(); if(b.done) toast("Nice work."); }
     return;
   }
 });
@@ -2324,7 +2651,7 @@ $("#restoreInput").addEventListener("change",e=>{
       if(!Array.isArray(d.classes) || !Array.isArray(d.items)) throw new Error("bad");
       if(!confirm("Replace what's here with this backup?")) return;
       state = normalize(d); commit(); render(); toast("Backup restored");
-    }catch(err){ toast("That file isn't a Study Planner backup."); }
+    }catch(err){ toast("That file isn't a Calendar Planner backup."); }
     e.target.value = "";
   };
   r.readAsText(file);
@@ -2337,11 +2664,13 @@ document.addEventListener("keydown",e=>{
 
 // Keep in step with other devices and the clock.
 document.addEventListener("visibilitychange",()=>{
-  if(document.visibilityState==="visible"){ if(!document.querySelector("dialog[open]")) render(); pull(); }
-  else if(sync.dirty){ clearTimeout(pushTimer); push(); }
+  if(document.visibilityState==="visible"){ if(!document.querySelector("dialog[open]")) render(); scheduleSync(0); }
+  else if(syncUi.s==="pending"){ clearTimeout(syncTimer); runSync(); }
 });
-window.addEventListener("online",()=>{ sync.dirty ? push() : pull(); });
-setInterval(()=>{ if(document.visibilityState==="visible" && !document.querySelector("dialog[open]")){ render(); pull(); } }, 5*60*1000);
+window.addEventListener("online",()=>scheduleSync(0));
+// Another tab or window of the app changed something: reload it here.
+window.addEventListener("storage",e=>{ if(e.key===KEY && e.newValue && !document.querySelector("dialog[open]")){ try{ state = normalize(JSON.parse(e.newValue)); render(); }catch(err){} } if(e.key===ACC_KEY){ acc = loadAcc(); } });
+setInterval(()=>{ if(document.visibilityState==="visible" && !document.querySelector("dialog[open]")){ render(); scheduleSync(0); } }, 60*1000);
 
 if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=="file:"){
   navigator.serviceWorker.register("sw.js").catch(()=>{});
@@ -2349,7 +2678,8 @@ if("serviceWorker" in navigator && window.isSecureContext && location.protocol!=
 
 applyTheme();
 render();
-if(connected()) pull();
+if(connected()) scheduleSync(0);
+finishOAuth();
 checkShareHash();
 })();
 

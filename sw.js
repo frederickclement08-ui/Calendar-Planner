@@ -1,9 +1,12 @@
-// Study Planner service worker: makes the app open offline from the Home Screen.
-const CACHE = "study-planner-v10";
-const SHELL = ["./", "./index.html", "./manifest.webmanifest?v=3", "./icon-180.png?v=3", "./icon-192.png?v=3", "./icon-512.png?v=3"];
+// Calendar Planner service worker: lets the app open offline.
+// Change the version name whenever you upload new files, so installed copies update.
+const CACHE = "calendar-planner-v3";
+const SHELL = ["./", "./index.html", "./config.js", "./manifest.webmanifest?v=3", "./icon-180.png?v=3", "./icon-192.png?v=3", "./icon-512.png?v=3"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE)
+    .then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => {}))))
+    .then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys()
@@ -14,26 +17,17 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  // Sync traffic always goes to the network.
-  if (url.hostname === "api.github.com" || url.hostname.endsWith("githubusercontent.com")) return;
-  if (url.origin === self.location.origin) {
-    if (req.mode === "navigate") {
-      // Newest version when online, cached copy when offline.
-      e.respondWith(fetch(req).then(r => {
-        const copy = r.clone();
-        caches.open(CACHE).then(c => c.put("./index.html", copy));
-        return r;
-      }).catch(() => caches.match("./index.html")));
-      return;
-    }
-    e.respondWith(caches.match(req).then(hit => hit || fetch(req)));
+  // Account sync always goes to the network.
+  if (url.hostname.endsWith(".supabase.co")) return;
+  if (url.origin !== self.location.origin) return;
+  // The page and your settings: newest version when online, saved copy when offline.
+  if (req.mode === "navigate" || url.pathname.endsWith("/config.js")) {
+    const key = req.mode === "navigate" ? "./index.html" : "./config.js";
+    e.respondWith(fetch(req).then(r => {
+      if (r.ok) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(key, copy)); }
+      return r;
+    }).catch(() => caches.match(key)));
     return;
   }
-  if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") {
-    e.respondWith(caches.open(CACHE).then(async c => {
-      const hit = await c.match(req);
-      const net = fetch(req).then(r => { if (r.ok || r.type === "opaque") c.put(req, r.clone()); return r; }).catch(() => hit);
-      return hit || net;
-    }));
-  }
+  e.respondWith(caches.match(req).then(hit => hit || fetch(req)));
 });
