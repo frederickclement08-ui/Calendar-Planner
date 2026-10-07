@@ -72,7 +72,7 @@ function plannerFor(data, now) {
   for (const it of items) {
     if (it.done || it.due !== key || !it.time || !(it.kind === "exam" || it.kind === "event")) continue;
     const start = withTime(today, it.time);
-    entries.push({ start, end: new Date(start.getTime() + (+it.duration || 120) * 6e4), title: it.title, sub: it.kind === "exam" ? "Exam" : "Event", color: colorOf(it) });
+    entries.push({ start, end: new Date(start.getTime() + (+it.duration || 120) * 6e4), title: it.title, sub: it.kind === "exam" ? "Exam" : "Event", color: colorOf(it), itemId: it.id });
   }
   for (const b of blocks) {
     if (b.date !== key || b.done) continue;
@@ -108,18 +108,21 @@ function badge(d) {
   if (d.diff === 1) return <badge text="Tomorrow" color={P.ink} background="#FF9500,0.24" radius="8" />;
   return <badge text={`in ${d.diff} d`} color={P.ink} background={P.chip} radius="8" />;
 }
+// Compact rows so every size fits without being cut off.
 function row(color, title, sub, right, faded) {
-  return <hstack spacing="7" opacity={faded ? 0.5 : 1}>
-    <rect frame="4,28" corner="2" color={color} />
-    <vstack alignment="leading" spacing="1">
-      <text font="13,semibold" color={P.ink}>{short(title, 26)}</text>
-      {sub ? <text font="11" color={P.muted}>{short(sub, 30)}</text> : null}
+  return <hstack spacing="6" opacity={faded ? 0.5 : 1}>
+    <rect frame="3,22" corner="1.5" color={color} />
+    <vstack alignment="leading" spacing="0">
+      <text font="12,semibold" color={P.ink}>{short(title, 28)}</text>
+      {sub ? <text font="10" color={P.muted}>{short(sub, 32)}</text> : null}
     </vstack>
     <spacer />
     {right}
   </hstack>;
 }
 const timeLabel = (e, now) => <text font="11,semibold" color={e.end <= now ? P.muted : P.accent}>{e.start <= now && e.end > now ? "Now" : fmtTime(e.start)}</text>;
+/** Deadlines, minus anything already on today's schedule (an exam shouldn't show twice). */
+const dueWithout = (p, shown) => { const ids = new Set(shown.map(e => e.itemId).filter(Boolean)); return p.due.filter(d => !ids.has(d.it.id)); };
 
 function small(p, now) {
   const next = p.remaining[0];
@@ -143,21 +146,22 @@ function small(p, now) {
 
 function medium(p, now) {
   const rows = [];
-  for (const e of p.remaining.slice(0, 2)) rows.push(row(e.color, e.title, e.sub, timeLabel(e, now)));
-  for (const d of p.due) { if (rows.length >= 4) break; rows.push(row(d.color, d.it.title, d.cls ? d.cls.name : "", badge(d))); }
+  const today = p.remaining.slice(0, 2);
+  for (const e of today) rows.push(row(e.color, e.title, e.sub, timeLabel(e, now)));
+  for (const d of dueWithout(p, p.remaining)) { if (rows.length >= 3) break; rows.push(row(d.color, d.it.title, d.cls ? d.cls.name : "", badge(d))); }
   return <hstack frame="max,topLeading" alignment="top" spacing="12" padding="14" background={BG}>
-    <vstack frame="84,max,topLeading" alignment="leading" spacing="2">
+    <vstack frame="80,max,topLeading" alignment="leading" spacing="1">
       {logo(16)}
       <spacer frame="1,4" />
-      <text font="13,semibold" color={P.accent}>{weekday(now)}</text>
-      <text font="38,heavy,rounded" color={P.ink}>{now.getDate()}</text>
+      <text font="12,semibold" color={P.accent}>{weekday(now)}</text>
+      <text font="32,heavy,rounded" color={P.ink}>{now.getDate()}</text>
       <spacer />
       <text font="11" color={P.muted}>{p.special || (p.classesToday === 1 ? "1 class" : `${p.classesToday} classes`)}</text>
       {p.late
         ? <text font="11,bold" color={P.red}>{p.late} late</text>
         : <text font="11" color={P.muted}>{p.week} due this week</text>}
     </vstack>
-    <vstack frame="max,topLeading" alignment="leading" spacing="6">
+    <vstack frame="max,topLeading" alignment="leading" spacing="5">
       {rows.length ? rows : [
         <spacer />,
         <text font="15,bold" color={P.ink}>All clear</text>,
@@ -169,24 +173,36 @@ function medium(p, now) {
 }
 
 function large(p, now) {
-  const today = p.entries.slice(0, 5), due = p.due.slice(0, 5);
-  return <vstack frame="max,topLeading" alignment="leading" spacing="6" padding="16" background={BG}>
-    <hstack spacing="7">
-      {logo(22)}
-      <text font="14,semibold" color={P.ink}>Calendar Planner</text>
+  const today = p.remaining.slice(0, 3);
+  const more = p.remaining.length - today.length;
+  const dueAll = dueWithout(p, p.remaining);
+  const due = dueAll.slice(0, Math.max(2, 6 - today.length));
+  const doneToday = p.entries.length && !p.remaining.length;
+  return <vstack frame="max,topLeading" alignment="leading" spacing="4" padding="14" background={BG}>
+    <hstack spacing="6">
+      {logo(18)}
+      <text font="13,semibold" color={P.ink}>Calendar Planner</text>
       <spacer />
-      <text font="13,semibold" color={P.accent}>{weekday(now)} {now.getDate()}</text>
+      <text font="12,semibold" color={P.accent}>{weekday(now)} {now.getDate()}</text>
     </hstack>
     <spacer frame="1,4" />
-    <text font="15,bold" color={P.ink}>{p.special ? `Today · ${p.special}` : "Today"}</text>
+    <hstack spacing="6">
+      <text font="14,bold" color={P.ink}>{p.special ? `Today · ${short(p.special, 22)}` : "Today"}</text>
+      <spacer />
+      {more > 0 ? <text font="10,semibold" color={P.muted}>+{more} more</text> : null}
+    </hstack>
     {today.length
-      ? today.map(e => row(e.color, e.title, e.sub, timeLabel(e, now), e.end <= now))
-      : <text font="12" color={P.muted}>{p.special ? "No classes today." : "Nothing scheduled today."}</text>}
+      ? today.map(e => row(e.color, e.title, e.sub, timeLabel(e, now)))
+      : <text font="11" color={P.muted}>{doneToday ? "All done for today." : p.special ? "No classes today." : "Nothing scheduled today."}</text>}
     <spacer frame="1,6" />
-    <text font="15,bold" color={p.late ? P.red : P.ink}>Due soon</text>
+    <hstack spacing="6">
+      <text font="14,bold" color={p.late ? P.red : P.ink}>Due soon</text>
+      <spacer />
+      {dueAll.length > due.length ? <text font="10,semibold" color={P.muted}>+{dueAll.length - due.length} more</text> : null}
+    </hstack>
     {due.length
       ? due.map(d => row(d.color, d.it.title, d.cls ? d.cls.name : "", badge(d)))
-      : <text font="12" color={P.muted}>Nothing due in the next two weeks.</text>}
+      : <text font="11" color={P.muted}>Nothing due in the next two weeks.</text>}
     <spacer />
   </vstack>;
 }

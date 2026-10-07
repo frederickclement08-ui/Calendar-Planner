@@ -92,7 +92,7 @@ function plannerFor(data, now) {
   for (const it of items) {
     if (it.done || it.due !== key || !it.time || !(it.kind === "exam" || it.kind === "event")) continue;
     const start = withTime(today, it.time);
-    entries.push({ start, end: new Date(start.getTime() + (+it.duration || 120) * 6e4), title: it.title, sub: it.kind === "exam" ? "Exam" : "Event", color: colorOf(it), strong: it.kind === "exam" });
+    entries.push({ start, end: new Date(start.getTime() + (+it.duration || 120) * 6e4), title: it.title, sub: it.kind === "exam" ? "Exam" : "Event", color: colorOf(it), itemId: it.id });
   }
   for (const b of blocks) {
     if (b.date !== key || b.done) continue;
@@ -157,23 +157,26 @@ function badge(stack, d) {
   b.backgroundColor = bg; b.cornerRadius = 8; b.setPadding(2, 6, 2, 6);
   text(b, label, F.bold(10), fg, 1);
 }
+// Compact rows so every size fits without being cut off.
 function row(stack, color, title, sub, right, opts) {
   opts = opts || {};
   const r = stack.addStack();
-  r.layoutHorizontally(); r.centerAlignContent(); r.spacing = 7;
+  r.layoutHorizontally(); r.centerAlignContent(); r.spacing = 6;
   const bar = r.addStack();
-  bar.size = new Size(4, opts.compact ? 22 : 28);
-  bar.cornerRadius = 2;
+  bar.size = new Size(3, 22);
+  bar.cornerRadius = 1.5;
   bar.backgroundColor = color;
   const col = r.addStack();
   col.layoutVertically();
-  const t = text(col, title, F.semi(opts.compact ? 12 : 13), C.ink, 1);
+  const t = text(col, title, F.semi(12), C.ink, 1);
   if (opts.faded) t.textOpacity = 0.5;
-  if (sub && !opts.compact) { const s = text(col, sub, F.reg(11), C.muted, 1); if (opts.faded) s.textOpacity = 0.5; }
+  if (sub) { const s = text(col, sub, F.reg(10), C.muted, 1); if (opts.faded) s.textOpacity = 0.5; }
   r.addSpacer();
   if (typeof right === "function") right(r);
   else if (right) text(r, right, F.semi(11), opts.faded ? C.muted : C.accent, 1);
 }
+/** Deadlines, minus anything already on today's schedule (an exam shouldn't show twice). */
+const dueWithout = (p, shown) => { const ids = new Set(shown.map(e => e.itemId).filter(Boolean)); return p.due.filter(d => !ids.has(d.it.id)); };
 function message(w, title, body) {
   const h = w.addStack(); h.centerAlignContent(); h.spacing = 6;
   mark(h, 18); text(h, "Calendar Planner", F.semi(12), C.ink, 1);
@@ -210,22 +213,22 @@ function small(p, now) {
 function medium(p, now) {
   const w = base(); w.setPadding(14, 14, 14, 14);
   const outer = w.addStack(); outer.layoutHorizontally(); outer.spacing = 12;
-  const left = outer.addStack(); left.layoutVertically(); left.size = new Size(84, 0);
+  const left = outer.addStack(); left.layoutVertically(); left.size = new Size(80, 0);
   const lh = left.addStack(); lh.centerAlignContent(); lh.spacing = 5;
   mark(lh, 16);
   left.addSpacer(6);
-  text(left, dayName.string(now), F.semi(13), C.accent, 1);
-  text(left, String(now.getDate()), F.title(38), C.ink, 1);
+  text(left, dayName.string(now), F.semi(12), C.accent, 1);
+  text(left, String(now.getDate()), F.title(32), C.ink, 1);
   left.addSpacer();
   const classesToday = p.entries.filter(e => !e.study && e.sub !== "Exam" && e.sub !== "Event").length;
   text(left, p.special || (classesToday === 1 ? "1 class" : `${classesToday} classes`), F.reg(11), C.muted, 1);
   if (p.late) text(left, `${p.late} late`, F.bold(11), C.red, 1);
   else text(left, `${p.week} due this week`, F.reg(11), C.muted, 1);
 
-  const right = outer.addStack(); right.layoutVertically(); right.spacing = 6;
+  const right = outer.addStack(); right.layoutVertically(); right.spacing = 5;
   const rows = [];
   for (const e of p.remaining.slice(0, 2)) rows.push(r => row(r, e.color, e.title, e.sub, e.start <= now ? "Now" : fmtTime(e.start)));
-  for (const d of p.due) { if (rows.length >= 4) break; rows.push(r => row(r, d.color, d.it.title, d.cls ? d.cls.name : "", s => badge(s, d))); }
+  for (const d of dueWithout(p, p.remaining)) { if (rows.length >= 3) break; rows.push(r => row(r, d.color, d.it.title, d.cls ? d.cls.name : "", s => badge(s, d))); }
   if (!rows.length) {
     right.addSpacer();
     text(right, "All clear", F.bold(15), C.ink, 1);
@@ -237,24 +240,33 @@ function medium(p, now) {
 }
 
 function large(p, now) {
-  const w = base(); w.setPadding(16, 16, 16, 16);
-  const h = w.addStack(); h.centerAlignContent(); h.spacing = 7;
-  mark(h, 22);
-  text(h, "Calendar Planner", F.semi(14), C.ink, 1);
+  const w = base(); w.setPadding(14, 14, 14, 14);
+  const today = p.remaining.slice(0, 3);
+  const more = p.remaining.length - today.length;
+  const dueAll = dueWithout(p, p.remaining);
+  const due = dueAll.slice(0, Math.max(2, 6 - today.length));
+  const doneToday = p.entries.length && !p.remaining.length;
+  const h = w.addStack(); h.centerAlignContent(); h.spacing = 6;
+  mark(h, 18);
+  text(h, "Calendar Planner", F.semi(13), C.ink, 1);
   h.addSpacer();
-  text(h, `${dayName.string(now)} ${now.getDate()}`, F.semi(13), C.accent, 1);
-  w.addSpacer(10);
-  text(w, p.special ? `Today · ${p.special}` : "Today", F.bold(15), C.ink, 1);
+  text(h, `${dayName.string(now)} ${now.getDate()}`, F.semi(12), C.accent, 1);
+  w.addSpacer(8);
+  const th = w.addStack(); th.centerAlignContent();
+  text(th, p.special ? `Today · ${p.special}` : "Today", F.bold(14), C.ink, 1);
+  th.addSpacer();
+  if (more > 0) text(th, `+${more} more`, F.semi(10), C.muted, 1);
+  w.addSpacer(4);
+  if (!today.length) text(w, doneToday ? "All done for today." : p.special ? "No classes today." : "Nothing scheduled today.", F.reg(11), C.muted, 1);
+  for (const e of today) { row(w, e.color, e.title, e.sub, e.start <= now ? "Now" : fmtTime(e.start)); w.addSpacer(4); }
   w.addSpacer(6);
-  const today = p.entries.slice(0, 5);
-  if (!today.length) text(w, p.special ? "No classes today." : "Nothing scheduled today.", F.reg(12), C.muted, 1);
-  for (const e of today) { row(w, e.color, e.title, e.sub, e.start <= now && e.end > now ? "Now" : fmtTime(e.start), { faded: e.end <= now }); w.addSpacer(5); }
-  w.addSpacer(10);
-  text(w, "Due soon", F.bold(15), p.late ? C.red : C.ink, 1);
-  w.addSpacer(6);
-  const due = p.due.slice(0, 5);
-  if (!due.length) text(w, "Nothing due in the next two weeks.", F.reg(12), C.muted, 1);
-  for (const d of due) { row(w, d.color, d.it.title, d.cls ? d.cls.name : "", s => badge(s, d)); w.addSpacer(5); }
+  const dh = w.addStack(); dh.centerAlignContent();
+  text(dh, "Due soon", F.bold(14), p.late ? C.red : C.ink, 1);
+  dh.addSpacer();
+  if (dueAll.length > due.length) text(dh, `+${dueAll.length - due.length} more`, F.semi(10), C.muted, 1);
+  w.addSpacer(4);
+  if (!due.length) text(w, "Nothing due in the next two weeks.", F.reg(11), C.muted, 1);
+  for (const d of due) { row(w, d.color, d.it.title, d.cls ? d.cls.name : "", s => badge(s, d)); w.addSpacer(4); }
   w.addSpacer();
   return w;
 }
